@@ -220,7 +220,8 @@ class CircuitInstance:
     opamps: dict[str, dict[str, float]]  # U2 -> {aol, gbw, vos, rout, en, headroom}
     inas: dict[str, dict[str, float]]  # U1 -> {rfb, vos, cmrr_db, cmrr_sign, gain_error}
     electrodes: dict[str, dict[str, float]]  # la -> {ehc, rs, rd, cd}
-    electrode_type: str = "nominal"
+    electrode_type: str = "nominal"  # family: gel or dry
+    electrode_kind: str = "nominal"  # electrode type within the family
     series_r: dict[str, float] = field(default_factory=dict)  # opens, capacitor ESR
     parallel_r: dict[str, float] = field(default_factory=dict)  # shorts
 

@@ -8,14 +8,15 @@ is the cause? Is the problem in the circuit or in the electrodes?
 
 - Research plan (Spanish): [docs/linea_diagnostico_fallos_frontend_ecg.md](docs/linea_diagnostico_fallos_frontend_ecg.md)
 - Literature review (Spanish): [docs/SOTA/](docs/SOTA/sota_diagnostico_fallos_frontend_ecg.md)
-- Circuits, specifications and open decisions: [docs/circuit.md](docs/circuit.md)
+- Circuits, specifications and design record: [docs/circuit.md](docs/circuit.md)
+- Open points and values still to be confirmed (Spanish): [docs/pendientes.md](docs/pendientes.md)
 
 ## Status
 
 | Phase of the plan | State |
 |---|---|
-| 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Two limits and the gel-electrode ranges remain to be confirmed (see docs/circuit.md) |
-| 3. Simulation pipeline | Done: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel generation, tests |
+| 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Limits checked against the text of the standard; the open design decision on porous dry electrodes is in docs/pendientes.md |
+| 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests |
 | 4. Dataset | Not generated. Only the smoke datasets have been run |
 | 5. Testability (E2, E9) | E2 first pass. E9 not written (a class-separability metric exists) |
 | 6. Models (E3–E6) | Untuned baselines that run end to end |
@@ -46,8 +47,12 @@ ecgfd faults                   # size of the fault catalogue
 # Smoke datasets: about 1,200 simulations and 2.5 minutes each
 make smoke
 
-# Full datasets: 63,600 + 66,400 simulations, roughly 4 hours on 8 cores
+# Full datasets: 63,600 + 66,400 simulations, roughly 4 hours on 8 cores.
+# An interrupted run resumes from the last complete chunk when launched again.
 make dataset
+
+# After changing only specification limits: new labels, no new simulations
+ecgfd relabel --data data/v1/integrated
 
 python experiments/e1_nominal_validation.py                      # specs: nominal and healthy yield
 python experiments/e2_ambiguity_groups.py --data data/v1/integrated   # testability

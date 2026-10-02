@@ -4,7 +4,14 @@ import numpy as np
 import pytest
 
 from ecgfd.circuit import nominal_instance
-from ecgfd.dataset import generate, load_dataset
+from ecgfd.dataset import (
+    _config_key,
+    build_tasks,
+    generate,
+    load_dataset,
+    relabel,
+    simulate_parts,
+)
 from ecgfd.faults import Fault
 from ecgfd.features import feature_sets
 from ecgfd.measurement import apply_measurement_model
@@ -93,8 +100,44 @@ def test_generate_and_load_dataset(cfg, tmp_path):
         assert measured[features].notna().all().all()
     assert wav.shape == waveforms.shape
 
-    # same seed, same data
-    generate(small, tmp_path / "again", jobs=1, progress=False)
+    # same seed, same data, whatever the number of jobs and the chunking
+    generate(small, tmp_path / "again", jobs=1, progress=False, chunk=2)
     df2, waveforms2, _ = load_dataset(tmp_path / "again")
     np.testing.assert_array_equal(waveforms, waveforms2)
     assert df["acd_mag_10"].equals(df2["acd_mag_10"])
+    assert not (tmp_path / "again" / "parts").exists()
+
+
+def test_generation_resumes_from_complete_chunks(cfg, tmp_path):
+    small = {**cfg, "dataset": {"n_healthy": 3, "n_per_fault": 0}}
+    full = with_nominal_gain(small)
+    parts = tmp_path / "parts"
+    # an interrupted run that finished only the first chunk of two
+    simulate_parts(build_tasks(full)[:2], full, parts, chunk=2, progress=False)
+    (parts / "config.sha256").write_text(_config_key({**small, "chunk": 2}))
+    np.save(parts / "part_0000000.npy", np.zeros((2, 1000), dtype=np.float32))  # sentinel
+
+    generate(small, tmp_path, progress=False, chunk=2)
+    _, waveforms, _ = load_dataset(tmp_path)
+    assert waveforms.shape == (3, 1000)
+    assert not waveforms[:2].any()  # first chunk reused, not simulated again
+    assert waveforms[2].any()
+
+    with pytest.raises(ValueError):  # leftovers of another configuration are not mixed in
+        (parts).mkdir()
+        (parts / "config.sha256").write_text("something else")
+        generate(small, tmp_path, progress=False, chunk=2)
+
+
+def test_relabel_applies_new_limits_without_simulating(cfg, tmp_path):
+    small = {**cfg, "dataset": {"n_healthy": 3, "n_per_fault": 0}}
+    generate(small, tmp_path, progress=False)
+    stricter = {**cfg["specs"], "noise_max_uvpp": 0.1}
+    df = relabel(tmp_path, stricter)
+    assert not df["compliant"].any()
+    assert (df["violated"] == "noise_uvpp").all()
+    _, _, stored = load_dataset(tmp_path)
+    assert stored["specs"]["noise_max_uvpp"] == 0.1 and "nominal_gain" in stored["specs"]
+
+    with pytest.raises(ValueError):  # a different test set-up needs new simulations
+        relabel(tmp_path, {**cfg["specs"], "electrode_offset": 0.1})

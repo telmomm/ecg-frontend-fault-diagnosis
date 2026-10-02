@@ -1,7 +1,7 @@
 """Clinical specifications of a circuit instance and its compliance (functional severity).
 
-The tests follow IEC 60601-2-25:2011, clause 201.12.4 (see docs/circuit.md for the
-source of each limit). Specifications are properties of the instrument, so they
+The tests follow IEC 60601-2-25:2011, clause 201.12.4 (docs/circuit.md maps each
+specification to its subclause). Specifications are properties of the instrument, so they
 are simulated with the standard test networks at the inputs instead of the
 patient's electrodes: an electrode fault therefore leaves the circuit compliant,
 and its origin is recorded by the third labelling level.
@@ -10,15 +10,17 @@ Specifications (stored as `spec_<name>`; "RTI" = referred to the input):
 - gain_error         |G / G_nominal - 1| at 10 Hz
 - resp_dev_lf        largest |G(f) / G(10 Hz) - 1| from 0.67 to 40 Hz
 - resp_min_hf        smallest G(f) / G(10 Hz) from 40 to 150 Hz
-- resp_max_hf        largest G(f) / G(10 Hz) from 40 to 150 Hz
+- resp_max_hf        largest G(f) / G(10 Hz) from 40 to 500 Hz
 - impulse_offset_uv  baseline shift after a 3 mV, 100 ms impulse, RTI [uV]
 - impulse_slope_uvs  baseline slope after that impulse, RTI [uV/s]
-- cmrr_db            20 V rms through the 100 pF divider (10 V rms unloaded), with
-                     51 kOhm || 47 nF in one lead, +-300 mV offset and the RLD active:
-                     unloaded common-mode voltage over the RTI output [dB]
-- noise_uvpp         RTI noise from 0.05 to 150 Hz with 51 kOhm || 47 nF in both
-                     leads, taken as 6.6 x rms [uV]
-- zin_drop           signal loss with 620 kOhm || 4.7 nF in series with one lead
+- cmrr_db            20 V rms through the 100 pF divider (10 V rms unloaded) at 50 and
+                     60 Hz, with 51 kOhm || 47 nF in each lead in turn, without and
+                     with +-300 mV offset, RLD active: unloaded common-mode voltage
+                     over the worst RTI output [dB]
+- noise_uvpp         RTI noise from 0.05 to 150 Hz with 51 kOhm || 47 nF in every
+                     lead, taken as 6.6 x rms [uV]
+- zin_drop           worst signal loss with 620 kOhm || 4.7 nF in series with one lead
+                     at 0.67 and 40 Hz, with +-300 mV offset
 - offset_gain_error  worst gain change at 10 Hz with +-300 mV at one input
 - input_range_mv     input amplitude that still fits the output range, given the
                      gain and the output offset [mV]
@@ -49,7 +51,8 @@ SPECS: dict[str, tuple[str, str]] = {
 SPEC_NAMES = tuple(SPECS)
 
 _NOISE_BAND = (0.05, 150.0)
-_LF_BAND, _HF_BAND = (0.67, 40.0), (40.0, 150.0)
+# Table 201.107: test A, tests B and C (lower limit), tests B to D (upper limit)
+_LF_BAND, _HF_MIN_BAND, _HF_MAX_BAND = (0.67, 40.0), (40.0, 150.0), (40.0, 500.0)
 _SHORT = {"rs": 1.0, "rd": 1.0, "cd": 1e-12}  # lead connected directly to the test source
 # impulse test: start, time after the impulse where the baseline is read, end [s]
 _T_START, _T_SETTLE, _T_END = 0.02, 0.05, 0.5
@@ -88,7 +91,7 @@ def measure_raw_specs(inst: CircuitInstance, cfg: dict) -> dict[str, float]:
     scfg = cfg["specs"]
     net = scfg["test_network"]
     offset = float(scfg["electrode_offset"])
-    f_mains = float(cfg["environment"]["mains_freq"])
+    f_mains = [float(f) for f in net["cm_source"]["freqs"]]
     f_zin = [float(f) for f in net["input_impedance"]["freqs"]]
     write = f"write {RAW_NAME} v(out)"
     ecg_on = ["alter @vecgp[acmag]=0.5", "alter @vecgn[acmag]=0.5"]
@@ -97,24 +100,34 @@ def measure_raw_specs(inst: CircuitInstance, cfg: dict) -> dict[str, float]:
     control = ["set appendwrite", "op", write, *ecg_on, ac_sweep(cfg), write]
     for dc in (offset, -offset):  # gain with electrode offset
         control += [f"alter vhc_la dc={dc}", "ac lin 1 10 10", write]
-    control += [*ecg_off, *_network("la", net["imbalance"]), "alter @vmains[acmag]=1"]
-    for dc in (offset, -offset):  # common-mode rejection with imbalance and offset
-        control += [f"alter vhc_la dc={dc}", f"ac lin 1 {f_mains} {f_mains}", write]
+    # common-mode rejection: imbalance in one lead at a time, without and with offset
+    control += [*ecg_off, "alter @vmains[acmag]=1"]
+    for lead in ELECTRODES:
+        control += _network(lead, net["imbalance"])
+        for dc in (0.0, offset, -offset):
+            control += [f"alter vhc_{lead} dc={dc}", f"ac lin 2 {f_mains[0]} {f_mains[1]}", write]
+        control += [f"alter vhc_{lead} dc=0", *_network(lead, _SHORT)]
+    control.append("alter @vmains[acmag]=0")
+    # noise: the network in every lead
+    for lead in ELECTRODES:
+        control += _network(lead, net["imbalance"])
     control += [
-        "alter vhc_la dc=0",
-        "alter @vmains[acmag]=0",
-        *_network("ra", net["imbalance"]),
         f"noise v(out) vecgp dec 50 {_NOISE_BAND[0]} {_NOISE_BAND[1]}",
         f"write {RAW_NAME} onoise_total",  # current plot: noise integrated over the band
-        *_network("ra", _SHORT),
-        *_network("la", net["input_impedance"]),
-        *ecg_on,
-        f"ac lin 2 {f_zin[0]} {f_zin[1]}",
-        write,
+    ]
+    for lead in ELECTRODES:
+        control += _network(lead, _SHORT)
+    # input impedance
+    control += [*_network("la", net["input_impedance"]), *ecg_on]
+    for dc in (offset, -offset):
+        control += [f"alter vhc_la dc={dc}", f"ac lin 2 {f_zin[0]} {f_zin[1]}", write]
+    control += [
+        "alter vhc_la dc=0",
         *_network("la", _SHORT),
         f"tran 2.5e-4 {_T_END} 0 2.5e-4",
         write,
     ]
+    n_cm = 3 * len(ELECTRODES)
     amp, width = float(scfg["impulse"]["amplitude"]), float(scfg["impulse"]["width"])
     t_fall = _T_START + width
     impulse = (
@@ -125,29 +138,38 @@ def measure_raw_specs(inst: CircuitInstance, cfg: dict) -> dict[str, float]:
     plots = run_deck(build_netlist(bench, bench_cfg, control, Stimulus(ecg=impulse)))
     expect_plots(
         plots,
-        ["Operating Point", *["AC Analysis"] * 5, "Integrated Noise", "AC Analysis", "Transient"],
+        [
+            "Operating Point",
+            *["AC Analysis"] * (3 + n_cm),
+            "Integrated Noise",
+            *["AC Analysis"] * 2,
+            "Transient",
+        ],
     )
-    op, ac, ac_pos, ac_neg, cm_pos, cm_neg, noise, ac_zin, tran = plots
+    op, ac, ac_pos, ac_neg = plots[:4]
+    cm_plots, noise, zin_plots, tran = plots[4 : 4 + n_cm], plots[4 + n_cm], plots[-3:-1], plots[-1]
 
     freq, h = ac["frequency"].real, ac["v(out)"]
     gain = abs(interp_response(freq, h, 10.0))
     safe_gain = max(gain, 1e-12)
     ratio = np.abs(h) / safe_gain
     lf = (freq >= _LF_BAND[0]) & (freq <= _LF_BAND[1])
-    hf = (freq >= _HF_BAND[0]) & (freq <= _HF_BAND[1])
+    hf_min = (freq >= _HF_MIN_BAND[0]) & (freq <= _HF_MIN_BAND[1])
+    hf_max = (freq >= _HF_MAX_BAND[0]) & (freq <= _HF_MAX_BAND[1])
 
     # common mode: input-referred output per volt of source, against the unloaded node voltage
     source = net["cm_source"]
     unloaded = source["c_series"] / (source["c_series"] + source["c_shunt"])
-    gain_mains = max(abs(interp_response(freq, h, f_mains)), 1e-12)
-    cm_in = max(abs(p["v(out)"][0]) for p in (cm_pos, cm_neg)) / gain_mains
+    gain_mains = np.array([max(abs(interp_response(freq, h, f)), 1e-12) for f in f_mains])
+    cm_in = max(float(np.max(np.abs(p["v(out)"]) / gain_mains)) for p in cm_plots)
 
     # ngspice names the vector "v(onoise_total)" in the raw file
     noise_rms = float(next(v for k, v in noise.vectors.items() if "onoise_total" in k)[0].real)
 
     direct = np.array([abs(interp_response(freq, h, f)) for f in f_zin])
-    loaded = np.abs(ac_zin["v(out)"])
-    zin_drop = float(np.max(1.0 - loaded / np.maximum(direct, 1e-12)))
+    zin_drop = max(
+        float(np.max(1.0 - np.abs(p["v(out)"]) / np.maximum(direct, 1e-12))) for p in zin_plots
+    )
 
     t_read = t_fall + _T_SETTLE
     v0, v1, v2 = np.interp([0.5 * _T_START, t_read, _T_END], tran["time"], tran["v(out)"])
@@ -157,8 +179,8 @@ def measure_raw_specs(inst: CircuitInstance, cfg: dict) -> dict[str, float]:
     return {
         "gain": float(gain),
         "resp_dev_lf": float(np.max(np.abs(ratio[lf] - 1.0))),
-        "resp_min_hf": float(ratio[hf].min()),
-        "resp_max_hf": float(ratio[hf].max()),
+        "resp_min_hf": float(ratio[hf_min].min()),
+        "resp_max_hf": float(ratio[hf_max].max()),
         "impulse_offset_uv": float(1e6 * abs(v1 - v0) / safe_gain),
         "impulse_slope_uvs": float(1e6 * abs(v2 - v1) / (_T_END - t_read) / safe_gain),
         "cmrr_db": float(20 * np.log10(unloaded / max(cm_in, 1e-12))),

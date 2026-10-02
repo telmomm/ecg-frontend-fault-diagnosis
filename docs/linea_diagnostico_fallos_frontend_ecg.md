@@ -243,24 +243,27 @@ Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio 
 - [x] Elegir el front-end integrado y conseguir su macromodelo (o definir el modelo de comportamiento): **INA333** de Texas Instruments, con modelo de comportamiento construido con su hoja de datos y contrastado a nivel de bloque con el macromodelo del fabricante
 - [x] Diseñar la red discreta con valores justificados
 - [x] Diseñar el circuito discreto de referencia
-- [x] Definir el modelo de electrodo (gel y seco): rangos fijados; el de gel es una horquilla en torno a la red normalizada de 51 kΩ ‖ 47 nF, pendiente de respaldar con medidas publicadas
-- [x] Fijar la tabla de especificaciones según IEC 60601-2-25: valores tomados de fuentes secundarias; dos de ellos pendientes de contrastar con el texto de la norma
+- [x] Definir el modelo de electrodo (gel y seco): secos con las medianas medidas de seis materiales (*Scientific Reports* 2024); gel con la red de 51 kΩ ‖ 47 nF de la norma; la dispersión en torno a cada mediana es un supuesto
+- [x] Fijar la tabla de especificaciones según IEC 60601-2-25: límites y montajes de ensayo contrastados con el texto de la norma
 - [x] Esquemas de ambos circuitos en `docs/figures/` (la captura en Qucs-S sale del alcance)
 
 **Entregable:** esquemas y tabla de especificaciones. **Cierre:** E1 superado (circuitos nominales aptos).
 
 **Resultado:** ambos circuitos nominales y 500 circuitos sanos de Monte Carlo de cada uno cumplen las once especificaciones. El diseño, la procedencia de cada límite y lo que queda por contrastar están en `docs/circuit.md`.
 
-### Fase 3 — Pipeline de simulación
-- [ ] Automatizar con PySpice un filtro sencillo (prueba de concepto)
-- [ ] Generación paramétrica de netlists con inyección de fallos
-- [ ] Monte Carlo de tolerancias
-- [ ] Cálculo automático de especificaciones de cada caso
-- [ ] Extracción de C1–C4
-- [ ] Paralelización y guardado en Parquet/HDF5
-- [ ] Tests del pipeline (casos conocidos)
+### Fase 3 — Pipeline de simulación ✅
+- [x] Automatización de ngspice desde Python (lanzador propio en lugar de PySpice; la prueba de concepto con un filtro sencillo quedó cubierta por el circuito completo)
+- [x] Generación paramétrica de netlists con inyección de fallos
+- [x] Monte Carlo de tolerancias
+- [x] Cálculo automático de especificaciones de cada caso
+- [x] Extracción de C1–C4 (C4 en su variante de alterna)
+- [x] Paralelización y guardado en Parquet, con reanudación tras una interrupción
+- [x] Reetiquetado sin volver a simular cuando cambian los límites (`ecgfd relabel`)
+- [x] Tests del pipeline (casos conocidos)
 
-**Entregable:** pipeline en el repositorio. **Cierre:** reproduce E1 de forma automática.
+**Entregable:** pipeline en el repositorio. **Cierre:** reproduce E1 de forma automática (`make e1`).
+
+Los puntos abiertos de todas las fases están reunidos en `docs/pendientes.md`.
 
 ### Fase 4 — Generación del dataset
 - [ ] Ejecutar todas las condiciones en ambos circuitos

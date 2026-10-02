@@ -54,16 +54,17 @@ def test_truncnorm_respects_tolerance(cfg):
         assert abs(inst.passives[p.name] / p.value - 1.0) <= passive_tolerance(p.name, cfg)
 
 
-def test_electrodes_are_drawn_within_their_family(cfg):
-    families = cfg["electrodes"]["families"]
+def test_electrodes_are_drawn_around_their_type(cfg):
+    families, spread = cfg["electrodes"]["families"], cfg["electrodes"]["spread"]
     seen = set()
-    for seed in range(20):
+    for seed in range(60):
         inst = sample_instance(cfg, np.random.default_rng(seed))
-        seen.add(inst.electrode_type)
+        seen.add(inst.electrode_kind)
+        medians = families[inst.electrode_type][inst.electrode_kind]
         for electrode in inst.electrodes.values():
-            for key, (lo, hi) in families[inst.electrode_type].items():
-                assert lo <= electrode[key] <= hi
-    assert seen == set(families)
+            for key, median in medians.items():
+                assert median / spread <= electrode[key] <= median * spread
+    assert seen == {kind for family in families.values() for kind in family}
 
 
 def test_catalogue_ids_are_unique(cfg):

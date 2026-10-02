@@ -8,7 +8,7 @@ from collections import Counter
 
 from .circuit import CIRCUITS, build_netlist, get_circuit, nominal_instance
 from .config import DEFAULT_CONFIG, load_config
-from .dataset import build_tasks, generate
+from .dataset import build_tasks, generate, relabel
 from .faults import fault_catalogue
 from .simulate import measure, scalar_features
 from .specs import compliance, measure_specs, spec_limits, with_nominal_gain
@@ -59,6 +59,11 @@ def _cmd_generate(cfg: dict, args: argparse.Namespace) -> None:
     print(f"dataset written to {out}")
 
 
+def _cmd_relabel(cfg: dict, args: argparse.Namespace) -> None:
+    df = relabel(args.data, cfg["specs"])
+    print(f"{int(df['compliant'].sum())} of {len(df)} cases compliant with the new limits")
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="ecgfd", description=__doc__)
     parser.add_argument("--config", default=str(DEFAULT_CONFIG), help="YAML study configuration")
@@ -77,6 +82,10 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--out", required=True, help="output directory")
     p.add_argument("--jobs", type=int, default=os.cpu_count(), help="parallel ngspice processes")
     p.set_defaults(func=_cmd_generate)
+
+    p = sub.add_parser("relabel", help="recompute compliance with the limits of --config")
+    p.add_argument("--data", required=True, help="dataset folder")
+    p.set_defaults(func=_cmd_relabel)
 
     args = parser.parse_args(argv)
     args.func(load_config(args.config, args.circuit), args)

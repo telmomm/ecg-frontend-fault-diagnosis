@@ -26,24 +26,28 @@ def passive_tolerance(name: str, cfg: dict) -> float:
     return float(tol["resistor"] if name.startswith("R") else tol["capacitor"])
 
 
-def sample_electrodes(cfg: dict, rng: np.random.Generator) -> tuple[str, dict[str, dict]]:
-    """Draw an electrode family and, independently, the parameters of each electrode.
+def sample_electrodes(cfg: dict, rng: np.random.Generator) -> tuple[str, str, dict[str, dict]]:
+    """Draw (family, electrode type, parameters of each electrode).
 
-    Independent draws make contact-impedance imbalance part of the normal variation.
+    The three electrodes are of the same type, but their parameters are drawn
+    independently around its medians, so contact-impedance imbalance is part of the
+    normal variation.
     """
     ecfg = cfg["electrodes"]
     names = list(ecfg["mix"])
     family = str(rng.choice(names, p=[float(ecfg["mix"][n]) for n in names]))
-    ranges = ecfg["families"][family]
+    kind = str(rng.choice(list(ecfg["families"][family])))
+    medians = ecfg["families"][family][kind]
+    log_spread = np.log(float(ecfg["spread"]))
     electrodes = {}
     for name in ELECTRODES:
-        e = {}
-        for key in ("rs", "rd", "cd"):
-            lo, hi = (float(x) for x in ranges[key])
-            e[key] = float(np.exp(rng.uniform(np.log(lo), np.log(hi))))
+        e = {
+            key: float(medians[key]) * float(np.exp(rng.uniform(-log_spread, log_spread)))
+            for key in ("rs", "rd", "cd")
+        }
         e["ehc"] = float(ecfg["nominal"]["ehc"]) + float(ecfg["ehc_abs"]) * rng.uniform(-1, 1)
         electrodes[name] = e
-    return family, electrodes
+    return family, kind, electrodes
 
 
 def sample_instance(cfg: dict, rng: np.random.Generator) -> CircuitInstance:
@@ -69,7 +73,7 @@ def sample_instance(cfg: dict, rng: np.random.Generator) -> CircuitInstance:
         a["cmrr_sign"] = 1.0 if rng.uniform() < 0.5 else -1.0
         a["gain_error"] = float(icfg["gain_error_max"]) * _unit(rng, dist)
 
-    inst.electrode_type, inst.electrodes = sample_electrodes(cfg, rng)
+    inst.electrode_type, inst.electrode_kind, inst.electrodes = sample_electrodes(cfg, rng)
     return inst
 
 

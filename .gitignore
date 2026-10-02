@@ -26,3 +26,6 @@ models/
 .DS_Store
 .vscode/
 .idea/
+
+# Standards and papers: the standard is a licensed copy and must not be published
+docs/normative_and_papers/

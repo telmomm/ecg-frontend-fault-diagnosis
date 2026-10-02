@@ -106,14 +106,29 @@ GBW 1 MHz, 30 nV/√Hz); the `reference` circuit uses TL07x-like figures (±3 mV
 
 ### Electrodes and patient
 
-Each electrode is a half-cell potential in series with Rs and Rd ‖ Cd. Each simulated
-case draws a family (gel or dry, 50/50) and then each electrode independently and
-log-uniformly within the family ranges, so imbalance is part of the normal variation.
+Each electrode is a half-cell potential in series with Rs and Rd ‖ Cd, the single
+time-constant model of Swanson and Webster. Each simulated case draws a family (gel
+or dry, 50/50), then an electrode type of that family, shared by the three
+electrodes, and then every parameter of every electrode log-uniformly between half
+and twice the median of the type. Imbalance is therefore part of the normal variation.
 
-| Family | Rs | Rd | Cd | Basis |
-|---|---|---|---|---|
-| Gel | 0.1–1 kΩ | 20–100 kΩ | 20–100 nF | Bracket around the 51 kΩ ‖ 47 nF network that the ECG standards use to represent the skin-electrode impedance. Assumed, not taken from measurements |
-| Dry | 0.05–100 kΩ | 0.08–3 MΩ | 2–50 nF | Ranges collected in the state-of-the-art review (section 5.3 of the plan) |
+| Family | Type | Rs | Rd | Cd | Source |
+|---|---|---|---|---|---|
+| Gel | Ag/AgCl with gel | 300 Ω | 51 kΩ | 47 nF | Rd ‖ Cd is the network that IEC 60601-2-25 puts in series with each lead to represent the skin-electrode impedance; Rs is assumed |
+| Dry | Conductive polymer | 220 Ω | 2.02 MΩ | 4.64 nF | Scientific Reports 14:8882 (2024), Table 3: medians fitted on nine subjects after 10 minutes of settling |
+| Dry | Conductive fabric, no membrane | 249 Ω | 8.94 MΩ | 0.44 nF | same |
+| Dry | Conductive fabric with membrane | 226 Ω | 7.38 MΩ | 0.675 nF | same |
+| Dry | Stainless steel | 102 Ω | 0.122 MΩ | 60.5 nF | same |
+| Dry | Silver | 167 Ω | 0.593 MΩ | 59.3 nF | same |
+| Dry | Platinum | 48 Ω | 0.418 MΩ | 5.44 µF | same |
+
+The dry values agree in order of magnitude with *Sensors* 22:8510 (2022), which fits
+1.6 MΩ ‖ 151 nF for the stratum corneum under a 4 cm² stainless-steel electrode on a
+dry skin phantom. That paper uses a different circuit (with a series contact
+capacitance) and no gel electrodes, so it is not used for parameter values.
+
+Assumed, because neither paper gives it: the factor-of-two spread around each median,
+the ±5 mV spread of the half-cell potential, and Rs of the gel electrode.
 
 The patient is a body node coupled to mains (2 pF) and earth (200 pF), with the
 amplifier common isolated by 200 pF (Winter & Webster, 1983).
@@ -137,17 +152,29 @@ follow IEC 60601-2-25:2011, clause 201.12.4. `src/ecgfd/specs.py` evaluates them
 every case in a second ngspice run, with the standard test networks instead of the
 patient's electrodes.
 
-| Specification | Test | Limit | Source |
+| Specification | Test | Limit | Subclause |
 |---|---|---|---|
-| `gain_error` | gain at 10 Hz against the nominal circuit | ≤ 5 % | MEDTEQ |
-| `resp_dev_lf` | response from 0.67 to 40 Hz relative to 10 Hz | within ±10 % | Standard text, 201.12.4.107 (search excerpt) |
-| `resp_min_hf`, `resp_max_hf` | response from 40 to 150 Hz relative to 10 Hz | −30 % to +10 % | **Recalled, not verified** |
-| `impulse_offset_uv`, `impulse_slope_uvs` | baseline after a 3 mV, 100 ms impulse | ≤ 100 µV, ≤ 300 µV/s | MEDTEQ |
-| `cmrr_db` | 20 V rms at mains frequency behind a 100 pF divider (10 V rms unloaded), 51 kΩ ‖ 47 nF in one lead, ±300 mV offset, RLD active | ≥ 89 dB, i.e. ≤ 1 mV peak-to-valley at the input | MEDTEQ |
-| `noise_uvpp` | input-referred, 0.05–150 Hz, 51 kΩ ‖ 47 nF in both leads | ≤ 30 µV peak-to-valley | Standard text, 201.12.4.106 (search excerpt) |
-| `zin_drop` | signal loss with 620 kΩ ‖ 4.7 nF in series with a lead, at 0.67 and 40 Hz | ≤ 20 % | MEDTEQ, 201.12.4.103 |
-| `offset_gain_error` | gain change at 10 Hz with ±300 mV at one input | ≤ 5 % | ±300 mV from the standard; the 5 % is the gain tolerance |
-| `input_range_mv` | input amplitude that fits the output range, given gain and output offset | ≥ 5 mV | **Recalled, not verified** |
+| `gain_error` | gain at 10 Hz against the nominal circuit | ≤ 5 % | 201.12.1.101.2 and 201.12.4.107.1.2: amplitudes within 5 % |
+| `resp_dev_lf` | response from 0.67 to 40 Hz relative to 10 Hz | within ±10 % | Table 201.107, test A |
+| `resp_min_hf` | response from 40 to 150 Hz relative to 10 Hz | ≥ −30 % | Table 201.107, tests B and C |
+| `resp_max_hf` | response from 40 to 500 Hz relative to 10 Hz | ≤ +10 % | Table 201.107, tests B, C and D |
+| `impulse_offset_uv`, `impulse_slope_uvs` | baseline after a 3 mV, 100 ms impulse | ≤ 100 µV, ≤ 300 µV/s | 201.12.4.107.1.1.2 |
+| `cmrr_db` | 20 V rms behind a 100 pF divider (10 V rms unloaded, 200 pF source) at 50 and 60 Hz; 51 kΩ ‖ 47 nF in each lead in turn, without and with ±300 mV in series; RLD active | ≥ 89 dB, i.e. ≤ 1 mV peak-to-valley at the input | 201.12.4.105.1, Figure 201.105 |
+| `noise_uvpp` | input-referred, 0.05–150 Hz, 51 kΩ ‖ 47 nF in every lead | ≤ 30 µV peak-to-valley | 201.12.4.106.1 |
+| `zin_drop` | signal loss with 620 kΩ ‖ 4.7 nF in series with a lead, at 0.67 and 40 Hz, with ±300 mV | ≤ 20 % (2.5 MΩ) | 201.12.4.103 |
+| `offset_gain_error` | gain change at 10 Hz with ±300 mV at one input | ≤ 5 % | 201.12.4.107.2 |
+| `input_range_mv` | input amplitude that fits the output range, given gain and output offset | ≥ 5 mV | 201.12.4.107.2 |
+
+All limits were checked against the text of the standard (UNE-EN 60601-2-25:2016,
+identical to IEC 60601-2-25:2011). The sampling requirements of 201.12.4.107.3 are
+met by the acquisition assumed in the configuration: 1000 samples/s (at least 500
+required) and 2.9 µV per LSB referred to the input (at most 5 µV).
+
+The standard offers two ways of checking the frequency response; the sinusoidal and
+impulse tests of 201.12.4.107.1.1 are used here, not the calibration ECGs of
+201.12.4.107.1.2. Requirements that do not apply to a single-lead analog front-end
+are left out: lead networks, recovery time after lead switching, overload tolerance,
+line-frequency filter distortion, channel crosstalk, pacemaker pulses.
 
 Simplifications: noise is taken as 6.6 times the rms value instead of a 10 s
 peak-to-valley reading; the dynamic range is computed from the operating point
@@ -170,32 +197,32 @@ compliant; the self-test features do change, and the origin label records why.
 `is_faulty` keeps the percentage-severity view (a fault was injected), which E4
 compares against `compliant`.
 
-## To confirm
+## Open points
 
-None of these blocks the pipeline; each changes numbers in `configs/default.yaml`.
-
-1. **Two limits were set from memory**, because the text of IEC 60601-2-25 could not
-   be opened: the 40–150 Hz response band and the ±5 mV dynamic range. Check them
-   against the standard. If only limits change, the stored `spec_*` values allow
-   relabelling without re-simulating.
-2. **Gel electrode ranges are assumed.** The dry ranges come from the review; neither
-   was checked against the papers, which could not be accessed (Sensors 2022,
-   doi:10.3390/s22218510; Scientific Reports 2024, doi:10.1038/s41598-024-56595-0).
-3. **CMRR interpolation.** The INA333 data sheet gives CMRR at G = 1 and G = 10; the
-   value at G = 4 is interpolated (the TI macromodel gives 100 dB there).
+Everything still to be confirmed or decided (assumptions without a source, open
+design decisions, features not implemented) is tracked in one place:
+[pendientes.md](pendientes.md).
 
 ## Consequences worth knowing before the dataset
 
-- **Dry electrodes lower the in-service gain.** With contact impedances of up to
-  3 MΩ against the 10 MΩ bias resistors, healthy circuits measure down to 0.83 of the
-  nominal gain through `Vcal` (0.98–1.01 with gel). The circuit is compliant; the
-  models must tell this apart from a gain fault, and `electrode_type` is stored in
-  case it is given to them as known information.
+- **Porous dry electrodes do not suit this input network.** In service, through
+  `Vcal`, healthy circuits measure the following fraction of the nominal gain:
+
+  | Electrode type | at 10 Hz | at 150 Hz (nominal 0.83) |
+  |---|---|---|
+  | Gel, stainless steel, silver, platinum | 0.94–1.02 | 0.75–0.86 |
+  | Conductive polymer | 0.70–0.87 | 0.46–0.63 |
+  | Conductive fabric | 0.31–0.61 | 0.11–0.21 |
+
+  The megaohm-level impedance of polymer and fabric electrodes forms a divider with
+  the 10 MΩ bias resistors and with the 1 nF differential RFI capacitor. The circuit
+  itself is compliant, since the standard only asks for 2.5 MΩ, but the signal is
+  badly attenuated. This is decision 2.1 in [pendientes.md](pendientes.md).
 - **Electrode degradation is relative to the family.** A dried gel electrode can have
   the impedance of a healthy dry one.
 - **The system CMRR is dominated by the RLD.** With the INA333 degraded to 50 dB the
-  nominal circuit still measures 117–130 dB in the 89 dB test (the range depends on
-  the polarity of its common-mode error), so that block fault is functionally benign.
+  nominal circuit still measures 117 dB in the 89 dB test, so that block fault is
+  functionally benign.
 - **Slow self-test tone.** The 0.041 Hz high-pass makes the 0.05 Hz tone of C2 the one
   that sees C5 and R10; measuring it takes tens of seconds.
 - **AC features are small-signal.** A fault that would saturate the output under a
@@ -203,19 +230,19 @@ None of these blocks the pipeline; each changes numbers in `configs/default.yaml
   range.
 - **Extended DC nodes.** `ina_out` and `rld_out` assume spare ADC channels. Only `out`
   belongs to the strict feature sets; the extended set is `C1x`.
-- **Not implemented:** the DC lead-off variant of C4, negative op-amp offset faults,
-  the optional notch filter.
 
 ## Sources
 
+- UNE-EN 60601-2-25:2016 (IEC 60601-2-25:2011), *Particular requirements for the basic
+  safety and essential performance of electrocardiographs*. Licensed copy, kept
+  outside version control in `docs/normative_and_papers/`.
+- Joutsen, A. et al. (2024). ECG signal quality in intermittent long-term dry
+  electrode recordings with controlled motion artifacts. *Scientific Reports*, 14,
+  8882. doi:10.1038/s41598-024-56595-0
+- Goyal, K., Borkholder, D. A., Day, S. W. (2022). Dependence of skin-electrode
+  contact impedance on material and skin hydration. *Sensors*, 22(21), 8510.
+  doi:10.3390/s22218510
 - Texas Instruments, *INA333 data sheet*, SBOS445C, and PSpice model SBOM382:
   <https://www.ti.com/product/INA333>
-- MEDTEQ, *CMRR testing (IEC 60601-2-25, -2-27, -2-47)*:
-  <https://www.medteq.net/article/cmrr-testing-iec-60601-2-25-2-27-2-47>
-- MEDTEQ, *IEC 60601-2-25 201.12.4.103 Input impedance*:
-  <https://www.medteq.net/iec-60601225-201124103-input-impedance>
-- MEDTEQ, articles on IEC 60601-2-25: <https://www.medteq.net/article/tag/IEC+60601-2-25>
-- IEC 60601-2-25:2011, *Particular requirements for the basic safety and essential
-  performance of electrocardiographs*: <https://webstore.iec.ch/en/publication/2636>
 - Winter, B. B., Webster, J. G. (1983). Driven-right-leg circuit design. *IEEE
   Transactions on Biomedical Engineering*, 30(1), 62–66.

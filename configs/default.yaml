@@ -59,16 +59,24 @@ tolerances:
   overrides: {}                # per designator, e.g. {C5: 0.10}
 
 # --- Skin-electrode interface: Ehc in series with Rs and (Rd || Cd) ------------
-# Healthy ranges per family, drawn log-uniformly per electrode. Gel brackets the
-# 51 kOhm || 47 nF network of the ECG standards; dry follows the ranges collected in
-# the state-of-the-art review (docs/circuit.md lists the sources and what is assumed).
+# Each case draws a family, then an electrode type of that family (the same for
+# the three electrodes), then each parameter of each electrode log-uniformly within
+# median / spread .. median * spread. docs/circuit.md gives the sources.
 electrodes:
   nominal: {ehc: 0.222, rs: 1.0e+3, rd: 51.0e+3, cd: 47.0e-9}
-  ehc_abs: 5.0e-3              # half-cell potential spread, +- [V]
-  families:
-    gel: {rs: [100.0, 1.0e+3], rd: [20.0e+3, 100.0e+3], cd: [20.0e-9, 100.0e-9]}
-    dry: {rs: [50.0, 100.0e+3], rd: [80.0e+3, 3.0e+6], cd: [2.0e-9, 50.0e-9]}
+  ehc_abs: 5.0e-3              # half-cell potential spread, +- [V] (assumed)
+  spread: 2.0                  # assumed: the sources give medians, not distributions
   mix: {gel: 0.5, dry: 0.5}    # probability of each family per simulated case
+  families:
+    gel:                       # network that IEC 60601-2-25 puts in series with each lead
+      ag_agcl_gel: {rs: 300.0, rd: 51.0e+3, cd: 47.0e-9}
+    dry:                       # medians of Table 3 of Sci. Rep. 14:8882 (2024), after 10 min
+      conductive_polymer: {rs: 220.0, rd: 2.02e+6, cd: 4.64e-9}
+      fabric_no_membrane: {rs: 249.0, rd: 8.94e+6, cd: 0.440e-9}
+      fabric_membrane: {rs: 226.0, rd: 7.38e+6, cd: 0.675e-9}
+      stainless_steel: {rs: 102.0, rd: 0.122e+6, cd: 60.5e-9}
+      silver: {rs: 167.0, rd: 0.593e+6, cd: 59.3e-9}
+      platinum: {rs: 48.0, rd: 0.418e+6, cd: 5440.0e-9}
 
 # Patient/mains coupling in service (Winter & Webster model). Mains is off during self-test.
 environment:
@@ -79,29 +87,29 @@ environment:
   mains_freq: 50.0
 
 # --- Clinical specifications (functional severity) -----------------------------
-# Limits and test set-up of IEC 60601-2-25:2011, clause 201.12.4 (diagnostic
-# electrocardiographs). docs/circuit.md gives the source of each value. Specifications
-# are properties of the circuit, so they are evaluated with the standard test
-# networks at the inputs, not with the patient's electrodes.
+# Limits and test set-up of IEC 60601-2-25:2011 (EN 60601-2-25:2015), clause 201.12.4;
+# the subclause of each one is given. Specifications are properties of the circuit,
+# so they are evaluated with the standard test networks at the inputs, not with the
+# patient's electrodes.
 specs:
-  gain_error_max: 0.05         # |G / G_nominal - 1| at 10 Hz
-  resp_dev_lf_max: 0.10        # 0.67-40 Hz: |G(f) / G(10 Hz) - 1|
-  resp_min_hf_min: 0.70        # 40-150 Hz: G(f) / G(10 Hz) not below -30 %
-  resp_max_hf_max: 1.10        # 40-150 Hz: G(f) / G(10 Hz) not above +10 %
-  impulse_offset_max_uv: 100.0 # baseline shift after a 3 mV, 100 ms impulse, input-referred
-  impulse_slope_max_uvs: 300.0 # baseline slope after the impulse [uV/s]
-  cmrr_min_db: 89.0            # 10 V rms common mode -> at most 1 mV p-v at the input
-  noise_max_uvpp: 30.0         # input-referred, 51 kOhm || 47 nF in both leads, 6.6 x rms
-  zin_drop_max: 0.20           # signal loss with 620 kOhm || 4.7 nF in series with a lead
-  offset_gain_error_max: 0.05  # gain change at 10 Hz with +-300 mV electrode offset
-  input_range_min_mv: 5.0      # linear input range left by the gain and the output offset
+  gain_error_max: 0.05         # 201.12.1.101.2 / 201.12.4.107.1.2: amplitudes within 5 %
+  resp_dev_lf_max: 0.10        # Table 201.107 test A: 0.67-40 Hz within +-10 % of 10 Hz
+  resp_min_hf_min: 0.70        # tests B, C: 40-150 Hz not below -30 %
+  resp_max_hf_max: 1.10        # tests B, C, D: 40-500 Hz not above +10 %
+  impulse_offset_max_uv: 100.0 # 201.12.4.107.1.1.2: 0.1 mV displacement after 3 mV x 100 ms
+  impulse_slope_max_uvs: 300.0 # 201.12.4.107.1.1.2: 0.30 mV/s after the impulse
+  cmrr_min_db: 89.0            # 201.12.4.105.1: 10 V rms -> 1 mV peak-to-valley at the input
+  noise_max_uvpp: 30.0         # 201.12.4.106.1: 30 uV peak-to-valley referred to the input
+  zin_drop_max: 0.20           # 201.12.4.103: at most 20 % loss (2.5 MOhm)
+  offset_gain_error_max: 0.05  # 201.12.4.107.2: 5 % with +-300 mV offset
+  input_range_min_mv: 5.0      # 201.12.4.107.2: +-5 mV input signal
   electrode_offset: 0.3        # [V]
   impulse: {amplitude: 3.0e-3, width: 0.1}
   test_network:
     imbalance: {rd: 51.0e+3, cd: 47.0e-9}      # CMRR and noise tests
     input_impedance: {rd: 620.0e+3, cd: 4.7e-9, freqs: [0.67, 40.0]}
-    # 20 V rms mains-frequency source behind a 100 pF divider: 10 V rms unloaded
-    cm_source: {c_series: 100.0e-12, c_shunt: 100.0e-12}
+    # 20 V rms source behind a 100 pF divider (10 V rms unloaded, 200 pF source), 50 and 60 Hz
+    cm_source: {c_series: 100.0e-12, c_shunt: 100.0e-12, freqs: [50.0, 60.0]}
 
 # --- Fault model ---------------------------------------------------------------
 faults:
