@@ -17,7 +17,7 @@ is the cause? Is the problem in the circuit or in the electrodes?
 |---|---|
 | 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Limits checked against the text of the standard; the open design decision on porous dry electrodes is in docs/pendientes.md |
 | 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests |
-| 4. Dataset | Not generated. Only the smoke datasets have been run |
+| 4. Dataset | Ready to generate: resumable generation, integrity and class-balance report (`make report`), datasheet in docs/dataset.md. Only the smoke datasets have been run |
 | 5. Testability (E2, E9) | E2 first pass. E9 not written (a class-separability metric exists) |
 | 6. Models (E3–E6) | Untuned baselines that run end to end |
 | 7. Robustness (E7, E8) | Not written (the split by unseen magnitude exists) |
@@ -47,9 +47,12 @@ ecgfd faults                   # size of the fault catalogue
 # Smoke datasets: about 1,200 simulations and 2.5 minutes each
 make smoke
 
-# Full datasets: 63,600 + 66,400 simulations, roughly 4 hours on 8 cores.
+# Full datasets: 63,600 + 66,400 simulations, roughly 4.5 hours on 8 cores.
 # An interrupted run resumes from the last complete chunk when launched again.
 make dataset
+
+# Integrity checks and class balance; writes report.md inside each dataset folder
+make report
 
 # After changing only specification limits: new labels, no new simulations
 ecgfd relabel --data data/v1/integrated
@@ -84,6 +87,7 @@ diagnosability.
 | `src/ecgfd/evaluation.py` | Escape and false-reject rates, class separability, leakage-free splits |
 | `src/ecgfd/models/` | Reference classifiers and the 1D CNN |
 | `experiments/` | One script per experiment of the plan |
+| `scripts/dataset_report.py` | Integrity checks and class balance of a generated dataset |
 | `scripts/draw_schematics.py` | Draws both schematics into `docs/figures/` |
 | `scripts/validate_ina_model.py` | Compares the behavioural INA with the TI INA333 macromodel (fetched by `scripts/fetch_vendor_models.py`) |
 | `tests/` | Unit and end-to-end tests, run on both circuits |

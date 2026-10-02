@@ -2,7 +2,7 @@ PY ?= .venv/bin/python
 DATA ?= data/v1
 CIRCUITS = integrated reference
 
-.PHONY: setup test lint smoke dataset e1 experiments
+.PHONY: setup test lint smoke dataset report e1 experiments
 
 setup:
 	python3 -m venv .venv
@@ -23,6 +23,10 @@ dataset:
 	for c in $(CIRCUITS); do \
 		$(PY) -m ecgfd.cli --circuit $$c generate --out $(DATA)/$$c; \
 	done
+
+# integrity checks and class balance of the datasets under $(DATA)
+report:
+	for c in $(CIRCUITS); do $(PY) scripts/dataset_report.py --data $(DATA)/$$c; done
 
 e1:
 	for c in $(CIRCUITS); do $(PY) experiments/e1_nominal_validation.py --circuit $$c; done

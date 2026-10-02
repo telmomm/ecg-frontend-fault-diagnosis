@@ -266,10 +266,11 @@ Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio 
 Los puntos abiertos de todas las fases están reunidos en `docs/pendientes.md`.
 
 ### Fase 4 — Generación del dataset
-- [ ] Ejecutar todas las condiciones en ambos circuitos
-- [ ] Añadir ruido y cuantificación
-- [ ] Etiquetado en tres niveles
-- [ ] Verificar el balance de clases y documentar el dataset (*datasheet*)
+- [ ] Ejecutar todas las condiciones en ambos circuitos (`make dataset`)
+- [x] Añadir ruido y cuantificación (se aplican al cargar los datos, para poder variarlos sin volver a simular)
+- [x] Etiquetado en tres niveles
+- [ ] Verificar el balance de clases sobre el dataset generado (`make report`)
+- [x] Documentar el dataset (`docs/dataset.md`; las cifras de cada versión van en el `report.md` de su carpeta)
 
 **Entregable:** dataset versionado. **Cierre:** dataset completo y documentado.
 
