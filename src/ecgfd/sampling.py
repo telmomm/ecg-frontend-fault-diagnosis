@@ -65,6 +65,8 @@ def sample_instance(cfg: dict, rng: np.random.Generator) -> CircuitInstance:
         a, icfg = inst.inas[u.name], cfg["ina"]
         a["vos"] = float(icfg["vos_max"]) * _unit(rng, dist)
         a["cmrr_db"] += float(icfg["cmrr_db_tol"]) * _unit(rng, dist)
+        # the common-mode error of a real part can have either polarity
+        a["cmrr_sign"] = 1.0 if rng.uniform() < 0.5 else -1.0
         a["gain_error"] = float(icfg["gain_error_max"]) * _unit(rng, dist)
 
     inst.electrode_type, inst.electrodes = sample_electrodes(cfg, rng)
@@ -78,7 +80,7 @@ def instance_parameters(inst: CircuitInstance) -> dict[str, float]:
         row[f"p_{name}_vos"] = o["vos"]
         row[f"p_{name}_aol"] = o["aol"]
     for name, a in inst.inas.items():
-        for key in ("vos", "cmrr_db", "gain_error"):
+        for key in ("vos", "cmrr_db", "cmrr_sign", "gain_error"):
             row[f"p_{name}_{key}"] = a[key]
     for name, e in inst.electrodes.items():
         for key in ("ehc", "rs", "rd", "cd"):

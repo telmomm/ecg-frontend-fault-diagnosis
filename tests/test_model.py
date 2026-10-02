@@ -102,11 +102,11 @@ def test_compliance_labels(cfg):
     at_limit = {name: limit for name, (_, limit) in limits.items()}
     assert compliance(at_limit, cfg)["compliant"]
 
-    bad = dict(at_limit, f_high=limits["f_high"][1] - 1.0, noise_uvpp=float("nan"))
+    bad = dict(at_limit, resp_min_hf=limits["resp_min_hf"][1] - 0.1, noise_uvpp=float("nan"))
     labels = compliance(bad, cfg)
     assert not labels["compliant"]
-    assert labels["violated"] == "f_high,noise_uvpp"
-    assert labels["ok_gain_error"] and not labels["ok_f_high"]
+    assert labels["violated"] == "resp_min_hf,noise_uvpp"
+    assert labels["ok_gain_error"] and not labels["ok_resp_min_hf"]
 
 
 def test_quantise_clips_and_rounds():

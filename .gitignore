@@ -15,6 +15,9 @@ results/*
 !results/README.md
 !results/openalex_results/
 
+# Vendor SPICE models (copyrighted; fetched by scripts/fetch_vendor_models.py)
+models/
+
 # SPICE scratch files
 *.raw
 *.log

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .circuit import CircuitInstance, Stimulus, build_netlist, spice_init
+from .circuit import CircuitInstance, Stimulus, build_netlist
 from .spice import RAW_NAME, Plot, SimulationError, run_deck
 
 
@@ -58,7 +58,7 @@ def measure(inst: CircuitInstance, cfg: dict) -> Measurement:
         cal_width=pulse["width"],
         cal_edge=pulse["edge"],
     )
-    plots = run_deck(build_netlist(inst, cfg, control, stim), spiceinit=spice_init(cfg))
+    plots = run_deck(build_netlist(inst, cfg, control, stim))
     expect_plots(plots, ["Operating Point", *["AC Analysis"] * 3, "Transient Analysis"])
     op, ac_d, ac_c, ac_z, tran = plots
 
@@ -109,6 +109,6 @@ def transient(
         f"tran {tmax} {duration} 0 {tmax}",
         f"write {RAW_NAME} " + " ".join(f"v({n})" for n in nodes),
     ]
-    plots = run_deck(build_netlist(inst, cfg, control, stim), spiceinit=spice_init(cfg))
+    plots = run_deck(build_netlist(inst, cfg, control, stim))
     expect_plots(plots, ["Transient Analysis"])
     return plots[0]

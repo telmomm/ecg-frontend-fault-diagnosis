@@ -13,7 +13,7 @@ from ecgfd.specs import compliance, measure_specs, with_nominal_gain
 
 pytestmark = pytest.mark.ngspice
 
-NOMINAL_GAIN = {"integrated": 501, "reference": 992}
+NOMINAL_GAIN = {"integrated": 278, "reference": 414}
 # resistor from the gain-stage feedback node to the reference
 GAIN_RESISTOR = {"integrated": "R11", "reference": "R17"}
 
@@ -34,8 +34,13 @@ def test_nominal_circuit_meets_every_specification(spec_cfg):
     )
     specs = measure_specs(nominal_instance(spec_cfg), spec_cfg)
     assert compliance(specs, spec_cfg)["violated"] == ""
-    assert specs["f_low"] == pytest.approx(0.49, abs=0.02)
-    assert specs["f_high"] == pytest.approx(178, abs=4)
+    # 3 mV x 100 ms through a 3.9 s high-pass: 3 mV * (1 - exp(-0.1 / 3.9)) = 76 uV
+    assert specs["impulse_offset_uv"] == pytest.approx(76, abs=3)
+    # 185 Hz Butterworth low-pass seen at 150 Hz
+    assert specs["resp_min_hf"] == pytest.approx(0.83, abs=0.02)
+    # 620 kOhm against the two 10 MOhm bias resistors
+    assert specs["zin_drop"] == pytest.approx(0.03, abs=0.005)
+    assert specs["input_range_mv"] > 5.0
 
 
 def test_nominal_self_test_measurements(nominal, cfg):

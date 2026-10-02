@@ -6,9 +6,9 @@ seed: 20261002
 circuit: integrated            # integrated (main) | reference (discrete three-op-amp)
 
 circuits:
-  integrated:                  # single 3.3 V supply, integrated INA + discrete network
+  integrated:                  # single 3.3 V supply, INA333 + discrete network
     supply: {vcc: 3.3, vee: 0.0}
-    opamp:                     # generic rail-to-rail CMOS op-amp (behavioural)
+    opamp:                     # discrete op-amps: precision rail-to-rail CMOS class (part not fixed)
       aol: 1.0e+6
       gbw: 1.0e+6
       rout: 50.0
@@ -16,12 +16,18 @@ circuits:
       headroom: 0.05           # output saturates at rail -+ headroom [V]
       vos_max: 0.5e-3          # Monte Carlo: offset drawn in +-vos_max [V]
       aol_rel: 0.5             # Monte Carlo: aol drawn in nominal * (1 +- aol_rel)
-    ina:                       # generic integrated INA, G = 1 + 2 * rfb / Rg (behavioural)
-      rfb: 50.0e+3
-      cmrr_db: 100.0
-      cmrr_db_tol: 6.0         # Monte Carlo: +- dB
-      vos_max: 100.0e-6
-      gain_error_max: 1.0e-3   # Monte Carlo: internal gain error, relative
+    ina:                       # behavioural model of the TI INA333 (data sheet SBOS445C)
+      rfb: 50.0e+3             # internal feedback resistors: G = 1 + 100 kOhm / Rg
+      rdiff: 150.0e+3          # internal difference-stage resistors
+      aol: 1.0e+6
+      gbw: 350.0e+3            # -3 dB bandwidth 35 kHz at G = 10
+      rout: 50.0
+      en: 35.0e-9              # per input amplifier: 50 nV/sqrt(Hz) referred to the input
+      headroom: 0.05           # output swing to within 50 mV of the rails
+      cmrr_db: 102.0           # at G = 4: between 90 dB (G = 1) and 110 dB (G = 10) typical
+      cmrr_db_tol: 10.0        # Monte Carlo: down to the interpolated minimum, 92 dB
+      vos_max: 44.0e-6         # +-25 uV +- 75 uV / G, referred to the input
+      gain_error_max: 2.5e-3   # +-0.25 % maximum
     measurement:
       adc: {bits: 12, vmin: 0.0, vmax: 3.3, noise_rms: 1.0e-3, dc_averages: 64}
       dc_nodes:
@@ -53,11 +59,13 @@ tolerances:
   overrides: {}                # per designator, e.g. {C5: 0.10}
 
 # --- Skin-electrode interface: Ehc in series with Rs and (Rd || Cd) ------------
-# PROVISIONAL ranges, to be backed by the references of the state-of-the-art review.
+# Healthy ranges per family, drawn log-uniformly per electrode. Gel brackets the
+# 51 kOhm || 47 nF network of the ECG standards; dry follows the ranges collected in
+# the state-of-the-art review (docs/circuit.md lists the sources and what is assumed).
 electrodes:
   nominal: {ehc: 0.222, rs: 1.0e+3, rd: 51.0e+3, cd: 47.0e-9}
   ehc_abs: 5.0e-3              # half-cell potential spread, +- [V]
-  families:                    # healthy ranges, drawn log-uniformly per electrode
+  families:
     gel: {rs: [100.0, 1.0e+3], rd: [20.0e+3, 100.0e+3], cd: [20.0e-9, 100.0e-9]}
     dry: {rs: [50.0, 100.0e+3], rd: [80.0e+3, 3.0e+6], cd: [2.0e-9, 50.0e-9]}
   mix: {gel: 0.5, dry: 0.5}    # probability of each family per simulated case
@@ -71,21 +79,29 @@ environment:
   mains_freq: 50.0
 
 # --- Clinical specifications (functional severity) -----------------------------
-# PROVISIONAL limits and test set-up: confirm against IEC 60601-2-25 / 60601-2-27.
-# Specifications are properties of the circuit, so they are evaluated with a
-# standard test network at the inputs, not with the patient's electrodes.
+# Limits and test set-up of IEC 60601-2-25:2011, clause 201.12.4 (diagnostic
+# electrocardiographs). docs/circuit.md gives the source of each value. Specifications
+# are properties of the circuit, so they are evaluated with the standard test
+# networks at the inputs, not with the patient's electrodes.
 specs:
   gain_error_max: 0.05         # |G / G_nominal - 1| at 10 Hz
-  f_low_max: 0.67              # lower -3 dB frequency [Hz]
-  f_high_min: 150.0            # upper -3 dB frequency [Hz]
-  cmrr_min_db: 95.0            # 20 V rms through 200 pF must stay below 1 mV p-p at the input
-  noise_max_uvpp: 30.0         # input-referred, 0.05-150 Hz, taken as 6.6 x rms
-  offset_gain_error_max: 0.05  # gain change at 10 Hz with the electrode DC offset below
-  output_offset_max: 0.5       # |V(out) - ADC mid-scale| at rest [V]
+  resp_dev_lf_max: 0.10        # 0.67-40 Hz: |G(f) / G(10 Hz) - 1|
+  resp_min_hf_min: 0.70        # 40-150 Hz: G(f) / G(10 Hz) not below -30 %
+  resp_max_hf_max: 1.10        # 40-150 Hz: G(f) / G(10 Hz) not above +10 %
+  impulse_offset_max_uv: 100.0 # baseline shift after a 3 mV, 100 ms impulse, input-referred
+  impulse_slope_max_uvs: 300.0 # baseline slope after the impulse [uV/s]
+  cmrr_min_db: 89.0            # 10 V rms common mode -> at most 1 mV p-v at the input
+  noise_max_uvpp: 30.0         # input-referred, 51 kOhm || 47 nF in both leads, 6.6 x rms
+  zin_drop_max: 0.20           # signal loss with 620 kOhm || 4.7 nF in series with a lead
+  offset_gain_error_max: 0.05  # gain change at 10 Hz with +-300 mV electrode offset
+  input_range_min_mv: 5.0      # linear input range left by the gain and the output offset
   electrode_offset: 0.3        # [V]
+  impulse: {amplitude: 3.0e-3, width: 0.1}
   test_network:
-    imbalance: {rs: 1.0, rd: 51.0e+3, cd: 47.0e-9}   # in series with one lead
-    c_source: 200.0e-12                               # mains-to-body coupling in the CMRR test
+    imbalance: {rd: 51.0e+3, cd: 47.0e-9}      # CMRR and noise tests
+    input_impedance: {rd: 620.0e+3, cd: 4.7e-9, freqs: [0.67, 40.0]}
+    # 20 V rms mains-frequency source behind a 100 pF divider: 10 V rms unloaded
+    cm_source: {c_series: 100.0e-12, c_shunt: 100.0e-12}
 
 # --- Fault model ---------------------------------------------------------------
 faults:
@@ -111,8 +127,8 @@ measurement:
   # DC readings (`dc_nodes`, per circuit): `out` is the main ADC channel; nodes marked
   # `extended` assume a spare ADC channel and are only used by the C1x feature set.
   ac:
-    freqs: [0.5, 10.0, 50.0, 150.0]
-    sweep: {fstart: 0.05, fstop: 1.0e+4, points_per_decade: 100}
+    freqs: [0.05, 0.5, 10.0, 50.0, 150.0]
+    sweep: {fstart: 0.01, fstop: 1.0e+4, points_per_decade: 100}
     diff_amplitude: 1.0e-3     # differential test tone [V]
     cm_amplitude: 0.1          # common-mode test tone injected at the RLD reference [V]
     n_samples: 1000            # ADC samples used to estimate each tone

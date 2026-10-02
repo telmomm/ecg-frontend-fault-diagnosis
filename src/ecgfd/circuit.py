@@ -1,11 +1,12 @@
 """The circuits under study: topology, nominal values and netlist generation.
 
 Two single-lead ECG front-ends (lead I = LA - RA) sharing the same signal chain
-(input network, instrumentation amplifier, driven right leg, 0.5 Hz high-pass,
+(input network, instrumentation amplifier, driven right leg, 0.04 Hz high-pass,
 gain stage, Sallen-Key low-pass):
 
-- `integrated` (main): integrated instrumentation amplifier surrounded by a
-  discrete network, single 3.3 V supply with a mid-supply reference;
+- `integrated` (main): INA333 instrumentation amplifier (behavioural model built
+  from its data sheet) surrounded by a discrete network, single 3.3 V supply with
+  a mid-supply reference;
 - `reference`: discrete three-op-amp instrumentation amplifier on +-5 V, comparable
   with the benchmark circuits of the fault-diagnosis literature.
 
@@ -18,11 +19,8 @@ from __future__ import annotations
 
 import copy
 from dataclasses import dataclass, field
-from pathlib import Path
 
 import numpy as np
-
-from .config import REPO_ROOT
 
 
 @dataclass(frozen=True)
@@ -84,8 +82,8 @@ INTEGRATED = Circuit(
         Passive("C1", "C", "inp", "0", 100e-12, "input", "LA common-mode RFI capacitor"),
         Passive("C2", "C", "inn", "0", 100e-12, "input", "RA common-mode RFI capacitor"),
         Passive("C3", "C", "inp", "inn", 1e-9, "input", "differential RFI capacitor"),
-        # External gain resistor of the INA, split to sense the common mode. G = 4.03, low
-        # enough for a +-300 mV electrode offset to fit in the 3.3 V supply
+        # External gain resistor of the INA333, split to sense the common mode. G = 4.03,
+        # low enough for a +-300 mV electrode offset to fit in the 3.3 V supply
         Passive("R5", "R", "rgp", "mid", 16.5e3, "ina", "gain resistor, LA half"),
         Passive("R6", "R", "mid", "rgn", 16.5e3, "ina", "gain resistor, RA half"),
         # Driven right leg
@@ -93,11 +91,11 @@ INTEGRATED = Circuit(
         Passive("R8", "R", "cm", "rld_out", 10e6, "rld", "RLD integrator DC feedback"),
         Passive("C4", "C", "cm", "rld_out", 10e-9, "rld", "RLD integrator capacitor"),
         Passive("R9", "R", "rld_out", "lead_rl", 100e3, "rld", "RLD output current limiter"),
-        # High-pass (0.48 Hz) and gain stage (G = 1 + R12 / R11 = 125)
+        # High-pass (0.041 Hz) and gain stage (G = 1 + R12 / R11 = 69)
         Passive("C5", "C", "ina_out", "hp", 1e-6, "hpf", "high-pass capacitor"),
-        Passive("R10", "R", "hp", "vref", 330e3, "hpf", "high-pass resistor"),
+        Passive("R10", "R", "hp", "vref", 3.9e6, "hpf", "high-pass resistor"),
         Passive("R11", "R", "gfb", "vref", 1e3, "gain", "gain stage, reference resistor"),
-        Passive("R12", "R", "gout", "gfb", 124e3, "gain", "gain stage, feedback resistor"),
+        Passive("R12", "R", "gout", "gfb", 68e3, "gain", "gain stage, feedback resistor"),
         # Sallen-Key low-pass, 2nd-order Butterworth, 185 Hz
         Passive("R13", "R", "gout", "sk1", 10e3, "lpf", "Sallen-Key input resistor"),
         Passive("R14", "R", "sk1", "sk2", 10e3, "lpf", "Sallen-Key second resistor"),
@@ -144,11 +142,11 @@ REFERENCE = Circuit(
         Passive("R14", "R", "cm", "rld_out", 10e6, "rld", "RLD integrator DC feedback"),
         Passive("C3", "C", "cm", "rld_out", 10e-9, "rld", "RLD integrator capacitor"),
         Passive("R15", "R", "rld_out", "lead_rl", 100e3, "rld", "RLD output current limiter"),
-        # High-pass (0.48 Hz) and gain stage (G = 1 + R18 / R17 = 96.3)
+        # High-pass (0.041 Hz) and gain stage (G = 1 + R18 / R17 = 40)
         Passive("C4", "C", "ina_out", "hp", 1e-6, "hpf", "high-pass capacitor"),
-        Passive("R16", "R", "hp", "0", 330e3, "hpf", "high-pass resistor"),
+        Passive("R16", "R", "hp", "0", 3.9e6, "hpf", "high-pass resistor"),
         Passive("R17", "R", "gfb", "0", 1e3, "gain", "gain stage, ground resistor"),
-        Passive("R18", "R", "gout", "gfb", 95.3e3, "gain", "gain stage, feedback resistor"),
+        Passive("R18", "R", "gout", "gfb", 39e3, "gain", "gain stage, feedback resistor"),
         # Sallen-Key low-pass, 2nd-order Butterworth, 185 Hz
         Passive("R19", "R", "gout", "sk1", 10e3, "lpf", "Sallen-Key input resistor"),
         Passive("R20", "R", "sk1", "sk2", 10e3, "lpf", "Sallen-Key second resistor"),
@@ -183,7 +181,7 @@ _FOUR_KT = 1.65763e-20
 # output clamped `hr` volts from the rails (clamping the gain node avoids windup).
 # The INA is the classic three-amplifier structure with ideal internal resistors;
 # offset and finite CMRR are an error voltage in series with the + input.
-_SUBCIRCUITS = f"""\
+SUBCIRCUITS = f"""\
 .subckt opamp inp inn out vcc vee aol=2e5 gbw=3e6 vos=0 rout=50 en=18n hr=1.5
 Vos p1 inp dc {{vos}}
 Rn nz 0 {{en*en/{_FOUR_KT}}}
@@ -198,17 +196,17 @@ Eo n2 0 n1 0 1
 Ro n2 out {{rout}}
 .ends opamp
 
-.subckt ina inp inn rgp rgn ref out vcc vee rfb=50k vos=0 cmrr=1e5 gerr=0
+.subckt ina inp inn rgp rgn ref out vcc vee rfb=50k rdiff=150k vos=0 cmrr=1e5 gerr=0
 + aol=1e6 gbw=1e6 rout=50 en=30n hr=0.05
 Berr pe inp V = {{vos}} + (0.5*(v(inp)+v(inn)) - v(ref))/{{cmrr}}
 XA1 pe rgp o1 vcc vee opamp aol={{aol}} gbw={{gbw}} rout={{rout}} en={{en}} hr={{hr}}
 XA2 inn rgn o2 vcc vee opamp aol={{aol}} gbw={{gbw}} rout={{rout}} en={{en}} hr={{hr}}
 Rf1 o1 rgp {{rfb*(1+gerr)}}
 Rf2 o2 rgn {{rfb*(1+gerr)}}
-Rd1 o2 dn 40k
-Rd2 dn out 40k
-Rd3 o1 dp 40k
-Rd4 dp ref 40k
+Rd1 o2 dn {{rdiff}}
+Rd2 dn out {{rdiff}}
+Rd3 o1 dp {{rdiff}}
+Rd4 dp ref {{rdiff}}
 XA3 dp dn out vcc vee opamp aol={{aol}} gbw={{gbw}} rout={{rout}} en={{en}} hr={{hr}}
 .ends ina"""
 
@@ -220,7 +218,7 @@ class CircuitInstance:
     circuit: str
     passives: dict[str, float]
     opamps: dict[str, dict[str, float]]  # U2 -> {aol, gbw, vos, rout, en, headroom}
-    inas: dict[str, dict[str, float]]  # U1 -> {rfb, vos, cmrr_db, gain_error}
+    inas: dict[str, dict[str, float]]  # U1 -> {rfb, vos, cmrr_db, cmrr_sign, gain_error}
     electrodes: dict[str, dict[str, float]]  # la -> {ehc, rs, rd, cd}
     electrode_type: str = "nominal"
     series_r: dict[str, float] = field(default_factory=dict)  # opens, capacitor ESR
@@ -234,29 +232,11 @@ def get_circuit(cfg: dict) -> Circuit:
     return CIRCUITS[cfg["circuit"]]
 
 
-def uses_vendor_ina(cfg: dict) -> bool:
-    return cfg.get("ina", {}).get("model") == "vendor"
-
-
-def vendor_lib(cfg: dict) -> Path:
-    path = REPO_ROOT / cfg["ina"]["vendor_lib"]
-    if not path.exists():
-        raise FileNotFoundError(
-            f"{path} not found: run `python scripts/fetch_vendor_models.py`, "
-            "or set ina.model to behavioural"
-        )
-    return path
-
-
-def spice_init(cfg: dict) -> str | None:
-    """ngspice start-up commands needed by the deck (PSpice dialect for vendor models)."""
-    return "set ngbehavior=psa" if uses_vendor_ina(cfg) else None
-
 
 def nominal_instance(cfg: dict) -> CircuitInstance:
     circuit = get_circuit(cfg)
     opamp = {k: float(cfg["opamp"][k]) for k in _OPAMP_KEYS}
-    ina = {"rfb": 0.0, "cmrr_db": 0.0, **cfg.get("ina", {})}
+    ina = cfg.get("ina", {"rfb": 0.0, "cmrr_db": 0.0})
     return CircuitInstance(
         circuit=circuit.name,
         passives={p.name: p.value for p in circuit.passives},
@@ -265,6 +245,7 @@ def nominal_instance(cfg: dict) -> CircuitInstance:
             u.name: {
                 "rfb": float(ina["rfb"]),
                 "cmrr_db": float(ina["cmrr_db"]),
+                "cmrr_sign": 1.0,
                 "vos": 0.0,
                 "gain_error": 0.0,
             }
@@ -308,10 +289,7 @@ def build_netlist(
     stim = stim or Stimulus()
     circuit = CIRCUITS[inst.circuit]
     env = cfg["environment"]
-    lines = [f"* {title} ({circuit.name})", _SUBCIRCUITS, ""]
-    vendor = bool(circuit.inas) and uses_vendor_ina(cfg)
-    if vendor:
-        lines += [f'.include "{vendor_lib(cfg)}"', ""]
+    lines = [f"* {title} ({circuit.name})", SUBCIRCUITS, ""]
 
     lines += [
         "* supplies",
@@ -365,16 +343,11 @@ def build_netlist(
             f"vos={o['vos']} rout={o['rout']} en={o['en']} hr={o['headroom']}"
         )
     for u in circuit.inas:
-        if vendor:
-            lines.append(
-                f"X{u.name} {u.inp} {u.inn} vcc vee {u.out} {circuit.ref} {u.rgp} {u.rgn} "
-                f"{cfg['ina']['vendor_subckt']}"
-            )
-            continue
-        a, o = inst.inas[u.name], cfg["opamp"]
+        a, o = inst.inas[u.name], cfg["ina"]
         lines.append(
             f"X{u.name} {u.inp} {u.inn} {u.rgp} {u.rgn} {circuit.ref} {u.out} vcc vee ina "
-            f"rfb={a['rfb']} vos={a['vos']} cmrr={10 ** (a['cmrr_db'] / 20)} gerr={a['gain_error']}"
+            f"rfb={a['rfb']} rdiff={o['rdiff']} vos={a['vos']} "
+            f"cmrr={a['cmrr_sign'] * 10 ** (a['cmrr_db'] / 20)} gerr={a['gain_error']}"
             f"\n+ aol={o['aol']} gbw={o['gbw']} rout={o['rout']} en={o['en']} hr={o['headroom']}"
         )
 

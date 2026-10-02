@@ -14,7 +14,7 @@ is the cause? Is the problem in the circuit or in the electrodes?
 
 | Phase of the plan | State |
 |---|---|
-| 2. Circuits and specifications | Both circuits simulate and pass E1. Specification limits are placeholders until checked against the IEC standards |
+| 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Two limits and the gel-electrode ranges remain to be confirmed (see docs/circuit.md) |
 | 3. Simulation pipeline | Done: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel generation, tests |
 | 4. Dataset | Not generated. Only the smoke datasets have been run |
 | 5. Testability (E2, E9) | E2 first pass. E9 not written (a class-separability metric exists) |
@@ -34,18 +34,19 @@ pytest                         # about 5 s; ngspice tests are skipped if it is m
 
 ## Usage
 
-There are two circuits: `integrated` (main, the default) and `reference` (discrete
-three-op-amp amplifier). Pass `--circuit reference` to work on the second one.
+There are two circuits: `integrated` (main, the default, built around the INA333)
+and `reference` (discrete three-op-amp amplifier). Pass `--circuit reference` to
+work on the second one. Their schematics are in [docs/figures/](docs/figures/).
 
 ```bash
 ecgfd nominal                  # self-test features and specifications of the nominal circuit
 ecgfd netlist                  # print the ngspice deck
 ecgfd faults                   # size of the fault catalogue
 
-# Smoke datasets: about 1,200 simulations and 1.5 minutes each
+# Smoke datasets: about 1,200 simulations and 2.5 minutes each
 make smoke
 
-# Full datasets: 63,600 + 66,400 simulations, roughly 2.5 hours on 8 cores
+# Full datasets: 63,600 + 66,400 simulations, roughly 4 hours on 8 cores
 make dataset
 
 python experiments/e1_nominal_validation.py                      # specs: nominal and healthy yield
@@ -78,6 +79,8 @@ diagnosability.
 | `src/ecgfd/evaluation.py` | Escape and false-reject rates, class separability, leakage-free splits |
 | `src/ecgfd/models/` | Reference classifiers and the 1D CNN |
 | `experiments/` | One script per experiment of the plan |
+| `scripts/draw_schematics.py` | Draws both schematics into `docs/figures/` |
+| `scripts/validate_ina_model.py` | Compares the behavioural INA with the TI INA333 macromodel (fetched by `scripts/fetch_vendor_models.py`) |
 | `tests/` | Unit and end-to-end tests, run on both circuits |
 
 ## How a dataset is built
@@ -88,7 +91,7 @@ diagnosability.
 3. A first ngspice run takes the self-test measurements in service, with the
    patient's electrodes: operating point, three frequency responses and the response
    to the 1 mV calibration pulse.
-4. A second run measures the specifications on a standard test network. Comparing
+4. A second run measures the specifications with the IEC 60601-2-25 test networks. Comparing
    them with the limits gives the functional label; the injected fault gives the
    localisation and origin labels.
 5. The noise-free results go to `samples.parquet` and `waveforms.npy`;

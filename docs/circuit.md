@@ -1,9 +1,10 @@
 # Circuits, specifications and modelling decisions
 
-This note records what is implemented in `src/ecgfd/` and why, and lists the
-decisions that are still open. The research plan (version 2) is in
-[linea_diagnostico_fallos_frontend_ecg.md](linea_diagnostico_fallos_frontend_ecg.md)
-and the literature review in [SOTA/](SOTA/sota_diagnostico_fallos_frontend_ecg.md).
+Design record of phase 2 of the
+[research plan](linea_diagnostico_fallos_frontend_ecg.md): what is implemented in
+`src/ecgfd/`, why each value was chosen, where each specification limit comes from,
+and what remains to be confirmed. The literature review is in
+[SOTA/](SOTA/sota_diagnostico_fallos_frontend_ecg.md).
 
 ## The two circuits
 
@@ -12,10 +13,10 @@ a netlist with `ecgfd --circuit <name> netlist` and the parts with `components`.
 
 | | `integrated` (main) | `reference` |
 |---|---|---|
-| Instrumentation amplifier | integrated block U1, external gain resistor split in two (R5, R6) | discrete, three op-amps (U1–U3, R5–R11) |
+| Instrumentation amplifier | TI INA333 (U1), external gain resistor split in two (R5, R6) | discrete, three op-amps (U1–U3, R5–R11) |
 | Supply | single 3.3 V, mid-supply reference (R15, R16, C8, U6) | ±5 V |
 | First-stage gain | 4.03 | 10.36 |
-| Total gain | 501 | 992 |
+| Total gain | 278 | 414 |
 | Injectable passives | 24 (16 R, 8 C) | 26 (20 R, 6 C) |
 | Discrete op-amps | 5 | 6 |
 | Fault conditions | 293 | 307 |
@@ -30,35 +31,94 @@ next to the PNG files). Labels come from the component table used for simulation
 `Vcal`, `Vcmt` and `Ilo` are the internal test sources, and nets with the same name
 (`vref`, `mid`, `o1`, `o2`) are connected.
 
-Shared stages: series protection resistors and RFI capacitors, 10 MΩ bias resistors,
-driven right leg (inverting integrator, 100 kΩ output limiter), 0.48 Hz RC high-pass,
-non-inverting gain stage and a 185 Hz Sallen-Key Butterworth low-pass. The low-pass
-sits above 150 Hz so that the upper −3 dB frequency keeps a margin over the limit
-with 5 % capacitors.
+## Design of the discrete network
 
-The first-stage gain of the integrated circuit is 4 because a ±300 mV electrode
-offset must fit in the 3.3 V supply; with a gain of 11 the nominal circuit failed
-the offset-tolerance specification.
+Designators are those of the `integrated` circuit; the `reference` circuit uses the
+same values for the shared stages.
+
+| Parts | Value | Reason |
+|---|---|---|
+| R1, R2 | 10 kΩ | Series protection of the inputs and resistive half of the RFI filter. Their thermal noise (13 nV/√Hz each) stays below that of the INA333 |
+| C1, C2 | 100 pF | Common-mode RFI filter with R1/R2, corner at 159 kHz, far above the ECG band |
+| C3 | 1 nF | Differential RFI filter, ten times C1/C2 so that their 5 % mismatch barely converts common mode into differential |
+| R3, R4 | 10 MΩ | Bias path for the inputs and lead-off pull to the reference. The 20 MΩ differential input impedance gives a 3 % loss in the 620 kΩ input-impedance test (limit 20 %) |
+| R5, R6 | 16.5 kΩ | G = 1 + 100 kΩ / 33 kΩ = 4.03. A ±300 mV electrode offset becomes ±1.21 V at the INA output, inside the ±1.6 V available on 3.3 V. With G = 11 the circuit failed the offset test |
+| R7, C4 | 10 kΩ, 10 nF | RLD integrator, unity gain at 1.6 kHz: about 30 dB of extra common-mode reduction at 50 Hz |
+| R8 | 10 MΩ | Limits the DC gain of the RLD integrator to 1000 so that it cannot drift into a rail |
+| R9 | 100 kΩ | Limits the current into the RL electrode to 33 µA with the amplifier output at a rail |
+| C5, R10 | 1 µF, 3.9 MΩ | High-pass with τ = 3.9 s (0.041 Hz). A 3 mV, 100 ms impulse shifts the baseline by 76 µV (limit 100 µV), which a 0.5 Hz corner cannot meet |
+| R11, R12 | 1 kΩ, 68 kΩ | Second-stage gain 69, total 278: a ±5 mV input uses ±1.39 V of the ±1.6 V output range |
+| R13, R14, C6, C7 | 10 kΩ, 10 kΩ, 120 nF, 62 nF | Sallen-Key Butterworth at 185 Hz (Q = 0.70). The response at 150 Hz is 0.83 of mid-band (limit 0.70) and stays above 0.79 with 5 % capacitors |
+| R15, R16, C8 | 100 kΩ, 100 kΩ, 1 µF | Mid-supply reference of 1.65 V, filtered at 3 Hz and buffered by U6 |
+
+In the `reference` circuit the first stage has G = 1 + 44 kΩ / 4.7 kΩ = 10.36 (a
+±300 mV offset gives ±3.1 V, inside the ±3.5 V swing), a unity-gain difference stage
+with 10 kΩ resistors, and a second-stage gain of 40 (total 414, ±6 mV input range in
+the ±2.5 V ADC range).
 
 ## Models
 
-**Op-amps and INA are behavioural.** The op-amp is a single-pole macromodel with
-offset, white input noise and output clamping near the rails; the integrated
-circuit uses rail-to-rail CMOS figures and the reference circuit TL07x-like ones.
-The INA is the three-amplifier structure with ideal internal resistors
-(G = 1 + 100 kΩ/Rg) plus an error source for offset and finite CMRR. No vendor
-model is needed, the offset, gain and CMRR can be degraded as faults, and every
-fault of the catalogue converges. Missing: 1/f noise, bias currents, slew rate.
+### INA333
 
-**Electrodes** are a half-cell potential in series with Rs and Rd ‖ Cd. Each
-simulated case draws a family (gel or dry, 50/50) and then each electrode
-independently and log-uniformly within the family ranges, so contact-impedance
-imbalance is part of the normal variation.
+The integrated amplifier is the Texas Instruments INA333 (zero-drift, 1.8–5.5 V,
+G = 1 + 100 kΩ / Rg). It is simulated with a behavioural model built from data sheet
+SBOS445C: the three-amplifier structure with 50 kΩ feedback and 150 kΩ difference
+resistors, plus an error source for offset and finite common-mode rejection.
 
-**The patient** is a body node coupled to mains (2 pF) and earth (200 pF), with the
-amplifier common isolated by 200 pF (Winter & Webster). Mains is off during self-test.
+| Parameter | Model | Data sheet |
+|---|---|---|
+| CMRR at G = 4 | 102 dB, Monte Carlo 92–112 dB | 80/90 dB (min/typ) at G = 1, 100/110 dB at G = 10; interpolated |
+| Offset, referred to the input | ±44 µV | ±25 µV ± 75 µV / G maximum |
+| Gain error | ±0.25 % | ±0.25 % maximum at G = 10 |
+| Noise | 35 nV/√Hz per input amplifier | 50 nV/√Hz referred to the input |
+| Bandwidth | GBW 350 kHz | 35 kHz at G = 10 |
+| Output swing | 50 mV from the rails | 50 mV maximum |
 
-**Internal test sources**, used by the self-test measurements:
+`scripts/validate_ina_model.py` compares it with the TI macromodel (SBOM382) in the
+same bench:
+
+| | Behavioural | TI macromodel |
+|---|---|---|
+| Gain at 10 Hz | 4.03 | 4.03 |
+| CMRR at 50 Hz | 102 dB | 100.2 dB |
+| −3 dB bandwidth | 72 kHz | 166 kHz |
+| Offset, referred to the input | 0 (drawn per circuit) | 16 µV |
+| Output swing from the rails | 51 mV | 25–27 mV |
+
+Gain and CMRR agree; the bandwidth differs but both are three orders of magnitude
+above the ECG band; the swing of the behavioural model is the data sheet maximum.
+
+**Why the TI macromodel is not used for the dataset.** It runs in ngspice (PSpice
+compatibility mode) on its own, but inside the complete front-end it took 39 s per
+case against 0.2 s, and the operating point converged to a wrong solution with every
+node near ground. It also has fixed typical parameters, so it allows neither Monte
+Carlo of the block nor faults in it, and its licence does not allow redistribution.
+Its noise analysis gave implausible values in ngspice and was not compared.
+
+Not modelled: input bias current (±200 pA maximum), 1/f noise, slew rate.
+
+### Discrete op-amps
+
+Single-pole behavioural model with offset, white noise and output clamping. The
+`integrated` circuit assumes a precision rail-to-rail CMOS class (offset ±0.5 mV,
+GBW 1 MHz, 30 nV/√Hz); the `reference` circuit uses TL07x-like figures (±3 mV,
+3 MHz, 18 nV/√Hz). No specific part is fixed for them.
+
+### Electrodes and patient
+
+Each electrode is a half-cell potential in series with Rs and Rd ‖ Cd. Each simulated
+case draws a family (gel or dry, 50/50) and then each electrode independently and
+log-uniformly within the family ranges, so imbalance is part of the normal variation.
+
+| Family | Rs | Rd | Cd | Basis |
+|---|---|---|---|---|
+| Gel | 0.1–1 kΩ | 20–100 kΩ | 20–100 nF | Bracket around the 51 kΩ ‖ 47 nF network that the ECG standards use to represent the skin-electrode impedance. Assumed, not taken from measurements |
+| Dry | 0.05–100 kΩ | 0.08–3 MΩ | 2–50 nF | Ranges collected in the state-of-the-art review (section 5.3 of the plan) |
+
+The patient is a body node coupled to mains (2 pF) and earth (200 pF), with the
+amplifier common isolated by 200 pF (Winter & Webster, 1983).
+
+### Internal test sources
 
 - `Vcal`, floating, in series with the LA lead: the 1 mV calibration pulse (C3) and
   the differential tone (C2). The response depends on the circuit and the electrodes.
@@ -67,23 +127,40 @@ amplifier common isolated by 200 pF (Winter & Webster). Mains is off during self
 - `Ilo`, a differential current into the inputs: the output tone is proportional to
   the contact impedance of both electrodes, as in AC lead-off detection (C4).
 
-## Specifications and the three labelling levels
+These are ideal models of the self-test signals. How the instrument generates them is
+outside the scope of the study and is stated as a modelling assumption.
 
-`src/ecgfd/specs.py` simulates the specifications of every case with a second
-ngspice run on a **standard test network** instead of the patient's electrodes:
+## Specifications
 
-| Specification | How it is obtained | Provisional limit |
-|---|---|---|
-| `gain_error` | gain at 10 Hz against the nominal circuit | ≤ 5 % |
-| `f_low`, `f_high` | −3 dB frequencies relative to 10 Hz | ≤ 0.67 Hz, ≥ 150 Hz |
-| `cmrr_db` | mains-frequency source through 200 pF, 51 kΩ ‖ 47 nF in one lead, RLD active; source over input-referred output | ≥ 95 dB |
-| `noise_uvpp` | input-referred, 0.05–150 Hz, 6.6 × rms | ≤ 30 µV |
-| `offset_gain_error` | gain change at 10 Hz with ±300 mV at one input | ≤ 5 % |
-| `output_offset` | output at rest against ADC mid-scale | ≤ 0.5 V |
+The circuit is treated as a diagnostic electrocardiograph, so the specifications
+follow IEC 60601-2-25:2011, clause 201.12.4. `src/ecgfd/specs.py` evaluates them for
+every case in a second ngspice run, with the standard test networks instead of the
+patient's electrodes.
 
-Because the specifications belong to the circuit, an electrode fault leaves the
-case compliant; the self-test features do change, and the origin label records why.
-The labels stored per case are:
+| Specification | Test | Limit | Source |
+|---|---|---|---|
+| `gain_error` | gain at 10 Hz against the nominal circuit | ≤ 5 % | MEDTEQ |
+| `resp_dev_lf` | response from 0.67 to 40 Hz relative to 10 Hz | within ±10 % | Standard text, 201.12.4.107 (search excerpt) |
+| `resp_min_hf`, `resp_max_hf` | response from 40 to 150 Hz relative to 10 Hz | −30 % to +10 % | **Recalled, not verified** |
+| `impulse_offset_uv`, `impulse_slope_uvs` | baseline after a 3 mV, 100 ms impulse | ≤ 100 µV, ≤ 300 µV/s | MEDTEQ |
+| `cmrr_db` | 20 V rms at mains frequency behind a 100 pF divider (10 V rms unloaded), 51 kΩ ‖ 47 nF in one lead, ±300 mV offset, RLD active | ≥ 89 dB, i.e. ≤ 1 mV peak-to-valley at the input | MEDTEQ |
+| `noise_uvpp` | input-referred, 0.05–150 Hz, 51 kΩ ‖ 47 nF in both leads | ≤ 30 µV peak-to-valley | Standard text, 201.12.4.106 (search excerpt) |
+| `zin_drop` | signal loss with 620 kΩ ‖ 4.7 nF in series with a lead, at 0.67 and 40 Hz | ≤ 20 % | MEDTEQ, 201.12.4.103 |
+| `offset_gain_error` | gain change at 10 Hz with ±300 mV at one input | ≤ 5 % | ±300 mV from the standard; the 5 % is the gain tolerance |
+| `input_range_mv` | input amplitude that fits the output range, given gain and output offset | ≥ 5 mV | **Recalled, not verified** |
+
+Simplifications: noise is taken as 6.6 times the rms value instead of a 10 s
+peak-to-valley reading; the dynamic range is computed from the operating point
+instead of being exercised with a ±5 mV signal; the impulse test reads the baseline
+50 ms after the impulse.
+
+E1 (`python experiments/e1_nominal_validation.py`) closes the phase: both nominal
+circuits and 500 healthy Monte Carlo circuits of each meet all eleven specifications.
+
+### Labels
+
+Because the specifications belong to the circuit, an electrode fault leaves the case
+compliant; the self-test features do change, and the origin label records why.
 
 1. **Functional**: `compliant`, `violated` (names of the failed specifications),
    plus the continuous `spec_*` values for alternate-test regression.
@@ -93,35 +170,52 @@ The labels stored per case are:
 `is_faulty` keeps the percentage-severity view (a fault was injected), which E4
 compares against `compliant`.
 
-## Open decisions and known limitations
+## To confirm
 
-These need a decision before the final dataset is generated.
+None of these blocks the pipeline; each changes numbers in `configs/default.yaml`.
 
-1. **Specification limits and test set-up are placeholders.** They were chosen to be
-   plausible and must be replaced by the values of IEC 60601-2-25 / 60601-2-27
-   (phase 2 of the plan). In particular, the 0.49 Hz high-pass only fits a
-   monitoring-type lower limit, not a 0.05 Hz diagnostic one.
-2. **The CMRR test may be too lenient.** With the RLD active the body common-mode
-   voltage is small, and in the smoke data an INA degraded to 50 dB CMRR still passes.
-   The definition of this specification should be reviewed against the standard.
-3. **Dry electrodes and the 10 MΩ bias resistors.** With dry-electrode impedances of
-   up to 3 MΩ the in-service gain of healthy circuits drops by as much as 18 %
-   (410–513 in a 40-case check). Either raise the input impedance or accept it as
-   part of what the diagnosis must tolerate. Electrode ranges are placeholders to be
-   backed by the references of the review.
-4. **Electrode degradation is relative to the family.** A dried gel electrode can
-   have the impedance of a healthy dry one. The electrode type is stored
-   (`electrode_type`) and could be given to the models as known information.
-5. **How the calibration pulse is injected.** `Vcal` is an ideal floating source. The
-   real injection circuit decides whether electrode faults show in the pulse response.
-6. **AC features are small-signal.** A fault that would saturate the output under a
-   real tone can show a huge linear gain instead. The measurement model clips tones
-   to the ADC range; measuring them in a transient would be more faithful and slower.
-7. **The integrated INA is generic.** Choosing a real part fixes its gain equation,
-   CMRR and offset, and may allow a vendor model (check the redistribution licence).
-8. **Not implemented yet:** a specification on the calibration-pulse shape, the
-   DC lead-off variant of C4, negative op-amp offset faults, the optional notch filter.
-9. **Measurement model.** The noise of DC and tone estimates is a first approximation
-   (see `measurement.py`); it should follow the real acquisition procedure.
-10. **Tools.** ngspice is driven directly instead of through PySpice, and there are no
-    Qucs-S schematics; the netlist generated by the code is the source of truth.
+1. **Two limits were set from memory**, because the text of IEC 60601-2-25 could not
+   be opened: the 40–150 Hz response band and the ±5 mV dynamic range. Check them
+   against the standard. If only limits change, the stored `spec_*` values allow
+   relabelling without re-simulating.
+2. **Gel electrode ranges are assumed.** The dry ranges come from the review; neither
+   was checked against the papers, which could not be accessed (Sensors 2022,
+   doi:10.3390/s22218510; Scientific Reports 2024, doi:10.1038/s41598-024-56595-0).
+3. **CMRR interpolation.** The INA333 data sheet gives CMRR at G = 1 and G = 10; the
+   value at G = 4 is interpolated (the TI macromodel gives 100 dB there).
+
+## Consequences worth knowing before the dataset
+
+- **Dry electrodes lower the in-service gain.** With contact impedances of up to
+  3 MΩ against the 10 MΩ bias resistors, healthy circuits measure down to 0.83 of the
+  nominal gain through `Vcal` (0.98–1.01 with gel). The circuit is compliant; the
+  models must tell this apart from a gain fault, and `electrode_type` is stored in
+  case it is given to them as known information.
+- **Electrode degradation is relative to the family.** A dried gel electrode can have
+  the impedance of a healthy dry one.
+- **The system CMRR is dominated by the RLD.** With the INA333 degraded to 50 dB the
+  nominal circuit still measures 117–130 dB in the 89 dB test (the range depends on
+  the polarity of its common-mode error), so that block fault is functionally benign.
+- **Slow self-test tone.** The 0.041 Hz high-pass makes the 0.05 Hz tone of C2 the one
+  that sees C5 and R10; measuring it takes tens of seconds.
+- **AC features are small-signal.** A fault that would saturate the output under a
+  real tone can show a huge linear gain; the measurement model clips tones to the ADC
+  range.
+- **Extended DC nodes.** `ina_out` and `rld_out` assume spare ADC channels. Only `out`
+  belongs to the strict feature sets; the extended set is `C1x`.
+- **Not implemented:** the DC lead-off variant of C4, negative op-amp offset faults,
+  the optional notch filter.
+
+## Sources
+
+- Texas Instruments, *INA333 data sheet*, SBOS445C, and PSpice model SBOM382:
+  <https://www.ti.com/product/INA333>
+- MEDTEQ, *CMRR testing (IEC 60601-2-25, -2-27, -2-47)*:
+  <https://www.medteq.net/article/cmrr-testing-iec-60601-2-25-2-27-2-47>
+- MEDTEQ, *IEC 60601-2-25 201.12.4.103 Input impedance*:
+  <https://www.medteq.net/iec-60601225-201124103-input-impedance>
+- MEDTEQ, articles on IEC 60601-2-25: <https://www.medteq.net/article/tag/IEC+60601-2-25>
+- IEC 60601-2-25:2011, *Particular requirements for the basic safety and essential
+  performance of electrocardiographs*: <https://webstore.iec.ch/en/publication/2636>
+- Winter, B. B., Webster, J. G. (1983). Driven-right-leg circuit design. *IEEE
+  Transactions on Biomedical Engineering*, 30(1), 62–66.

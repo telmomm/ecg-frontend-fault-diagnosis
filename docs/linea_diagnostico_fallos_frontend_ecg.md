@@ -207,7 +207,7 @@ Antes del entrenamiento se añaden ruido y cuantificación de un ADC típico, co
 | Herramienta | Uso |
 |---|---|
 | ngspice + PySpice | Simulación y automatización |
-| Qucs-S | Captura del esquema |
+| schemdraw | Esquemas generados desde la tabla de componentes del código (`scripts/draw_schematics.py`) |
 | NumPy, pandas | Procesado |
 | scikit-learn | Modelos clásicos, regresión, selección de características |
 | PyTorch | CNN 1D |
@@ -239,15 +239,17 @@ Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio 
 
 **Entregable:** borrador de introducción. **Cierre:** las cinco aportaciones están justificadas con referencias.
 
-### Fase 2 — Diseño del circuito y especificaciones
-- [ ] Elegir el front-end integrado y conseguir su macromodelo (o definir el modelo de comportamiento)
-- [ ] Diseñar la red discreta con valores justificados
-- [ ] Diseñar el circuito discreto de referencia
-- [ ] Definir el modelo de electrodo (gel y seco) con rangos de la literatura
-- [ ] Consultar las normas y fijar la tabla de especificaciones
-- [ ] Capturar ambos esquemas en Qucs-S
+### Fase 2 — Diseño del circuito y especificaciones ✅
+- [x] Elegir el front-end integrado y conseguir su macromodelo (o definir el modelo de comportamiento): **INA333** de Texas Instruments, con modelo de comportamiento construido con su hoja de datos y contrastado a nivel de bloque con el macromodelo del fabricante
+- [x] Diseñar la red discreta con valores justificados
+- [x] Diseñar el circuito discreto de referencia
+- [x] Definir el modelo de electrodo (gel y seco): rangos fijados; el de gel es una horquilla en torno a la red normalizada de 51 kΩ ‖ 47 nF, pendiente de respaldar con medidas publicadas
+- [x] Fijar la tabla de especificaciones según IEC 60601-2-25: valores tomados de fuentes secundarias; dos de ellos pendientes de contrastar con el texto de la norma
+- [x] Esquemas de ambos circuitos en `docs/figures/` (la captura en Qucs-S sale del alcance)
 
 **Entregable:** esquemas y tabla de especificaciones. **Cierre:** E1 superado (circuitos nominales aptos).
+
+**Resultado:** ambos circuitos nominales y 500 circuitos sanos de Monte Carlo de cada uno cumplen las once especificaciones. El diseño, la procedencia de cada límite y lo que queda por contrastar están en `docs/circuit.md`.
 
 ### Fase 3 — Pipeline de simulación
 - [ ] Automatizar con PySpice un filtro sencillo (prueba de concepto)
