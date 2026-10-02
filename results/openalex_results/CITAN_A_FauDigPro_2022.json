@@ -1,0 +1,46 @@
+[
+  {
+    "openalex_id": "W4413970049",
+    "doi": "10.1016/j.jbi.2025.104902",
+    "title": "Strategies for detecting and mitigating dataset shift in machine learning for health predictions: A systematic review",
+    "year": 2025,
+    "type": "review",
+    "venue": "Journal of Biomedical Informatics",
+    "cited_by": 26,
+    "abstract": "",
+    "n_references": 34
+  },
+  {
+    "openalex_id": "W4400388786",
+    "doi": "10.53759/7669/jmc202404053",
+    "title": "Automated Manufacturing Robot Fault Diagnosis in Real Time Using Convolutional Neural Networks",
+    "year": 2024,
+    "type": "article",
+    "venue": "Journal of Machine and Computing",
+    "cited_by": 0,
+    "abstract": "This study introduced a novel real-time Fault Diagnosis Model (FDM) in manufacturing robots by integrating Depthwise Convolutional Neural Networks (CNNs) with Bidirectional Long Short-Term Memory (BiLSTM) networks. The objective is to design a model that can handle the complex high-dimensional sensor data that arrives out of complex, non-linear systems for effective FDM. The work introduced a Feature Extraction (FE) model based on Monte Carlo Filtering (MCF). The work integrates a Depthwise CNN with BiLSTM (DC-BiLSTM) for diagnosis. The integration helps to reduce the computational need and, at the same time, preserve the feature representation. The model was experimented against other models, such as CNN, Long Short-Term Memory (LSTM), Recurrent Neural Network (RNN), and Feed-Forward Neural Networks (FFNN), using a fault dataset sourced from a simulated environment. The results have shown that the proposed model fared well in terms of accuracy, precision, recall, and F1 score against all compared models. The results have judged the proposed model’s applicability in the field of fault diagnosis, which could effectively predict mishaps in advance, thereby helping with efficient maintenance and ensuring continuous productivity.",
+    "n_references": 21
+  },
+  {
+    "openalex_id": "W4410942854",
+    "doi": "10.2139/ssrn.5277129",
+    "title": "Automated Manufacturing Robot Fault Diagnosis in Real Time Using Convolutional Neural Networks",
+    "year": 2025,
+    "type": "preprint",
+    "venue": "SSRN Electronic Journal",
+    "cited_by": 0,
+    "abstract": "",
+    "n_references": 22
+  },
+  {
+    "openalex_id": "W4416410048",
+    "doi": "10.3390/electronics14224532",
+    "title": "Lightweight AI for Sensor Fault Monitoring",
+    "year": 2025,
+    "type": "article",
+    "venue": "Electronics",
+    "cited_by": 0,
+    "abstract": "Sensor faults can produce incorrect data and disrupt the operation of entire systems. In critical environments, such as healthcare, industrial automation, or autonomous platforms, these faults can lead to serious consequences if not detected early. This study explores how faults in MEMS microphones can be classified using lightweight ML models suitable for devices with limited resources. A dataset was created for this work, including both real faults (normal, clipping, stuck, and spikes) caused by issues like acoustic overload and undervoltage, and synthetic faults (drift and bias). The goal was to simulate a range of fault behaviors, from clear malfunctions to more subtle signal changes. Convolutional Neural Networks (CNNs) and hybrid models that use CNNs for feature extraction with classifiers like Decision Trees, Random Forest, MLP, Extremely Randomized Trees, and XGBoost, were evaluated based on accuracy, F1-score, inference time, and model size towards real-time use in embedded systems. Experiments showed that using 2-s windows improved accuracy and F1-scores. These findings help design ML solutions for sensor fault classification in resource-limited embedded systems and IoT applications.",
+    "n_references": 32
+  }
+]

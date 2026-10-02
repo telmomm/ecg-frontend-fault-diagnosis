@@ -1,0 +1,6 @@
+# Tiny dataset to exercise the whole pipeline in about a minute.
+extends: default.yaml
+
+dataset:
+  n_healthy: 40
+  n_per_fault: 4

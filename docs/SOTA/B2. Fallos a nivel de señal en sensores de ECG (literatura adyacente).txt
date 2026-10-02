@@ -1,0 +1,601 @@
+FN OpenAlex
+VR 1.0
+PT J
+AU Koushik Karmakar
+   Sohail Saif
+   Suparna Biswas
+   Sarmistha Neogy
+AF Koushik Karmakar
+   Sohail Saif
+   Suparna Biswas
+   Sarmistha Neogy
+TI A WBAN-Based Framework for Health Condition Monitoring and Faulty Sensor Node Detection Applying ANN
+SO International Journal of Biomedical and Clinical Engineering
+LA English
+DT Article
+C1 [Koushik Karmakar]
+   [Sohail Saif] Maulana Abul Kalam Azad University of Technology, West Bengal, IN
+   [Suparna Biswas] Maulana Abul Kalam Azad University of Technology, West Bengal, IN
+   [Sarmistha Neogy] Jadavpur University, IN
+C3 Maulana Abul Kalam Azad University of Technology, West Bengal, IN; Jadavpur University, IN
+RI Koushik Karmakar/https://openalex.org/A5088967811, Sohail Saif/https://openalex.org/A5061659717, Suparna Biswas/https://openalex.org/A5061672075, Sarmistha Neogy/https://openalex.org/A5007628003
+OI Koushik Karmakar/0000-0001-7523-0802, Sohail Saif/0000-0002-7076-7640, Suparna Biswas/0000-0002-6150-9316, Sarmistha Neogy/0000-0003-1497-671X
+FU 
+CT 5
+NR 18
+PU IGI Global
+SN 2161-1610
+EI 2161-1610
+PD JUN
+PY 2021
+VL 10
+IS 2
+BP 44
+EP 65
+DI 10.4018/ijbce.2021070104
+PG 22
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Haochun Gao
+   Qing Wang
+   Ke Li
+   Jing Hai Zhou
+   Xiang Wang
+   Changyuan Yu
+AF Haochun Gao
+   Qing Wang
+   Ke Li
+   Jing Hai Zhou
+   Xiang Wang
+   Changyuan Yu
+TI Deep Learning-Enabled Noninvasive Human ECG and Long-Term Heart Rate Variability Monitoring and Matching With Sleep Stages Based on an Optical Fiber Sensor System
+SO IEEE Sensors Journal
+LA English
+DT Article
+C1 [Haochun Gao] Hong Kong Polytechnic University, HK
+   [Qing Wang] Hong Kong Polytechnic University, HK
+   [Ke Li] Hong Kong Polytechnic University, HK
+   [Jing Hai Zhou] Hong Kong Polytechnic University, HK
+   [Xiang Wang] University of Cambridge, GB
+   [Changyuan Yu] Hong Kong Polytechnic University, HK
+C3 University of Cambridge, GB; Hong Kong Polytechnic University, HK
+RI Haochun Gao/https://openalex.org/A5108962441, Qing Wang/https://openalex.org/A5057973620, Ke Li/https://openalex.org/A5078515869, Jing Hai Zhou/https://openalex.org/A5033364692, Changyuan Yu/https://openalex.org/A5100402028
+OI Qing Wang/0000-0002-3396-4805, Ke Li/0000-0001-5053-4367, Jing Hai Zhou/0000-0001-9689-8158, Xiang Wang/0000-0003-4889-4501, Changyuan Yu/0000-0002-3185-0441
+FU 
+CT 5
+NR 45
+PU IEEE Sensors Council
+SN 1530-437X
+EI 1530-437X
+PD FEB
+PY 2025
+VL 25
+IS 7
+BP 11131
+EP 11147
+DI 10.1109/jsen.2025.3543869
+PG 17
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT P
+AU Md. Rifatul Islam
+   SYED KAMRUL ISLAM
+   Md Maruf Hossain Shuvo
+AF Md. Rifatul Islam
+   SYED KAMRUL ISLAM
+   Md Maruf Hossain Shuvo
+TI Explainable AI for Hypoglycemia Detection in Type 1 Diabetes Using Single-Lead ECG Signals
+SO
+LA English
+DT Conference-paper
+C1 [Md. Rifatul Islam] The University of Texas at El Paso, US
+   [SYED KAMRUL ISLAM] University of Missouri, US
+   [Md Maruf Hossain Shuvo] The University of Texas at El Paso, US
+C3 The University of Texas at El Paso, US; University of Missouri, US
+RI Md. Rifatul Islam/https://openalex.org/A5015351929, SYED KAMRUL ISLAM/https://openalex.org/A5062878427, Md Maruf Hossain Shuvo/https://openalex.org/A5053479977
+OI Md. Rifatul Islam/0000-0001-6971-2987, SYED KAMRUL ISLAM/0000-0002-0501-0027, Md Maruf Hossain Shuvo/0000-0002-3498-4947
+FU 
+CT 1
+NR 20
+PU
+SN
+EI
+PD MAY
+PY 2025
+VL
+IS
+BP 1
+EP 6
+DI 10.1109/memea65319.2025.11067978
+PG 6
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Ahmed Adam
+   Ahmed Mokhtar
+   Ahmed Mattar
+   Mohamed Abdrahman
+   Sherif Helmy
+AF Ahmed Adam
+   Ahmed Mokhtar
+   Ahmed Mattar
+   Mohamed Abdrahman
+   Sherif Helmy
+TI Comparative Analysis of Anomaly Detection Techniques for Battery Telemetry Data in Low Earth Orbit Remote Sensing Satellites
+SO International Journal of Prognostics and Health Management
+LA English
+DT Article
+C1 [Ahmed Adam] Military Technical College, EG
+   [Ahmed Mokhtar] Military Technical College, EG
+   [Ahmed Mattar] Military Technical College, EG
+   [Mohamed Abdrahman] Ain Shams University, EG
+   [Sherif Helmy] Military Technical College, EG
+C3 Ain Shams University, EG; Military Technical College, EG
+RI Ahmed Mokhtar/https://openalex.org/A5111158661, Ahmed Mattar/https://openalex.org/A5066107339, Mohamed Abdrahman/https://openalex.org/A5119552865, Sherif Helmy/https://openalex.org/A5037669543
+OI Ahmed Mokhtar/0000-0003-4891-8913, Ahmed Mattar/0000-0001-5206-4717
+FU 
+CT 4
+NR 0
+PU The Prognostics and Health Management Society
+SN 2153-2648
+EI 2153-2648
+PD SEP
+PY 2025
+VL 16
+IS 2
+BP
+EP
+DI 10.36001/ijphm.2025.v16i2.4273
+PG 
+PM
+OA diamond
+DA 2026-10-02
+ER
+
+PT J
+AU Hossein Khezripour
+   Saadat Pour Mozaffari
+   Houman Zarrabi
+AF Hossein Khezripour
+   Saadat Pour Mozaffari
+   Houman Zarrabi
+TI A power-efficient layered MIoT framework for real-time ECG anomaly detection and sensor fault classification based on hierarchical THECF and hybrid intelligent models
+SO Scientific Reports
+LA English
+DT Article
+C1 [Hossein Khezripour] Islamic Azad University, Tehran, IR
+   [Saadat Pour Mozaffari] Amirkabir University of Technology, IR
+   [Houman Zarrabi] ICT Research Institute, IR
+C3 ICT Research Institute, IR; Amirkabir University of Technology, IR; Islamic Azad University, Tehran, IR
+RP Saadat Pour Mozaffari (corresponding author), Amirkabir University of Technology, IR
+RI Hossein Khezripour/https://openalex.org/A5087129969, Saadat Pour Mozaffari/https://openalex.org/A5102094206, Houman Zarrabi/https://openalex.org/A5030702981
+OI Hossein Khezripour/0000-0003-4072-6482, Houman Zarrabi/0000-0002-5890-7321
+FU 
+CT 0
+NR 0
+PU Nature Portfolio
+SN 2045-2322
+EI 2045-2322
+PD APR
+PY 2026
+VL 16
+IS 1
+BP
+EP
+DI 10.1038/s41598-026-49593-x
+PG 
+PM 42034794
+OA gold
+DA 2026-10-02
+ER
+
+PT J
+AU A. Mendoza
+   Emely Pujólli da Silva
+   Didier Vega-Oliveros
+   T. Frota de Souza
+   Aurea Soriano-Vargas
+   M. Uchida
+   Anderson Rocha
+AF A. Mendoza
+   Emely Pujólli da Silva
+   Didier Vega-Oliveros
+   T. Frota de Souza
+   Aurea Soriano-Vargas
+   M. Uchida
+   Anderson Rocha
+TI XNet: Enhancing Physical Activity Intensity Assessment With Attentional Multidomain Fusion and Visual Analytics
+SO IEEE Transactions on Cybernetics
+LA English
+DT Article
+C1 [A. Mendoza] Universidade Estadual de Campinas (UNICAMP), BR
+   [Emely Pujólli da Silva] Universidade Estadual de Campinas (UNICAMP), BR
+   [Didier Vega-Oliveros] Universidade Federal de São Paulo, BR
+   [T. Frota de Souza] Universidade Estadual de Campinas (UNICAMP), BR
+   [Aurea Soriano-Vargas] Universidad de Ingeniería y Tecnología, PE
+   [M. Uchida] Universidade Estadual de Campinas (UNICAMP), BR
+   [Anderson Rocha] Universidade Estadual de Campinas (UNICAMP), BR
+C3 Universidade Estadual de Campinas (UNICAMP), BR; Universidad de Ingeniería y Tecnología, PE; Universidade Federal de São Paulo, BR
+RI A. Mendoza/https://openalex.org/A5127969393, Emely Pujólli da Silva/https://openalex.org/A5042747563, Didier Vega-Oliveros/https://openalex.org/A5112577620, T. Frota de Souza/https://openalex.org/A5127993185, Aurea Soriano-Vargas/https://openalex.org/A5043567348, M. Uchida/https://openalex.org/A5127910520, Anderson Rocha/https://openalex.org/A5127930695
+OI A. Mendoza/0000-0001-9011-6522, Emely Pujólli da Silva/0000-0001-7745-6151, Didier Vega-Oliveros/0000-0001-9569-3775, T. Frota de Souza/0000-0003-1464-8628, Aurea Soriano-Vargas/0000-0002-8429-4119, M. Uchida/0000-0002-4128-4965, Anderson Rocha/0000-0002-4236-8212
+FU 
+CT 0
+NR 62
+PU Institute of Electrical and Electronics Engineers
+SN 2168-2267
+EI 2168-2267
+PD MAR
+PY 2026
+VL 56
+IS 5
+BP 2410
+EP 2423
+DI 10.1109/tcyb.2026.3666726
+PG 14
+PM 41774652
+OA closed
+DA 2026-10-02
+ER
+
+PT P
+AU Basel Adams
+AF Basel Adams
+TI High-Reliability Signal Quality Validation for Biosignals Using Sensor Fusion and Software Indices
+SO Preprints.org
+LA
+DT Preprint
+C1 [Basel Adams] Fraunhofer Institute for Reliability and Microintegration, DE
+   [Basel Adams] Technische Universität Berlin, DE
+C3 Fraunhofer Institute for Reliability and Microintegration, DE; Technische Universität Berlin, DE
+RP Basel Adams (corresponding author), Fraunhofer Institute for Reliability and Microintegration, DE
+RI Basel Adams/https://openalex.org/A5108299975
+OI Basel Adams/0009-0009-7187-3064
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD APR
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.20944/preprints202604.0423.v1
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT J
+AU Basel Adams
+AF Basel Adams
+TI High-Reliability Signal Quality Validation for Biosignals Using Sensor Fusion and Software Indices
+SO Sensors
+LA English
+DT Article
+C1 [Basel Adams] Fraunhofer Institute for Reliability and Microintegration, DE
+   [Basel Adams] Technische Universität Berlin, DE
+C3 Fraunhofer Institute for Reliability and Microintegration, DE; Technische Universität Berlin, DE
+RP Basel Adams (corresponding author), Fraunhofer Institute for Reliability and Microintegration, DE
+RI Basel Adams/https://openalex.org/A5108299975
+OI Basel Adams/0009-0009-7187-3064
+FU 
+CT 0
+NR 22
+PU Multidisciplinary Digital Publishing Institute
+SN 1424-8220
+EI 1424-8220
+PD JUN
+PY 2026
+VL 26
+IS 11
+BP 3478
+EP 3478
+DI 10.3390/s26113478
+PG 1
+PM 42280993
+OA gold
+DA 2026-10-02
+ER
+
+PT J
+AU Emmanuel C. Ugwuabonyi
+   Dmitri Perkins
+AF Emmanuel C. Ugwuabonyi
+   Dmitri Perkins
+TI IoMT-SecAlarmBench: A Counterfactual Benchmark for Integrity Attacks in IoMT
+SO Digital Repository at the University of Maryland (University of Maryland College Park)
+LA English
+DT Article
+C1 [Emmanuel C. Ugwuabonyi]
+   [Dmitri Perkins]
+C3 
+RI Emmanuel C. Ugwuabonyi/https://openalex.org/A5099131045, Dmitri Perkins/https://openalex.org/A5148547148
+OI Emmanuel C. Ugwuabonyi/0009-0006-3891-0001
+FU 
+CT 0
+NR 0
+PU University of Maryland, College Park
+SN
+EI
+PD AUG
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.13016/m2vptz-ebir
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT P
+AU Emmanuel C. Ugwuabonyi
+   Dmitri Perkins
+AF Emmanuel C. Ugwuabonyi
+   Dmitri Perkins
+TI IoMT-SecAlarmBench: A Counterfactual Benchmark for Integrity Attacks in IoMT
+SO arXiv (Cornell University)
+LA
+DT Preprint
+C1 [Emmanuel C. Ugwuabonyi] University of Maryland, Baltimore County, US
+   [Dmitri Perkins] University of Maryland, Baltimore County, US
+C3 University of Maryland, Baltimore County, US
+RI Emmanuel C. Ugwuabonyi/https://openalex.org/A5099131045, Dmitri Perkins/https://openalex.org/A5148547148
+OI Emmanuel C. Ugwuabonyi/0009-0006-3891-0001
+FU 
+CT 0
+NR 0
+PU Cornell University
+SN 2331-8422
+EI 2331-8422
+PD AUG
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.48550/arxiv.2608.26416
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT J
+AU Feiya Xiang
+   Geet Khatri
+   Alec Brewer
+   E. L. Garceau
+   Kirstie M.K. Queener
+   Mauro Victorio
+   Parvez Ahmmed
+   James Reynolds
+   Vladimir A. Pozdin
+   Michael Daniele
+   Alper Y. Bozkurt
+   Edgar Lobaton
+AF Feiya Xiang
+   Geet Khatri
+   Alec Brewer
+   E. L. Garceau
+   Kirstie M.K. Queener
+   Mauro Victorio
+   Parvez Ahmmed
+   James Reynolds
+   Vladimir A. Pozdin
+   Michael Daniele
+   Alper Y. Bozkurt
+   Edgar Lobaton
+TI A Hybrid Anomaly Detection Framework for Reliable Physiological Signal Extraction in Multimodal Wearable Sleep Monitoring
+SO AI in Medicine
+LA English
+DT Article
+C1 [Feiya Xiang]
+   [Geet Khatri]
+   [Alec Brewer]
+   [E. L. Garceau]
+   [Kirstie M.K. Queener]
+   [Mauro Victorio]
+   [Parvez Ahmmed]
+   [James Reynolds]
+   [Vladimir A. Pozdin]
+   [Michael Daniele]
+   [Alper Y. Bozkurt]
+   [Edgar Lobaton]
+C3 
+RP Edgar Lobaton (corresponding author), None, None
+RI Feiya Xiang/https://openalex.org/A5064850370, Geet Khatri/https://openalex.org/A5139937988, Alec Brewer/https://openalex.org/A5114107564, E. L. Garceau/https://openalex.org/A5078963253, Kirstie M.K. Queener/https://openalex.org/A5093357903, Mauro Victorio/https://openalex.org/A5067655540, Parvez Ahmmed/https://openalex.org/A5032560338, James Reynolds/https://openalex.org/A5091489353, Vladimir A. Pozdin/https://openalex.org/A5002723349, Michael Daniele/https://openalex.org/A5126065654, Alper Y. Bozkurt/https://openalex.org/A5024569459, Edgar Lobaton/https://openalex.org/A5138045873
+OI Feiya Xiang/0009-0004-0038-091X, E. L. Garceau/0009-0007-3083-0442, Kirstie M.K. Queener/0009-0003-7912-7943, Parvez Ahmmed/0000-0003-0768-6941, James Reynolds/0000-0002-8345-685X, Vladimir A. Pozdin/0000-0003-0152-7544, Michael Daniele/0000-0002-2016-4091, Alper Y. Bozkurt/0000-0002-5538-262X
+FU 
+CT 0
+NR 28
+PU
+SN 3042-6707
+EI 3042-6707
+PD AUG
+PY 2026
+VL 1
+IS 3
+BP 21
+EP 21
+DI 10.3390/aimed1030021
+PG 1
+PM
+OA diamond
+DA 2026-10-02
+ER
+
+PT J
+AU Alper Y. Bozkurt
+   Edgar Lobaton
+   Feiya Xiang
+   James Reynolds
+   Kirstie M.K. Queener
+   Mauro Victorio
+   E. L. Garceau
+   Vladimir A. Pozdin
+   Michael Daniele
+   Parvez Ahmmed
+   Alec Brewer
+   Geet Khatri
+AF Alper Y. Bozkurt
+   Edgar Lobaton
+   Feiya Xiang
+   James Reynolds
+   Kirstie M.K. Queener
+   Mauro Victorio
+   E. L. Garceau
+   Vladimir A. Pozdin
+   Michael Daniele
+   Parvez Ahmmed
+   Alec Brewer
+   Geet Khatri
+TI A Hybrid Anomaly Detection Framework for Reliable Physiological Signal Extraction in Multimodal Wearable Sleep Monitoring
+SO UNC Libraries
+LA
+DT Article
+C1 [Alper Y. Bozkurt]
+   [Edgar Lobaton]
+   [Feiya Xiang]
+   [James Reynolds]
+   [Kirstie M.K. Queener] University of North Carolina at Chapel Hill, US
+   [Mauro Victorio]
+   [E. L. Garceau]
+   [Vladimir A. Pozdin]
+   [Michael Daniele]
+   [Parvez Ahmmed]
+   [Alec Brewer]
+   [Geet Khatri]
+C3 University of North Carolina at Chapel Hill, US
+RI Alper Y. Bozkurt/https://openalex.org/A5024569459, Edgar Lobaton/https://openalex.org/A5138045873, Feiya Xiang/https://openalex.org/A5064850370, James Reynolds/https://openalex.org/A5091489353, Kirstie M.K. Queener/https://openalex.org/A5093357903, Mauro Victorio/https://openalex.org/A5067655540, E. L. Garceau/https://openalex.org/A5078963253, Vladimir A. Pozdin/https://openalex.org/A5002723349, Michael Daniele/https://openalex.org/A5126065654, Parvez Ahmmed/https://openalex.org/A5032560338, Alec Brewer/https://openalex.org/A5114107564, Geet Khatri/https://openalex.org/A5139937988
+OI Alper Y. Bozkurt/0000-0002-5538-262X, Feiya Xiang/0009-0004-0038-091X, James Reynolds/0000-0002-8345-685X, Kirstie M.K. Queener/0009-0003-7912-7943, E. L. Garceau/0009-0007-3083-0442, Vladimir A. Pozdin/0000-0003-0152-7544, Michael Daniele/0000-0002-2016-4091, Parvez Ahmmed/0000-0003-0768-6941
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD SEP
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.17615/rr9p-1z35
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT P
+AU Randolph James Ferlic
+   Kimberly Kate Ferlic
+AF Randolph James Ferlic
+   Kimberly Kate Ferlic
+TI Token-Transition Trajectory Monitoring for Streaming Anomaly Detection over Class-Discriminant Codebook Token Sequences
+SO Zenodo (CERN European Organization for Nuclear Research)
+LA English
+DT Preprint
+C1 [Randolph James Ferlic]
+   [Kimberly Kate Ferlic]
+C3 
+RI Randolph James Ferlic/https://openalex.org/A5136291542, Kimberly Kate Ferlic/https://openalex.org/A5136292224
+OI Randolph James Ferlic/0009-0006-2367-5205
+FU 
+CT 0
+NR 0
+PU European Organization for Nuclear Research
+SN
+EI
+PD JUN
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.5281/zenodo.20805321
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT P
+AU Randolph James Ferlic
+   Kimberly Kate Ferlic
+AF Randolph James Ferlic
+   Kimberly Kate Ferlic
+TI Token-Transition Trajectory Monitoring for Streaming Anomaly Detection over Class-Discriminant Codebook Token Sequences
+SO Zenodo (CERN European Organization for Nuclear Research)
+LA English
+DT Preprint
+C1 [Randolph James Ferlic]
+   [Kimberly Kate Ferlic]
+C3 
+RI Randolph James Ferlic/https://openalex.org/A5136291542, Kimberly Kate Ferlic/https://openalex.org/A5136292224
+OI Randolph James Ferlic/0009-0006-2367-5205
+FU 
+CT 0
+NR 0
+PU European Organization for Nuclear Research
+SN
+EI
+PD JUN
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.5281/zenodo.20805320
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT U
+AU 
+AF 
+TI Cover
+SO
+LA English
+DT Conference-abstract
+C3 
+RI 
+OI 
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD NOV
+PY 2011
+VL
+IS
+BP c1
+EP c1
+DI 10.1109/iccsce.2011.6190480
+PG 
+PM
+OA closed
+DA 2026-10-02
+ER
+

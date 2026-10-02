@@ -1,0 +1,90 @@
+[
+  {
+    "openalex_id": "W4405727761",
+    "doi": "10.1016/j.aej.2024.12.035",
+    "title": "Hybrid double ensemble empirical mode decomposition and K-Nearest Neighbors model with improved particle swarm optimization for water level forecasting",
+    "year": 2024,
+    "type": "article",
+    "venue": "Alexandria Engineering Journal",
+    "cited_by": 13,
+    "abstract": "Water level forecasting plays a vital role in environmental protection and flood management because reliable predictions allow for the deployment of early warning systems to alert the public to minimize the impacts of flooding. This study presents an enhanced approach for weekly water level and flood prediction by integrating data decomposition techniques with machine learning models. Specifically, Ensemble Empirical Mode Decomposition (EEMD) was applied to disaggregate the original water level data into distinct Intrinsic Mode Functions (IMFs) to simplify complexity and enhance periodicity detection. A secondary decomposition was performed on the high-frequency IMF 1, derived from EEMD, to further refine the data features. The K-Nearest Neighbor (KNN) and Support Vector Machine (SVM) models, optimized using Improved Particle Swarm Optimization (PSO), were employed for forecasting. The effectiveness of these hybrid models was evaluated using various performance metrics, revealing that the DEEMD-KNN-PSO and DEEMD-SVM-PSO models significantly outperformed other single decomposition and standalone models. Among these, the DEEMD-KNN-PSO model demonstrated superior accuracy in predicting water levels, showcasing its potential for reliable flood prediction in the Klang River region of Sri Muda, Malaysia. This approach highlights the value of data decomposition and machine learning optimization for improving water level prediction accuracy.",
+    "n_references": 43
+  },
+  {
+    "openalex_id": "W4411159091",
+    "doi": "10.1007/s00034-025-03184-9",
+    "title": "SPOT Faults: Parametric Fault Detection in Linear Analog Circuit Via Sooty Egret Optimization Based Iterative Decisioned CNN",
+    "year": 2025,
+    "type": "article",
+    "venue": "Circuits Systems and Signal Processing",
+    "cited_by": 6,
+    "abstract": "",
+    "n_references": 30
+  },
+  {
+    "openalex_id": "W4417258442",
+    "doi": "10.1016/j.vlsi.2025.102631",
+    "title": "Advanced fault diagnosis in analog and digital VLSI circuits utilizing multi-anchor space-aware temporal convolutional neural network for efficient circuit reliability assessment",
+    "year": 2025,
+    "type": "article",
+    "venue": "Integration",
+    "cited_by": 4,
+    "abstract": "",
+    "n_references": 23
+  },
+  {
+    "openalex_id": "W4406978457",
+    "doi": "10.1016/j.renene.2025.122570",
+    "title": "Impact of floating photovoltaic generation on distribution grids in rural areas of Ecuador. Case study the Esperanza",
+    "year": 2025,
+    "type": "article",
+    "venue": "Renewable Energy",
+    "cited_by": 4,
+    "abstract": "The integration of floating photovoltaic systems in electrical distribution networks enhances efficiency and sustainability in rural areas. This research analyses the impact of floating photovoltaic generation on electrical distribution systems in rural Ecuador, specifically at the La Esperanza hydroelectric dam. To achieve this, an artificial neural network model is developed to identify optimal outcomes. The objective function and constraints within the ANN model determine the optimal FPV capacity and placement to maximize active power injection at each node and minimise power losses. To simulate various scenarios and assess the effectiveness of FPV integration, a power flow model using the forward and backward sweep method was employed. The results for the electrical distribution systems indicate increased energy efficiency, improved voltage profiles, and reduced losses. Optimal FPV integration decreases grid dependency by up to 60 %, reduces losses by up to 20.2 %, and enhances the voltage profile by up to 5 %.",
+    "n_references": 78
+  },
+  {
+    "openalex_id": "W4408614721",
+    "doi": "10.20965/jaciii.2025.p0389",
+    "title": "Early Warning of College Students’ Ideological and Political Course Performance Using an Optimization Algorithm",
+    "year": 2025,
+    "type": "article",
+    "venue": "Journal of Advanced Computational Intelligence and Intelligent Informatics",
+    "cited_by": 2,
+    "abstract": "With the reform of teaching methods, hybrid online and offline teaching modes have been used increasingly in college courses. In this setting, the factors affecting academic performance are more complex, making it more challenging to predict students’ performance. Therefore, there is an urgent need for higher-performance prediction algorithms. This study briefly analyzed college students’ learning in ideological and political courses. Then, the learning features of college students in the courses were extracted using the Super Star platform and teaching system. Feature selection was carried out based on the information gain rate, while the training set was balanced using the synthetic minority oversampling technique (SMOTE). Moreover, the seagull optimization algorithm (SOA) was applied to optimize the hyperparameters of eXtreme Gradient Boosting (XGBoost) to develop the SOA-XGBoost algorithm for early warning of performance. Experiments were performed on the collected datasets. It was found that the effect of the SOA-XGBoost algorithm on the early warning of performance improved significantly following SMOTE processing. The F1-value reached 0.955 and the area under the curve value was 0.976. The SOA exhibited superior performance in hyperparameter optimization compared with other algorithms such as the grid search. The SOA-XGBoost algorithm also achieved the best results in early warning of performance. These results confirm the effectiveness of the proposed SOA-XGBoost algorithm for early warning of performance, and the method can be widely applied in practice.",
+    "n_references": 30
+  },
+  {
+    "openalex_id": "W4416460821",
+    "doi": "10.1007/s10836-025-06204-3",
+    "title": "Enhancing Digital VLSI Circuit Debugging with Unified Neighbor aware Graph Neural Network Based Automated Error Detection",
+    "year": 2025,
+    "type": "article",
+    "venue": "Journal of Electronic Testing",
+    "cited_by": 1,
+    "abstract": "",
+    "n_references": 29
+  },
+  {
+    "openalex_id": "W7124925330",
+    "doi": "10.1007/s11432-025-4714-5",
+    "title": "A new preferential decision mechanism for complex electromechanical equipment based on the belief rule base considering transportation impact",
+    "year": 2026,
+    "type": "article",
+    "venue": "Science China Information Sciences",
+    "cited_by": 0,
+    "abstract": "",
+    "n_references": 4
+  },
+  {
+    "openalex_id": "W7208762288",
+    "doi": "10.1016/j.egyr.2026.109719",
+    "title": "A review of artificial intelligence data-driven methods in building energy management: A comprehensive application-based of recent advances",
+    "year": 2026,
+    "type": "article",
+    "venue": "Energy Reports",
+    "cited_by": 0,
+    "abstract": "Artificial intelligence (AI) has become a fundamental technology for improving building energy management through data-driven prediction, intelligent optimization, and adaptive control. Although numerous reviews have examined individual AI techniques, a comprehensive application-oriented synthesis of recent advances remains limited. This study presents a systematic review of AI-driven building energy management research published between 2022 and 2024. Following a PRISMA-based screening procedure, approximately 150 peer-reviewed studies were selected and analyzed using a unified classification framework based on AI methodologies, application domains, building types, optimization objectives, datasets, and evaluation metrics. The quantitative analysis shows that residential buildings accounted for approximately 45% of the reviewed studies, reflecting the increasing availability of residential energy datasets and smart home applications, whereas research on office buildings exhibited a declining trend during the selected period. Machine learning and deep learning remained the dominant techniques for energy prediction and forecasting, while reinforcement learning and metaheuristic optimization algorithms were increasingly adopted for intelligent control and multi-objective optimization. Among optimization methods, NSGA-based algorithms appeared slightly more frequently than PSO-based approaches, highlighting the growing emphasis on balancing energy efficiency, thermal comfort, operational cost, and environmental performance. The review further demonstrates a clear transition from isolated prediction models toward integrated AI frameworks that combine forecasting, optimization, and real-time control. Despite these advances, several challenges continue to hinder practical implementation, including limited benchmark datasets, insufficient model transferability across buildings and climates, high computational complexity, limited interoperability with existing building management systems, and the scarcity of large-scale real-world validation studies. By integrating quantitative trend analysis, an application-based classification, a comparative evaluation of AI methodologies, and a critical assessment of current research gaps, this review provides practical guidance for selecting AI techniques and identifies promising directions for the next generation of intelligent, explainable, and scalable building energy management systems.",
+    "n_references": 139
+  }
+]

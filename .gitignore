@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+
+# Generated data and results (published separately on Zenodo)
+data/*
+!data/README.md
+results/*
+!results/README.md
+!results/openalex_results/
+
+# SPICE scratch files
+*.raw
+*.log
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/

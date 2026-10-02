@@ -1,0 +1,926 @@
+FN OpenAlex
+VR 1.0
+PT J
+AU Enrique Mario Spinelli
+   Marcelo Haberman
+AF Enrique Mario Spinelli
+   Marcelo Haberman
+TI Insulating electrodes: a review on biopotential front ends for dielectric skin–electrode interfaces
+SO Physiological Measurement
+LA English
+DT Article
+C1 [Enrique Mario Spinelli] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+   [Marcelo Haberman] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Marcelo Haberman] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR; Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RI Enrique Mario Spinelli/https://openalex.org/A5065084374, Marcelo Haberman/https://openalex.org/A5065165007
+OI Enrique Mario Spinelli/0000-0002-4164-9151, Marcelo Haberman/0000-0003-1387-3436
+FU 
+CT 110
+NR 31
+PU IOP Publishing
+SN 0967-3334
+EI 0967-3334
+PD SEP
+PY 2010
+VL 31
+IS 10
+BP S183
+EP S198
+DI 10.1088/0967-3334/31/10/s03
+PG 
+PM 20834109
+OA bronze
+DA 2026-10-02
+ER
+
+PT J
+AU Marcelo Haberman
+   Enrique Mario Spinelli
+AF Marcelo Haberman
+   Enrique Mario Spinelli
+TI A Multichannel EEG Acquisition Scheme Based on Single Ended Amplifiers and Digital DRL
+SO IEEE Transactions on Biomedical Circuits and Systems
+LA English
+DT Article
+C1 [Marcelo Haberman] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Marcelo Haberman] Universidad Nacional de La Plata, AR
+   [Enrique Mario Spinelli] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Enrique Mario Spinelli] Centro Científico Tecnológico - La Plata, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR; Centro Científico Tecnológico - La Plata, AR; Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RI Marcelo Haberman/https://openalex.org/A5065165007, Enrique Mario Spinelli/https://openalex.org/A5065084374
+OI Marcelo Haberman/0000-0003-1387-3436, Enrique Mario Spinelli/0000-0002-4164-9151
+FU 
+CT 42
+NR 27
+PU Institute of Electrical and Electronics Engineers
+SN 1932-4545
+EI 1932-4545
+PD APR
+PY 2012
+VL 6
+IS 6
+BP 614
+EP 618
+DI 10.1109/tbcas.2012.2190733
+PG 5
+PM 23853262
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Miguel Angel Mayosky
+   Enrique Mario Spinelli
+AF Miguel Angel Mayosky
+   Enrique Mario Spinelli
+TI AC coupled three op-amp biopotential amplifier with active DC suppression
+SO IEEE Transactions on Biomedical Engineering
+LA English
+DT Article
+C1 [Miguel Angel Mayosky] Universidad Nacional de La Plata, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR
+RI Miguel Angel Mayosky/https://openalex.org/A5018166238, Enrique Mario Spinelli/https://openalex.org/A5065084374
+OI Miguel Angel Mayosky/0000-0002-3551-105X, Enrique Mario Spinelli/0000-0002-4164-9151
+FU 
+CT 27
+NR 7
+PU Institute of Electrical and Electronics Engineers
+SN 0018-9294
+EI 0018-9294
+PD JAN
+PY 2000
+VL 47
+IS 12
+BP 1616
+EP 1619
+DI 10.1109/10.887943
+PG 4
+PM 11125597
+OA closed
+DA 2026-10-02
+ER
+
+PT B
+AU Gerald Lindinger
+   Peter Svasek
+   Wilfried Lang
+   Lüder Deecke
+AF Gerald Lindinger
+   Peter Svasek
+   Wilfried Lang
+   Lüder Deecke
+TI PC-Supported 64-Channel DC-EEG Amplifier
+SO Lecture notes in medical informatics
+LA English
+DT Book-chapter
+C1 [Gerald Lindinger] Medical University of Vienna, AT
+   [Peter Svasek] TU Wien, AT
+   [Wilfried Lang] Medical University of Vienna, AT
+   [Lüder Deecke] Medical University of Vienna, AT
+C3 Medical University of Vienna, AT; TU Wien, AT
+RI Gerald Lindinger/https://openalex.org/A5037024078, Peter Svasek/https://openalex.org/A5016555087, Wilfried Lang/https://openalex.org/A5029381809, Lüder Deecke/https://openalex.org/A5111430398
+OI Wilfried Lang/0009-0005-9172-493X
+FU 
+CT 20
+NR 11
+PU Springer Nature
+SN 0172-7788
+EI 0172-7788
+PD JAN
+PY 1991
+VL
+IS
+BP 1005
+EP 1009
+DI 10.1007/978-3-642-93503-9_180
+PG 5
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Enrique Mario Spinelli
+   Federico N. Guerrero
+   Pablo Andrés García
+   Valentín A. Catacora
+   Marcelo Haberman
+AF Enrique Mario Spinelli
+   Federico N. Guerrero
+   Pablo Andrés García
+   Valentín A. Catacora
+   Marcelo Haberman
+TI A Fully-Differential Biopotential Amplifier With a Reduced Number of Parts
+SO IEEE Transactions on Instrumentation and Measurement
+LA English
+DT Article
+C1 [Enrique Mario Spinelli] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+   [Federico N. Guerrero] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Federico N. Guerrero] Universidad Nacional de La Plata, AR
+   [Pablo Andrés García] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Pablo Andrés García] Universidad Nacional de La Plata, AR
+   [Valentín A. Catacora] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Valentín A. Catacora] Universidad Nacional de La Plata, AR
+   [Marcelo Haberman] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Marcelo Haberman] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR; Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RI Enrique Mario Spinelli/https://openalex.org/A5065084374, Federico N. Guerrero/https://openalex.org/A5079127536, Pablo Andrés García/https://openalex.org/A5007210533, Valentín A. Catacora/https://openalex.org/A5024997771, Marcelo Haberman/https://openalex.org/A5065165007
+OI Enrique Mario Spinelli/0000-0002-4164-9151, Federico N. Guerrero/0000-0002-7323-7872, Pablo Andrés García/0000-0003-1900-1831, Valentín A. Catacora/0000-0002-1144-215X, Marcelo Haberman/0000-0003-1387-3436
+FU 
+CT 5
+NR 23
+PU Institute of Electrical and Electronics Engineers
+SN 0018-9456
+EI 0018-9456
+PD JAN
+PY 2022
+VL 71
+IS
+BP 1
+EP 8
+DI 10.1109/tim.2022.3220284
+PG 8
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Enrique Mario Spinelli
+   Miguel Angel Mayosky
+AF Enrique Mario Spinelli
+   Miguel Angel Mayosky
+TI Mixed-signal design of biopotential front-ends
+SO Latin American Applied Research - An international journal
+LA English
+DT Article
+C1 [Enrique Mario Spinelli] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Enrique Mario Spinelli] Centro Científico Tecnológico - La Plata, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+   [Miguel Angel Mayosky] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR; Centro Científico Tecnológico - La Plata, AR; Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RI Enrique Mario Spinelli/https://openalex.org/A5065084374, Miguel Angel Mayosky/https://openalex.org/A5018166238
+OI Enrique Mario Spinelli/0000-0002-4164-9151, Miguel Angel Mayosky/0000-0002-3551-105X
+FU 
+CT 1
+NR 9
+PU National University of the South
+SN 0327-0793
+EI 0327-0793
+PD APR
+PY 2010
+VL 40
+IS 2
+BP 99
+EP 103
+DI 
+PG 5
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Nick Van Helleputte
+   Jakob M. Tomasik
+   Wjatscheslaw Galjan
+   A. Mora-Sanchez
+   Dietmar Schroeder
+   Wolfgang H. Krautschneider
+   Robert Puers
+AF Nick Van Helleputte
+   Jakob M. Tomasik
+   Wjatscheslaw Galjan
+   A. Mora-Sanchez
+   Dietmar Schroeder
+   Wolfgang H. Krautschneider
+   Robert Puers
+TI A flexible system-on-chip (SoC) for biomedical signal acquisition and processing
+SO Sensors and Actuators A Physical
+LA English
+DT Article
+C1 [Nick Van Helleputte] KU Leuven, BE
+   [Jakob M. Tomasik] Hamburg University of Technology, DE
+   [Wjatscheslaw Galjan] Hamburg University of Technology, DE
+   [A. Mora-Sanchez] Hamburg University of Technology, DE
+   [Dietmar Schroeder] Hamburg University of Technology, DE
+   [Wolfgang H. Krautschneider] Hamburg University of Technology, DE
+   [Robert Puers] KU Leuven, BE
+C3 Hamburg University of Technology, DE; KU Leuven, BE
+RP Nick Van Helleputte (corresponding author), KU Leuven, BE
+RI Nick Van Helleputte/https://openalex.org/A5013502488, Jakob M. Tomasik/https://openalex.org/A5014199252, Wjatscheslaw Galjan/https://openalex.org/A5016123669, A. Mora-Sanchez/https://openalex.org/A5006226323, Dietmar Schroeder/https://openalex.org/A5112094563, Wolfgang H. Krautschneider/https://openalex.org/A5006153717, Robert Puers/https://openalex.org/A5023285948
+OI Nick Van Helleputte/0000-0002-7511-1923, Jakob M. Tomasik/0000-0002-4724-987X, Wolfgang H. Krautschneider/0000-0001-8629-4545, Robert Puers/0000-0003-3415-2275
+FU 
+CT 46
+NR 12
+PU Elsevier BV
+SN 0924-4247
+EI 0924-4247
+PD APR
+PY 2007
+VL 142
+IS 1
+BP 361
+EP 368
+DI 10.1016/j.sna.2007.04.026
+PG 8
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU M Schmid
+   Th. Weyh
+   B.-U. Meyer
+AF M Schmid
+   Th. Weyh
+   B.-U. Meyer
+TI Qualifizierter Biosignal-Verstärker für elektrophysiologische Untersuchungen bei besonderen Sicherheitsanforderungen - High-performance Biopotential Amplifier for Electrophysiological Research that meets Special Safety Requirements
+SO Biomedizinische Technik/Biomedical Engineering
+LA German
+DT Article
+C1 [M Schmid] Technical University of Munich, DE
+   [Th. Weyh]
+   [B.-U. Meyer]
+C3 Technical University of Munich, DE
+RI M Schmid/https://openalex.org/A5112295841, Th. Weyh/https://openalex.org/A5111725135, B.-U. Meyer/https://openalex.org/A5105886549
+OI 
+FU 
+CT 3
+NR 3
+PU De Gruyter
+SN 0013-5585
+EI 0013-5585
+PD JAN
+PY 1994
+VL 39
+IS 11
+BP 279
+EP 286
+DI 10.1515/bmte.1994.39.11.279
+PG 8
+PM 7833447
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Enrique Mario Spinelli
+   Marcelo Haberman
+   Pablo Andrés García
+   Federico N. Guerrero
+AF Enrique Mario Spinelli
+   Marcelo Haberman
+   Pablo Andrés García
+   Federico N. Guerrero
+TI A capacitive electrode with fast recovery feature
+SO Physiological Measurement
+LA English
+DT Article
+C1 [Enrique Mario Spinelli] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+   [Marcelo Haberman] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Marcelo Haberman] Universidad Nacional de La Plata, AR
+   [Pablo Andrés García] Universidad Nacional de La Plata, AR
+   [Federico N. Guerrero] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Federico N. Guerrero] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR; Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RP Enrique Mario Spinelli (corresponding author), Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RI Enrique Mario Spinelli/https://openalex.org/A5065084374, Marcelo Haberman/https://openalex.org/A5065165007, Pablo Andrés García/https://openalex.org/A5007210533, Federico N. Guerrero/https://openalex.org/A5079127536
+OI Enrique Mario Spinelli/0000-0002-4164-9151, Marcelo Haberman/0000-0003-1387-3436, Pablo Andrés García/0000-0003-1900-1831, Federico N. Guerrero/0000-0002-7323-7872
+FU 
+CT 49
+NR 27
+PU IOP Publishing
+SN 0967-3334
+EI 0967-3334
+PD JUL
+PY 2012
+VL 33
+IS 8
+BP 1277
+EP 1288
+DI 10.1088/0967-3334/33/8/1277
+PG 12
+PM 22813845
+OA bronze
+DA 2026-10-02
+ER
+
+PT P
+AU Andrea N Bermúdez
+   Enrique Mario Spinelli
+   Carlos Horacio Muravchik
+AF Andrea N Bermúdez
+   Enrique Mario Spinelli
+   Carlos Horacio Muravchik
+TI Bio-potential amplifier for potential gradient measurements
+SO Journal of Physics Conference Series
+LA English
+DT Conference-paper
+C1 [Andrea N Bermúdez] Universidad Nacional de La Plata, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+   [Carlos Horacio Muravchik] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR
+RI Andrea N Bermúdez/https://openalex.org/A5079939655, Enrique Mario Spinelli/https://openalex.org/A5065084374, Carlos Horacio Muravchik/https://openalex.org/A5020838397
+OI Enrique Mario Spinelli/0000-0002-4164-9151, Carlos Horacio Muravchik/0000-0003-2954-6675
+FU 
+CT 3
+NR 5
+PU IOP Publishing
+SN 1742-6588
+EI 1742-6588
+PD NOV
+PY 2007
+VL 90
+IS
+BP 012022
+EP 012022
+DI 10.1088/1742-6596/90/1/012022
+PG 1
+PM
+OA diamond
+DA 2026-10-02
+ER
+
+PT P
+AU Peter Szakacs-Simon
+   Sorin-Aurel Moraru
+   Florian Neukart
+AF Peter Szakacs-Simon
+   Sorin-Aurel Moraru
+   Florian Neukart
+TI Signal conditioning techniques for health monitoring devices
+SO
+LA English
+DT Conference-paper
+C1 [Peter Szakacs-Simon] Transylvania University of Brașov, RO
+   [Sorin-Aurel Moraru] Transylvania University of Brașov, RO
+   [Florian Neukart] Transylvania University of Brașov, RO
+C3 Transylvania University of Brașov, RO
+RI Peter Szakacs-Simon/https://openalex.org/A5045706588, Sorin-Aurel Moraru/https://openalex.org/A5054624574, Florian Neukart/https://openalex.org/A5082621363
+OI Sorin-Aurel Moraru/0000-0001-9500-2604, Florian Neukart/0000-0002-2562-1618
+FU 
+CT 9
+NR 7
+PU
+SN
+EI
+PD JUL
+PY 2012
+VL 2
+IS
+BP 610
+EP 614
+DI 10.1109/tsp.2012.6256369
+PG 5
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Wu Lu
+   Ranran Ding
+   Bingjie Wu
+   Wenbin Zhao
+   Dong Huang
+   Xue Zhang
+AF Wu Lu
+   Ranran Ding
+   Bingjie Wu
+   Wenbin Zhao
+   Dong Huang
+   Xue Zhang
+TI In‐Body Electromagnetic Sensor Combined with AI‐Enhanced Electrocardiography for Pacemaker Working Status Telemonitoring
+SO Journal of Sensors
+LA English
+DT Article
+C1 [Wu Lu] Shanghai University of Electric Power, CN
+   [Ranran Ding] Shanghai University of Electric Power, CN
+   [Bingjie Wu] Shanghai University of Electric Power, CN
+   [Wenbin Zhao] Shanghai University of Electric Power, CN
+   [Dong Huang] Shanghai Sixth People's Hospital, CN
+   [Xue Zhang] Shanghai Sixth People's Hospital, CN
+C3 Shanghai Sixth People's Hospital, CN; Shanghai University of Electric Power, CN
+RP Dong Huang (corresponding author), Shanghai Sixth People's Hospital, CN
+RI Wu Lu/https://openalex.org/A5063303592, Ranran Ding/https://openalex.org/A5042790317, Bingjie Wu/https://openalex.org/A5020951351, Wenbin Zhao/https://openalex.org/A5044920762, Dong Huang/https://openalex.org/A5059754511, Xue Zhang/https://openalex.org/A5100445858
+OI Wu Lu/0000-0001-5237-5486, Ranran Ding/0000-0002-4535-5118, Bingjie Wu/0000-0002-8180-3002, Wenbin Zhao/0000-0001-8507-6765, Dong Huang/0000-0003-2872-6164, Xue Zhang/0000-0002-8297-9931
+FU 
+CT 1
+NR 16
+PU Hindawi Publishing Corporation
+SN 1687-725X
+EI 1687-725X
+PD JAN
+PY 2021
+VL 2021
+IS 1
+BP
+EP
+DI 10.1155/2021/8444015
+PG 
+PM
+OA hybrid
+DA 2026-10-02
+ER
+
+PT P
+AU Holger Nahrstaedt
+   Thomas Schauer
+AF Holger Nahrstaedt
+   Thomas Schauer
+TI A bioimpedance measurement device for sensing force and position in neuroprosthetic systems
+SO World Congress on Medical Physics and Biomedical Engineering, September 7 - 12, 2009, Munich, Germany
+LA English
+DT Conference-paper
+C1 [Holger Nahrstaedt] Technische Universität Berlin, DE
+   [Thomas Schauer] Technische Universität Berlin, DE
+C3 Technische Universität Berlin, DE
+RP Holger Nahrstaedt (corresponding author), Technische Universität Berlin, DE
+RI Holger Nahrstaedt/https://openalex.org/A5084277694, Thomas Schauer/https://openalex.org/A5041447477
+OI Holger Nahrstaedt/0000-0002-4796-1082, Thomas Schauer/0000-0002-0865-4418
+FU 
+CT 3
+NR 13
+PU Springer Nature
+SN 1433-9277
+EI 1433-9277
+PD JAN
+PY 2009
+VL
+IS
+BP 1642
+EP 1645
+DI 10.1007/978-3-540-89208-3_390
+PG 4
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT P
+AU Marcelo Haberman
+   Enrique Mario Spinelli
+AF Marcelo Haberman
+   Enrique Mario Spinelli
+TI A digital Driven Right Leg Circuit
+SO
+LA English
+DT Conference-paper
+C1 [Marcelo Haberman] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Marcelo Haberman] Universidad Nacional de La Plata, AR
+   [Enrique Mario Spinelli] Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+   [Enrique Mario Spinelli] Universidad Nacional de La Plata, AR
+C3 Universidad Nacional de La Plata, AR; Consejo Nacional de Investigaciones Científicas y Técnicas, AR
+RI Marcelo Haberman/https://openalex.org/A5065165007, Enrique Mario Spinelli/https://openalex.org/A5065084374
+OI Marcelo Haberman/0000-0003-1387-3436, Enrique Mario Spinelli/0000-0002-4164-9151
+FU 
+CT 11
+NR 15
+PU
+SN
+EI
+PD AUG
+PY 2010
+VL 2010
+IS
+BP 6559
+EP 6562
+DI 10.1109/iembs.2010.5627108
+PG 4
+PM 21096506
+OA closed
+DA 2026-10-02
+ER
+
+PT D
+AU Preetham  Reddy Bannur
+AF Preetham  Reddy Bannur
+TI "High-Resolution ECG Telemetry Dataset: Adaptive Soldier Telemetry & Reconnaissance Array (A.S.T.R.A.)"
+SO IEEE DataPort
+LA
+DT Dataset
+C1 [Preetham  Reddy Bannur]
+C3 
+RP Preetham  Reddy Bannur (corresponding author), None, None
+RI Preetham  Reddy Bannur/https://openalex.org/A5135083480
+OI Preetham  Reddy Bannur/0009-0004-8829-5866
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD MAY
+PY 2026
+VL
+IS
+BP
+EP
+DI 10.21227/qxxs-2t64
+PG 
+PM
+OA green
+DA 2026-10-02
+ER
+
+PT P
+AU Kamran Hameed
+   F. Azhar
+   I. Shahrukh
+   M. Muzammil
+   M. Aamair
+   D. Mujeeb
+AF Kamran Hameed
+   F. Azhar
+   I. Shahrukh
+   M. Muzammil
+   M. Aamair
+   D. Mujeeb
+TI Telemetric Epilepsy Monitoring and Seizures Aid
+SO World Congress on Medical Physics and Biomedical Engineering, September 7 - 12, 2009, Munich, Germany
+LA English
+DT Conference-paper
+C1 [Kamran Hameed] Sir Syed University of Engineering and Technology, PK
+   [F. Azhar] Sir Syed University of Engineering and Technology, PK
+   [I. Shahrukh] Sir Syed University of Engineering and Technology, PK
+   [M. Muzammil] Sir Syed University of Engineering and Technology, PK
+   [M. Aamair] Sir Syed University of Engineering and Technology, PK
+   [D. Mujeeb] Sir Syed University of Engineering and Technology, PK
+C3 Sir Syed University of Engineering and Technology, PK
+RI Kamran Hameed/https://openalex.org/A5040168585, I. Shahrukh/https://openalex.org/A5016275635, M. Aamair/https://openalex.org/A5022022390, D. Mujeeb/https://openalex.org/A5022310052
+OI Kamran Hameed/0000-0003-3295-2981
+FU 
+CT 1
+NR 3
+PU Springer Nature
+SN 1433-9277
+EI 1433-9277
+PD JAN
+PY 2010
+VL
+IS
+BP 278
+EP 281
+DI 10.1007/978-3-642-14998-6_71
+PG 4
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Stefan Sauermann
+   M. Bijak
+   Christoph Schmutterer
+   Ewald Unger
+   H. Lanmüller
+   W Mayr
+   Herwig Thoma
+AF Stefan Sauermann
+   M. Bijak
+   Christoph Schmutterer
+   Ewald Unger
+   H. Lanmüller
+   W Mayr
+   Herwig Thoma
+TI Computer aided adjustment of the phrenic pacemaker: automatic functions, documentation, and quality control.
+SO PubMed
+LA English
+DT Article
+C1 [Stefan Sauermann] University of Vienna, AT
+   [M. Bijak]
+   [Christoph Schmutterer]
+   [Ewald Unger]
+   [H. Lanmüller]
+   [W Mayr]
+   [Herwig Thoma]
+C3 University of Vienna, AT
+RI Stefan Sauermann/https://openalex.org/A5026886579, M. Bijak/https://openalex.org/A5070610262, Christoph Schmutterer/https://openalex.org/A5075732354, Ewald Unger/https://openalex.org/A5004523167, H. Lanmüller/https://openalex.org/A5111481105, Herwig Thoma/https://openalex.org/A5109135675
+OI Stefan Sauermann/0000-0003-0824-9989, M. Bijak/0000-0001-5577-7536, Ewald Unger/0000-0003-0275-9988
+FU 
+CT 2
+NR 0
+PU National Institutes of Health
+SN
+EI
+PD MAR
+PY 1997
+VL 21
+IS 3
+BP 216
+EP 8
+DI 
+PG -207
+PM 9148709
+OA closed
+DA 2026-10-02
+ER
+
+PT D
+AU Ji Jin
+AF Ji Jin
+TI A scaled electronically configurable CMOS multichannel intracortical recording array.
+SO Deep Blue (University of Michigan)
+LA English
+DT Dissertation
+C1 [Ji Jin]
+C3 
+RP Ji Jin (corresponding author), None, None
+RI Ji Jin/https://openalex.org/A5101517891
+OI Ji Jin/0000-0002-3432-8253
+FU 
+CT 1
+NR 0
+PU University of Michigan
+SN
+EI
+PD JAN
+PY 1990
+VL
+IS
+BP
+EP
+DI 
+PG 
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Nick Van Helleputte
+   A. Mora-Sanchez
+   Wjatscheslaw Galjan
+   Jakob M. Tomasik
+   Dietmar Schroeder
+   Robert Puers
+AF Nick Van Helleputte
+   A. Mora-Sanchez
+   Wjatscheslaw Galjan
+   Jakob M. Tomasik
+   Dietmar Schroeder
+   Robert Puers
+TI A flexible system-on-chip (SoC) for biomedical signal acquisition and processing
+SO tub.dok (Hamburg University of Technology)
+LA English
+DT Article
+C1 [Nick Van Helleputte]
+   [A. Mora-Sanchez]
+   [Wjatscheslaw Galjan]
+   [Jakob M. Tomasik]
+   [Dietmar Schroeder]
+   [Robert Puers]
+C3 
+RI Nick Van Helleputte/https://openalex.org/A5013502488, A. Mora-Sanchez/https://openalex.org/A5006226323, Wjatscheslaw Galjan/https://openalex.org/A5016123669, Jakob M. Tomasik/https://openalex.org/A5014199252, Dietmar Schroeder/https://openalex.org/A5112094563, Robert Puers/https://openalex.org/A5023285948
+OI Nick Van Helleputte/0000-0002-7511-1923, Jakob M. Tomasik/0000-0002-4724-987X, Robert Puers/0000-0003-3415-2275
+FU 
+CT 0
+NR 0
+PU Hamburg University of Technology
+SN
+EI
+PD JAN
+PY 2006
+VL
+IS
+BP 288
+EP 289
+DI 
+PG 2
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT B
+AU John G. Webster
+   Halit Eren
+AF John G. Webster
+   Halit Eren
+TI Electromagnetic, optical, radiation, chemical, and biomedical measurement
+SO CRC Press eBooks
+LA English
+DT Book
+C1 [John G. Webster]
+   [Halit Eren]
+C3 
+RI John G. Webster/https://openalex.org/A5081171990, Halit Eren/https://openalex.org/A5109333946
+OI John G. Webster/0000-0003-4172-8092
+FU 
+CT 1
+NR 0
+PU Informa
+SN
+EI
+PD JAN
+PY 2014
+VL
+IS
+BP
+EP
+DI 
+PG 
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT P
+AU Rafael González-Landaeta
+   Enrique Mario Spinelli
+AF Rafael González-Landaeta
+   Enrique Mario Spinelli
+TI DC Servo Loop Circuits: A Comparative Noise Analysis
+SO
+LA English
+DT Preprint
+C1 [Rafael González-Landaeta]
+   [Enrique Mario Spinelli]
+C3 
+RI Rafael González-Landaeta/https://openalex.org/A5088549155, Enrique Mario Spinelli/https://openalex.org/A5065084374
+OI Rafael González-Landaeta/0000-0001-5148-4517, Enrique Mario Spinelli/0000-0002-4164-9151
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD NOV
+PY 2024
+VL
+IS
+BP
+EP
+DI 10.36227/techrxiv.173109565.58321246/v1
+PG 
+PM
+OA gold
+DA 2026-10-02
+ER
+
+PT U
+AU 
+AF 
+TI [Copyright notice]
+SO
+LA English
+DT Conference-abstract
+C3 
+RI 
+OI 
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD NOV
+PY 2011
+VL
+IS
+BP c1
+EP c1
+DI 10.1109/tencon.2011.6128997
+PG 
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT U
+AU 
+AF 
+TI Contents
+SO
+LA English
+DT Paratext
+C3 
+RI 
+OI 
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD DEC
+PY 2014
+VL
+IS
+BP 1
+EP 2
+DI 10.1109/icpces.2014.7062795
+PG 2
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT U
+AU 
+AF 
+TI Table of contents
+SO
+LA English
+DT Paratext
+C3 
+RI 
+OI 
+FU 
+CT 0
+NR 0
+PU
+SN
+EI
+PD NOV
+PY 2013
+VL
+IS
+BP 1
+EP 6
+DI 10.1109/iceiec.2013.6835522
+PG 6
+PM
+OA closed
+DA 2026-10-02
+ER
+
+PT J
+AU Meenu Rana
+AF Meenu Rana
+TI Explainable Artificial Intelligence for Prediction and Interpretation of Polycystic Ovary Syndrome (PCOS)
+SO International Journal of Advanced Research in Science Communication and Technology
+LA
+DT Article
+C1 [Meenu Rana]
+C3 
+RP Meenu Rana (corresponding author), None, None
+RI Meenu Rana/https://openalex.org/A5119730166
+OI 
+FU 
+CT 0
+NR 31
+PU Shivkrupa Publication's
+SN 2581-9429
+EI 2581-9429
+PD JUN
+PY 2026
+VL
+IS
+BP 110
+EP 110
+DI 10.48175/ijarsct-37114
+PG 1
+PM
+OA diamond
+DA 2026-10-02
+ER
+

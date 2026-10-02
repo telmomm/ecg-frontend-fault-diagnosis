@@ -1,0 +1,156 @@
+[
+  {
+    "openalex_id": "W4412455336",
+    "doi": "10.1016/j.vlsi.2025.102482",
+    "title": "Soft fault diagnosis in analog electronic circuits using supervised machine learning",
+    "year": 2025,
+    "type": "article",
+    "venue": "Integration",
+    "cited_by": 10,
+    "abstract": ": Analog circuits are commonly used in a wide range of industrial applications, and their assessment is of great importance to ensure proper functionality and prevent faults. However, this task is not as fully developed and is significantly less advanced compared to the assessment of digital circuits, as soft faults are particularly difficult to detect in analog circuits. This study addresses the application of supervised classification techniques for the detection and classification of soft faults in analog circuits. A feature extraction methodology is proposed based on voltage measurements at key circuit points and across different frequencies, enabling precise characterization of system behavior. From this feature, a benchmark employing different machine learning methods was used. The evaluated classifiers include k-Nearest Neighbors (KNN), Naïve Bayes (NB), Discriminant Analysis Classifier (DAC), Classification Decision Tree (CDT), Random Forest (RF), Support Vector Machines (SVM) and Artificial Neural Networks (ANN). Each model was optimized through hyperparameter tuning and validated using cross-validation techniques. The results indicate that ANN and SVM achieved the best performance, attaining an accuracy of 97.92% and 97.22% on test data, with a global Matthews Correlation Coefficient (MCC) of 97.76% and 97.01%, respectively. Although RF obtained the highest training accuracy (99.39%), its performance significantly dropped during testing (93.06%, MCC of 92.52%), indicating overfitting. Additionally, models such as KNN and DAC demonstrated solid performance, whereas NB and CDT were the least effective. These findings highlight the importance of carefully selecting both the feature set and the classification model for fault detection in electronic circuits. A Sallen-Key band-pass filter was used as the circuit under test (CUT), as soft fault classification in this type of circuit is particularly challenging. This study demonstrates that it is possible to accurately predict faults in circuits similar to the one analyzed.",
+    "n_references": 52
+  },
+  {
+    "openalex_id": "W4394871353",
+    "doi": "10.1016/j.aej.2024.01.054",
+    "title": "Fault detection in analog electronic circuits using fuzzy inference systems and particle swarm optimization",
+    "year": 2024,
+    "type": "article",
+    "venue": "Alexandria Engineering Journal",
+    "cited_by": 9,
+    "abstract": "Fault detection in analog circuits is of great importance to predict the correct operation of the circuit. For this purpose, soft computing techniques such as those based on the application of fuzzy inference systems stand out. However, given the large variability that can exist in analog circuits due to component tolerance, the initial fuzzy inference system (FIS) may not be able to accurately diagnose the different hard faults. This study presents a methodology to diagnose and detect the faults that can occur in analog circuits, which is based on the development of a FIS, starting from a specific fault situation in the analog circuit, and subsequently on the optimization of the membership functions using an evolutionary algorithm so that the adjusted FIS can classify and predict different failure situations. To this end, the application of optimization techniques based on particle swarm optimization (PSO) will be analyzed to develop a FIS capable of predicting different faults. In addition, pattern search algorithm will also be analyzed. A Sallen-Key band-pass filter and a single stage of a small-signal amplifier are used as test circuits. The proposed methodology shows that it is possible to accurately predict the faults that could arise in the circuits under study.",
+    "n_references": 35
+  },
+  {
+    "openalex_id": "W7128160246",
+    "doi": "10.3390/info17020165",
+    "title": "Decoding Technical Diagrams: A Survey of AI Methods for Image Content Extraction and Understanding",
+    "year": 2026,
+    "type": "article",
+    "venue": "Information",
+    "cited_by": 4,
+    "abstract": "With artificial intelligence (AI) rapidly increasing in popularity and presence in everyday life, new applications utilizing AI are being explored across virtually all domains, from banking and healthcare to cybersecurity to generative AI for images, voice, and video content creation. With that trend comes an inherent need for increased AI capabilities. One cornerstone of AI applications is the ability of generative AI to consume documents and utilize their content to answer questions, generate new content, correlate it with other data sources, and more. No longer constrained to text alone, we now leverage multimodal AI models to help us understand visual elements within documents, such as images, tables, figures, and charts. Within this realm, capabilities have expanded exponentially from traditional Optical Character Recognition (OCR) approaches towards increasingly utilizing complex AI models for visual content analysis and understanding. Modern approaches, especially those leveraging AI, are now focusing on interpreting more complex diagrams such as flowcharts, block diagrams, Unified Modeling Language (UML) diagrams, electrical schematics, and timing diagrams. These diagram types combine text, symbols, and structured layout, making them challenging to parse and comprehend using conventional techniques. This paper presents a historical analysis and comprehensive survey of scientific literature exploring this domain of visual understanding of complex technical illustrations and diagrams. We explore the use of deep learning models, including convolutional neural networks (CNNs), recurrent neural networks (RNNs), and transformer-based architectures. These models, along with OCR, enable the extraction of both textual and structural information from visually complex sources. Despite these advancements, numerous challenges remain, however. These range from hallucinations, where the content extraction system produces outputs not grounded in the source image, which leads to misinterpretations, to a lack of contextual understanding of diagrammatic elements, such as arrows, grouping, and spatial hierarchy. This survey focuses on five key diagram types: flowcharts, block diagrams, UML diagrams, electrical schematics, and timing diagrams. It evaluates the effectiveness, limitations, and practical solutions—both traditional and AI-driven—that aim to enable the extraction of accurate and meaningful information from complex diagrams in a way that is trustworthy and suitable for real-world, high-accuracy AI applications. This survey reveals that virtually all approaches struggle with accurately extracting technical diagram information. It also illustrates a path forward. Pursuing research to further improve their accuracy is crucial for supporting and enabling various applications, including complex document question answering and Retrieval Augmented Generation (RAG), document-driven AI agents, accessibility applications, and automation.",
+    "n_references": 128
+  },
+  {
+    "openalex_id": "W4353070708",
+    "doi": "10.3390/act12030135",
+    "title": "Implementation of a Cascade Fault Tolerant Control and Fault Diagnosis Design for a Modular Power Supply",
+    "year": 2023,
+    "type": "article",
+    "venue": "Actuators",
+    "cited_by": 6,
+    "abstract": "The main objective of this research work was to develop reliable and intelligent power sources for the future. To achieve this objective, a modular stand-alone solar energy-based direct current (DC) power supply was designed and implemented. The converter topology used is a two-stage interleaved boost converter, which is monitored in closed loop. The diagnosis method is based on analytic redundancy relations (ARRs) deduced from the bond graph (BG) model, which can be used to detect the failures of power switches, sensors, and discrete components such as the output capacitor. The proposed supervision scheme including a passive fault-tolerant cascade proportional integral sliding mode control (PI-SMC) for the two-stage boost converter connected to a solar panel is suitable for real applications. Most model-based diagnosis approaches for power converters typically deal with open circuit and short circuit faults, but the proposed method offers the advantage of detecting the failures of other vital components. Practical experiments on a newly designed and constructed prototype, along with simulations under PSIM software, confirm the efficiency of the control scheme and the successful recovery of a faulty stage by manual isolation. In future work, the automation of this reconfiguration task could be based on the successful simulation results of the diagnosis method.",
+    "n_references": 53
+  },
+  {
+    "openalex_id": "W4416513382",
+    "doi": "10.1109/tim.2025.3635796",
+    "title": "Analog Circuit Fault Diagnosis and Parameter Prediction via Multibranch Network and Refined Fusion Module",
+    "year": 2025,
+    "type": "article",
+    "venue": "IEEE Transactions on Instrumentation and Measurement",
+    "cited_by": 2,
+    "abstract": "Deep learning technology has made progress in the field of analog circuit condition monitoring. However, existing research primarily focuses on fault detection and localization, with insufficient exploration into fault parameter prediction, which limits its comprehensive application in engineering. To overcome this problem, this study proposes an innovative method for analog circuit condition monitoring, which not only improves the accuracy of fault diagnosis but also achieves precise prediction of parameter values for components. The innovation is mainly reflected in two aspects. First, a multi-branch network architecture is designed. It integrates multi-dimensional information from fault diagnosis, parameter prediction, and signal reconstruction, helping to take into account the characteristics of different tasks and obtain better results. Second, a refined fusion module based on the concept of manifold alignment is proposed. It optimizes the rough fusion process (such as channel connection) into a three-stage refined processing flow including feature reorganization, feature filtering, and feature aggregation, effectively achieving fine-grained alignment and fusion of features from different branches. Through sufficient experiments on three typical analog circuits, the superiority of the proposed method in terms of fault diagnosis accuracy and component parameter prediction precision is verified.",
+    "n_references": 32
+  },
+  {
+    "openalex_id": "W4386356685",
+    "doi": "10.12785/ijcds/140176",
+    "title": "Applying Artificial Neural Network Based on Backpropagation Method for Indonesian Sign Language Recognition",
+    "year": 2023,
+    "type": "article",
+    "venue": "International Journal of Computing and Digital Systems",
+    "cited_by": 4,
+    "abstract": "Sign-language is a nonverbal language utilized by hearing loss and speech disorder people to interact and speak with each other.Sometimes people call it a visual-language utilizing hand gestures and changes in hand shape to express intentions and thoughts.In Indonesia, people use two sign language types commonly.They are Indonesian Signal System (ISS) and Indonesian Sign Language (ISL).In this paper, we investigated research on the recognition of ISL alphabets by proposing an application using the Artificial Neural Network algorithm with the principle of the Backpropagation method for dealing with this research.Firstly, we performed preprocessing the image data sequentially by splitting the dataset, labeling the dataset based on the alphabet types, scaling the images into a size of 150x150 pixels, and segmentizing the datasets to eliminate noise in the image to yield color, grayscale, binary segmentations, and image edge detection.Later on, we split the dataset and distributed them into training and testing sets with two different proportions, 70:30 and 80:20 percent.After applying the algorithm, we obtained the highest accuracy at 80:20 data proportions using an epoch of 700, a learning rate of 0.001, a batch size of 25, and some hidden nodes of 100 was 98.41 percent.",
+    "n_references": 44
+  },
+  {
+    "openalex_id": "W4407628197",
+    "doi": "10.1109/icbir61386.2024.10875940",
+    "title": "An Analysis of Electronic Circuits Diagram Using Computer Vision Techniques",
+    "year": 2024,
+    "type": "conference-paper",
+    "venue": "",
+    "cited_by": 1,
+    "abstract": "The researcher has experience in the electronics field. In their work Failure Analysis to better understand Failure Analysis work, The reference describes work that is similar to work in the Failure Analysis [1]. They often encounter circuit diagrams in the form of PDF files or pictures, which they use reference circuits to illustrate electronic component attributes and standardize symbols [2], to analyze their work. Most reference circuits are in PDF format. However, analyzing electronic circuits can be time-consuming and challenging, especially the obtained accuracy of electronic values. This research proposes using computer vision and image processing to calculate electronic circuits from images, which reduces time and increases accuracy in analyzing electronic circuits. Analyzing electronic analysis theory is also shown through this reference [3]. This research aims to decrease the time required to analyze electronic circuits and enhance the accuracy of electronic values obtained from image analysis. Computer vision and image processing technologies are being used to accomplish this goal. To understand image processing principles, this reference explains relevant theories [4] [5]. The methodology involves preprocessing images or PDF files to extract data for the main process. The main process utilizes object detection, Convolutional Neural Network (CNN) training, and Optical Character Recognition (OCR) to identify the types of electronic components in the circuit. The reference explains CNN principles studied to improve research efficiency [6]. This research shows that the analysis time is significantly reduced compared to manually creating circuits using simulation programs. Furthermore, the accuracy of the analysis is evaluated against manual analysis by humans and the time taken from the start of circuit creation to obtaining analysis values. This method significantly reduces the time required to analyze circuits from images to electronic values and identifies any components within the circuit. As a result, this research contributes to making electronic circuit analysis more efficient and rapid in the electronics field.",
+    "n_references": 13
+  },
+  {
+    "openalex_id": "W4323536727",
+    "doi": "10.1016/j.sna.2023.114274",
+    "title": "Module-level soft fault detection method for typical underwater acoustic sensing system",
+    "year": 2023,
+    "type": "article",
+    "venue": "Sensors and Actuators A Physical",
+    "cited_by": 2,
+    "abstract": "",
+    "n_references": 48
+  },
+  {
+    "openalex_id": "W4311156282",
+    "doi": "10.3390/math10244717",
+    "title": "Analog Circuits",
+    "year": 2022,
+    "type": "article",
+    "venue": "Mathematics",
+    "cited_by": 1,
+    "abstract": "Analog circuits are essential in everyday life and in electrical engineering [...]",
+    "n_references": 16
+  },
+  {
+    "openalex_id": "W4284895052",
+    "doi": "10.3390/math10142387",
+    "title": "Preface to the Special Issue on “Modelling and Simulation in Engineering”",
+    "year": 2022,
+    "type": "editorial",
+    "venue": "Mathematics",
+    "cited_by": 0,
+    "abstract": "The continuing achievements in Information Technology and Computer science in recent decades provide new tools for engineers in the design of devices and systems, with significant advances both in numerical and in analytical methods of analysis [...]",
+    "n_references": 14
+  },
+  {
+    "openalex_id": "W4383560281",
+    "doi": "10.54254/2755-2721/6/20230828",
+    "title": "A research agenda of AI-based analog circuit fault diagnosis with bibliometric analysis",
+    "year": 2023,
+    "type": "article",
+    "venue": "Applied and Computational Engineering",
+    "cited_by": 0,
+    "abstract": "Analog circuit fault identification is crucial for preserving regular operation. Methods based on artificial intelligence (AI) provide excellent accuracy in fault identification. AI-based techniques have been used widely in recent years, displaying remarkable variety and complexity. Therefore, in order to have a clearer understanding of the issues in this area, it is necessary to summarise and classify the techniques. In this article, various AI-based fault detection techniques are displayed, and bibliometrics is used to show the trend and citations. The relationships, significant writers, and journals will first be discussed in this article, after which some key pieces of literature will be displayed. The key findings and conclusions, clarification of the current issues, and a summary of the present and foreseeable research trends are all included in the last section.",
+    "n_references": 38
+  },
+  {
+    "openalex_id": "W7130575814",
+    "doi": "10.1109/iciiet65921.2025.11377989",
+    "title": "Machine Learning Framework for Analog Filter Fault Identification",
+    "year": 2025,
+    "type": "conference-paper",
+    "venue": "",
+    "cited_by": 0,
+    "abstract": "Analog circuit fault diagnosis is essential to maintaining the dependability and functionality of electronic systems. Conventional techniques depend on mathematical modeling or manual inspection, both of which are frequently laborious and inaccurate. This paper uses the Random Forest algorithm to propose an Artificial Intelligence (AI) based method for multiple fault diagnosis of analog filters. By altering the resistor and capacitor values, op- amp faults,transistor faults, MATLAB simulates the Sallen-Key and Chebyshev filter circuits under various fault scenarios. Important characteristics like natural frequency ($\\omega$), damping ratio$(\\zeta)$, and static gain$(G(0))$are taken from the frequency and transient responses. To find fault-free, singlefault, and multiple-fault conditions, a dataset is created and used to train the Random Forest classifier using Python. Experimental results shows the prediction accuracy is$\\mathbf{9 7. 6 \\%}$",
+    "n_references": 15
+  },
+  {
+    "openalex_id": "W7161631648",
+    "doi": "10.34302/cjee/lrbt6157",
+    "title": "ENHANCING ISLANDING DETECTION IN PV-BASED DISTRIBUTED SYSTEMS USING CEEMDAN AND PATTERN RECOGNITION NEURAL NETWORK",
+    "year": 2025,
+    "type": "article",
+    "venue": "Carpathian Journal of Electrical Engineering",
+    "cited_by": 0,
+    "abstract": "This paper presents an enhanced and practically validated islanding detection framework for grid-connected solar PV systems, integrating Complete Ensemble Empirical Mode Decomposition with Adaptive Noise (CEEMDAN) and a Pattern Recognition Neural Network (PANN). The method processes negative sequence voltage signals at the Point of Common Coupling (PCC) to extract intrinsic mode functions (IMFs), mitigating mode mixing and improving signal fidelity. Significant IMFs are selected based on their power percentile, and three statistical features—maximum value, standard deviation, and entropy—are extracted and normalized before classification by the PANN. Unlike prior studies, this work extends evaluation to zero-power mismatch scenarios, noisy environments, and load-switching conditions, providing practical validation of real-time detection performance. Simulation results demonstrate a classification accuracy of 98.6% with a detection time of 0.1806 seconds, complying with IEEE 1547 standards. The proposed approach exhibits robust and reliable islanding detection across diverse operating conditions, significantly reducing the non-detection zone (NDZ) and enhancing the safety and reliability of modern distribution systems.",
+    "n_references": 20
+  },
+  {
+    "openalex_id": "W7213906441",
+    "doi": "10.1007/s44163-026-02259-z",
+    "title": "A random forest framework for automated fault classification in analog filter circuits using simulation-derived features",
+    "year": 2026,
+    "type": "article",
+    "venue": "Discover Artificial Intelligence",
+    "cited_by": 0,
+    "abstract": "The identification of faults in analog filter electronic systems has been challenging due to their non-linear characteristics, sensitivity to parameter variations and complex component interactions. Traditional fault diagnosis methods often involve lengthy testing procedures and fail to provide reliable results for modern complex electronic systems. In this work, an automated fault classification framework based on machine learning is proposed for analog filter circuits is relatively new. Circuits considered are filters like Sallen–Key and Chebyshev .The circuits are simulated under both normal and faulty conditions and key features are extracted from their responses, such as natural frequency ( ω n ), damping ratio ( ζ ), gain ( G 0 ). A two-stage Random Forest-based machine learning model is employed, where the first stage identifies the circuit type and the second stage performs fault classification specific to that circuit. The proposed method achieves an overall accuracy of approximately 98.5% for both fault component and fault type classification.",
+    "n_references": 18
+  }
+]
