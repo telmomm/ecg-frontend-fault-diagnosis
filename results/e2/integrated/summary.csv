@@ -1,7 +1,7 @@
-feature_set,n_features,n_conditions,n_groups,n_singletons,n_undetectable
-C1,1,294,1,0,273
-C1x,3,294,17,11,261
-C2,15,294,6,2,235
-C3,7,294,7,5,245
-C4,2,294,1,0,289
-C1+C2+C3+C4,25,294,15,7,222
+feature_set,n_features,testability_rank,n_insensitive,n_collinear_groups,n_conditions,n_undetectable,n_undetectable_mostly_non_compliant,limit_test_false_alarm,n_limit_test_missed,n_limit_test_missed_mostly_non_compliant,n_localised_conditions,n_components,n_unambiguous_components,mean_confusable,n_component_groups,largest_component_group
+C1,1,1,22,1,293,272,53,0.0072,264,49,72,23,0,16.956521739130434,1,23
+C1x,3,1,22,1,293,262,51,0.0082,252,46,72,23,2,12.434782608695652,4,18
+C2,15,1,22,1,293,219,17,0.009,217,21,72,23,2,10.08695652173913,4,19
+C3,7,1,22,1,293,231,16,0.0078,219,16,72,23,0,11.91304347826087,1,23
+C4,2,0,24,0,293,288,64,0.0096,266,41,72,23,0,18.347826086956523,2,21
+C1+C2+C3+C4,25,2,20,2,293,205,11,0.0068,198,15,72,23,2,6.608695652173913,4,19

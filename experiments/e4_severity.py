@@ -21,8 +21,8 @@ from ecgfd.features import ALL, feature_sets
 
 def main() -> None:
     args = parser(__doc__.splitlines()[0], dataset=True).parse_args()
-    measured, _, cfg = load_measured(args.data)
-    out = results_dir("e4", cfg["circuit"])
+    measured, _, cfg = load_measured(args.data, args.electrode_kinds)
+    out = results_dir("e4", cfg["circuit"], args)
     seed = int(cfg["seed"])
 
     injected = measured[measured["origin"] == "circuit"]

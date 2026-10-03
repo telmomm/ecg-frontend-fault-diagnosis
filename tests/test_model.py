@@ -4,7 +4,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ecgfd.ambiguity import ambiguity_groups
+from ecgfd.ambiguity import (
+    ambiguity_groups,
+    collinear_groups,
+    component_groups,
+    confusable_components,
+    envelope_detection,
+    fault_dictionary,
+    separability,
+)
+from ecgfd.ambiguity import (
+    testability_rank as visible_rank,  # alias: pytest would collect test*
+)
 from ecgfd.circuit import build_netlist, get_circuit, nominal_instance
 from ecgfd.config import REPO_ROOT, load_config
 from ecgfd.dataset import build_tasks, sample_rng
@@ -162,3 +173,45 @@ def test_ambiguity_groups_merge_close_conditions():
         [[0, 1, 9, 9], [1, 0, 9, 9], [9, 9, 0, 9], [9, 9, 9, 0]], index=names, columns=names
     )
     assert ambiguity_groups(d, threshold=3.0) == [["healthy", "a"], ["b"], ["c"]]
+
+
+def test_confusable_components_are_not_transitive():
+    # A1 ~ B1 and B2 ~ C1, but A and C share nothing
+    names = ["A1", "B1", "B2", "C1"]
+    d = pd.DataFrame(9.0, index=names, columns=names)
+    for a, b in (("A1", "B1"), ("B2", "C1")):
+        d.loc[a, b] = d.loc[b, a] = 1.0
+    component_of = {"A1": "A", "B1": "B", "B2": "B", "C1": "C"}
+    assert confusable_components(d, component_of) == {"A": ["B"], "B": ["A", "C"], "C": ["B"]}
+    assert component_groups(d, component_of) == [["A", "B", "C"]]
+
+
+def test_small_deviation_testability():
+    # z per 1 %: A and B move the same feature in proportion, C another, D almost nothing
+    z = pd.DataFrame(
+        {"A": [1.0, 0.0], "B": [-2.0, 0.0], "C": [0.0, 0.5], "D": [0.01, 0.0]}, index=["f1", "f2"]
+    )
+    groups, insensitive = collinear_groups(z, deviation_pct=10.0, threshold=3.0)
+    assert insensitive == ["D"]
+    assert sorted(map(sorted, groups)) == [["A", "B"], ["C"]]
+    # two independent directions, both visible for a 10 % deviation
+    assert visible_rank(z, deviation_pct=10.0, threshold=3.0) == 2
+    assert visible_rank(z, deviation_pct=1.0, threshold=3.0) == 0
+
+
+def test_robust_dictionary_sees_a_saturating_fault():
+    """A few huge values must not hide that most cases of a fault moved far away."""
+    rng = np.random.default_rng(0)
+    healthy = 275 + rng.normal(0, 4, 500)
+    fault = np.r_[rng.normal(0.03, 0.02, 190), np.full(10, 1650.0)]  # mostly near zero
+    df = pd.DataFrame(
+        {
+            "condition": ["healthy"] * 500 + ["F"] * 200,
+            "kind": ["healthy"] * 500 + ["short"] * 200,
+            "g": np.r_[healthy, fault],
+        }
+    )
+    centre, spread = fault_dictionary(df, ["g"])
+    assert separability(centre, spread).loc["healthy", "F"] > 30
+    detected, false_alarm = envelope_detection(df, ["g"], coverage=0.99)
+    assert detected["F"] == 1.0 and false_alarm <= 0.02

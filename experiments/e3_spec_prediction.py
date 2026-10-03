@@ -35,8 +35,8 @@ def clipped_target(values: pd.Series, sense: str, limit: float) -> np.ndarray:
 
 def main() -> None:
     args = parser(__doc__.splitlines()[0], dataset=True).parse_args()
-    measured, _, cfg = load_measured(args.data)
-    out = results_dir("e3", cfg["circuit"])
+    measured, _, cfg = load_measured(args.data, args.electrode_kinds)
+    out = results_dir("e3", cfg["circuit"], args)
     seed = int(cfg["seed"])
     train, test = replica_split(measured, test_fraction=0.3, seed=seed)
     limits = spec_limits(cfg)

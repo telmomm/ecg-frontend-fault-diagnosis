@@ -2,7 +2,7 @@ PY ?= .venv/bin/python
 DATA ?= data/v1
 CIRCUITS = integrated reference
 
-.PHONY: setup test lint smoke dataset report e1 experiments
+.PHONY: setup test lint smoke dataset report e1 testability experiments
 
 setup:
 	python3 -m venv .venv
@@ -30,6 +30,16 @@ report:
 
 e1:
 	for c in $(CIRCUITS); do $(PY) experiments/e1_nominal_validation.py --circuit $$c; done
+
+# Phase 5: E2 on both circuits and E9, with all electrodes and without porous dry ones
+SOLID = ag_agcl_gel stainless_steel silver platinum
+testability:
+	for c in $(CIRCUITS); do \
+		$(PY) experiments/e2_ambiguity_groups.py --data $(DATA)/$$c; \
+		$(PY) experiments/e2_ambiguity_groups.py --data $(DATA)/$$c --electrode-kinds $(SOLID) --tag gel-solid; \
+	done
+	$(PY) experiments/e9_architecture.py --data-dir $(DATA)
+	$(PY) experiments/e9_architecture.py --data-dir $(DATA) --electrode-kinds $(SOLID) --tag gel-solid
 
 # E2-E6 on the datasets under $(DATA)
 experiments:

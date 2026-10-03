@@ -59,6 +59,12 @@ def parser(description: str, dataset: bool = False) -> argparse.ArgumentParser:
         default = REPO_ROOT / "data" / "smoke" / "integrated"
         p.add_argument("--data", default=str(default), help="dataset folder (one circuit)")
         p.add_argument("--models", nargs="*", help="subset of models to run")
+        p.add_argument(
+            "--electrode-kinds",
+            nargs="*",
+            help="keep only cases with these electrode types (column electrode_kind)",
+        )
+        p.add_argument("--tag", help="results folder suffix ('subset' if --electrode-kinds is set)")
     else:
         p.add_argument("--config", default=str(DEFAULT_CONFIG), help="YAML study configuration")
         p.add_argument("--circuit", choices=sorted(CIRCUITS), help="override the config's circuit")
@@ -66,8 +72,16 @@ def parser(description: str, dataset: bool = False) -> argparse.ArgumentParser:
     return p
 
 
-def results_dir(experiment: str, circuit: str) -> Path:
-    path = REPO_ROOT / "results" / experiment / circuit
+def output_name(circuit: str, args: argparse.Namespace | None = None) -> str:
+    """Results subfolder: the circuit, plus a tag when the data were filtered."""
+    tag = getattr(args, "tag", None)
+    if tag is None and getattr(args, "electrode_kinds", None):
+        tag = "subset"
+    return circuit if tag is None else f"{circuit}-{tag}"
+
+
+def results_dir(experiment: str, circuit: str, args: argparse.Namespace | None = None) -> Path:
+    path = REPO_ROOT / "results" / experiment / output_name(circuit, args)
     path.mkdir(parents=True, exist_ok=True)
     return path
 
@@ -76,9 +90,21 @@ def save_json(obj: dict, path: Path) -> None:
     path.write_text(json.dumps(obj, indent=2))
 
 
-def load_measured(path: str) -> tuple[pd.DataFrame, np.ndarray, dict]:
-    """Dataset as the instrument would measure it: default ADC noise and quantisation."""
+def load_measured(
+    path: str, electrode_kinds: list[str] | None = None
+) -> tuple[pd.DataFrame, np.ndarray, dict]:
+    """Dataset as the instrument would measure it: default ADC noise and quantisation.
+
+    `electrode_kinds` keeps only the cases with those electrode types, e.g. to study
+    the circuit without porous dry electrodes without simulating again.
+    """
     df, waveforms, cfg = load_dataset(path)
+    if electrode_kinds:
+        unknown = set(electrode_kinds) - set(df["electrode_kind"])
+        if unknown:
+            raise ValueError(f"unknown electrode types: {sorted(unknown)}")
+        keep = df["electrode_kind"].isin(electrode_kinds).to_numpy()
+        df, waveforms = df[keep].reset_index(drop=True), waveforms[keep]
     rng = np.random.default_rng(int(cfg["seed"]))
     measured, wav = apply_measurement_model(df, waveforms, cfg, rng)
     return measured, wav, cfg

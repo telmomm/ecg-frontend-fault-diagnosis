@@ -18,7 +18,7 @@ is the cause? Is the problem in the circuit or in the electrodes?
 | 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Limits checked against the text of the standard; the open design decision on porous dry electrodes is in docs/pendientes.md |
 | 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests |
 | 4. Dataset | Closed: `data/v1` generated (63,600 + 66,400 cases, no failed simulation), checked with `make report`, datasheet in docs/dataset.md |
-| 5. Testability (E2, E9) | E2 first pass. E9 not written (a class-separability metric exists) |
+| 5. Testability (E2, E9) | Closed: run on `data/v1` (`make testability`); results summarised in the plan |
 | 6. Models (E3–E6) | Untuned baselines that run end to end |
 | 7. Robustness (E7, E8) | Not written (the split by unseen magnitude exists) |
 
@@ -59,13 +59,16 @@ ecgfd relabel --data data/v1/integrated
 
 python experiments/e1_nominal_validation.py                      # specs: nominal and healthy yield
 python experiments/e2_ambiguity_groups.py --data data/v1/integrated   # testability
+python experiments/e9_architecture.py --data-dir data/v1             # both circuits compared
 python experiments/e3_spec_prediction.py  --data data/v1/integrated   # specs from measurements
 python experiments/e4_severity.py         --data data/v1/integrated   # functional vs percentage
 python experiments/e5_localisation.py     --data data/v1/integrated   # which component (--cnn)
 python experiments/e6_origin.py           --data data/v1/integrated   # circuit vs electrode
 ```
 
-Experiments write to `results/<experiment>/<circuit>/`. Results on the smoke datasets
+Experiments write to `results/<experiment>/<circuit>/`. The scripts that read a
+dataset accept `--electrode-kinds` to keep only some electrode types (results then go
+to `<circuit>-<tag>`), e.g. to study the circuits without porous dry electrodes. Results on the smoke datasets
 only show that the code runs: with four samples per condition they say nothing about
 diagnosability.
 

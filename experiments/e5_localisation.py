@@ -10,10 +10,12 @@ still to be added.
 
 from __future__ import annotations
 
+from pathlib import Path
+
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
-from _common import compare_classifiers, load_measured, parser, results_dir
+from _common import compare_classifiers, load_measured, parser, results_dir, save_json
 from ecgfd.evaluation import localisation_report, replica_split
 
 
@@ -21,8 +23,8 @@ def main() -> None:
     p = parser(__doc__.splitlines()[0], dataset=True)
     p.add_argument("--cnn", action="store_true", help="also train the 1D CNN (needs torch)")
     args = p.parse_args()
-    measured, wav, cfg = load_measured(args.data)
-    out = results_dir("e5", cfg["circuit"])
+    measured, wav, cfg = load_measured(args.data, args.electrode_kinds)
+    out = results_dir("e5", cfg["circuit"], args)
     seed = int(cfg["seed"])
 
     keep = ~measured["compliant"].to_numpy(dtype=bool)
@@ -46,6 +48,8 @@ def main() -> None:
         results = pd.concat([results, pd.DataFrame([row])], ignore_index=True)
 
     results.to_csv(out / "baseline.csv", index=False)
+    save_json({"data": str(Path(args.data).resolve()), "n_cases": len(measured)},
+              out / "source.json")
     print(f"results written to {out}")
 
 

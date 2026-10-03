@@ -44,6 +44,7 @@ Ninguno de los dos artículos da estos datos, así que quedan como supuestos dec
 | 2.6 | PySpice | Sustituido por un lanzador propio de ngspice; el plan aún lo nombra en las herramientas | Confirmar el cambio y actualizar la tabla de herramientas del plan | No |
 | 2.7 | Modelo del circuito abierto | 1 GΩ en serie, en lugar de los 10 MΩ de la versión 1 | Confirmar | Sí, si cambia |
 | 2.8 | Fallos que afectan a la seguridad | R9 o R1/R2 en corto dejan el circuito apto según IEC 60601-2-25, pero eliminan la limitación de corriente hacia el paciente | Añadir un criterio de seguridad (corriente de paciente, IEC 60601-1) al nivel funcional, o declararlo como limitación | No, si se calcula con los valores guardados; sí, si hace falta una simulación nueva |
+| 2.10 | Medida de modo común (C2) | El tono de 0,1 V inyectado por la pierna derecha no ve ningún componente con el ruido supuesto, y los fallos de la pierna derecha que incumplen el rechazo en modo común no se detectan (circuito de referencia, R9 abierta en el integrado) | Subir la amplitud o promediar más el tono, o medir la salida de la pierna derecha (`rld_out`, ya en C1x) | No: amplitud, ruido y promediado se aplican al cargar los datos |
 | 2.9 | Desequilibrio de clases por origen | 5.000 sanos y 2.200 de electrodo frente a unos 57.000 de circuito | Ponderar las clases o submuestrear en E6, o generar más casos sanos y de electrodo | Solo si se generan más casos |
 
 ## 3. Sin implementar
@@ -59,6 +60,7 @@ Nada de esto impide avanzar; son ampliaciones.
 | 3.5 | Tonos medidos en transitorio | Las ganancias de C2 y C4 son de pequeña señal; el modelo de medida recorta al rango del ADC |
 | 3.6 | Modelo de ruido de medida | Primera aproximación; debe seguir el procedimiento real de adquisición cuando se defina |
 | 3.7 | Ruido del macromodelo de TI | Dio valores no creíbles en ngspice y no se comparó |
+| 3.8 | Métricas de testabilidad | E2 usa un criterio univariante (conservador) con mediana y rango intercuartílico, umbral de 3 desviaciones y una desviación de referencia del 10 %. Con media y desviación típica, los fallos que saturan la salida parecían indetectables; por eso se usan estadísticos robustos y se añade un detector de límites; los grupos transitivos encadenan componentes, por eso se informa también de la confusión directa. La separabilidad de E9 (distancia entre centroides sobre dispersión) se dispara con medidas saturadas, como pasa con C4. Conviene contrastarlas con los resultados de E5 |
 
 ## 4. Trabajo pendiente por fases
 
@@ -66,7 +68,7 @@ Nada de esto impide avanzar; son ampliaciones.
 |---|---|
 | 1. Lecturas y posicionamiento | Todas las lecturas y el borrador de introducción |
 | 4. Dataset | Hecho (versión `data/v1`). Queda publicarlo en Zenodo, en la fase 8 |
-| 5. Testabilidad | E2 es una primera pasada con un criterio univariante; falta E9 (ya existe la métrica de separabilidad entre clases) |
+| 5. Testabilidad | Hecha: H3 apoyada, H5 apoyada en parte (resultado en el plan). Contrastar con E5 |
 | 6. Modelos | E3–E6 corren con modelos sin ajustar y una sola partición; faltan validación para hiperparámetros, particiones repetidas, bandas de guarda en E3 y clases fusionadas por grupo de ambigüedad en E5 |
 | 7. Robustez | Faltan E7 y E8 (ya existe la partición por magnitud no vista) |
 | 8. Publicación | Todo |

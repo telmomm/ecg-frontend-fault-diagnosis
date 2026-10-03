@@ -281,10 +281,20 @@ Los puntos abiertos de todas las fases están reunidos en `docs/pendientes.md`.
 - Algunos fallos duros dejan el circuito apto aunque afectan a la seguridad, como R9 o R1/R2 en corto (desaparece la limitación de corriente hacia el paciente). La norma de prestaciones no los ve.
 - El balance de origen está muy descompensado: 5.000 sanos, 2.200 de electrodo y unos 57.000 de circuito.
 
-### Fase 5 — Testabilidad (E2, E9)
-- [ ] Análisis de sensibilidad
-- [ ] Grupos de ambigüedad en ambos circuitos
-- [ ] Separabilidad entre clases
+### Fase 5 — Testabilidad (E2, E9) ✅
+- [x] Análisis de sensibilidad (E2: sensibilidad normalizada por la dispersión de los sanos, rango de testabilidad y componentes colineales)
+- [x] Grupos de ambigüedad en ambos circuitos (E2: condiciones indetectables, escapes inevitables y componentes confundibles entre los casos no aptos)
+- [x] Separabilidad entre clases (E9, que compara los dos circuitos)
+
+**Entregable:** figuras y tablas de testabilidad. **Cierre:** H3 y H5 evaluadas.
+
+**Resultado** (`make testability` sobre `data/v1`; tablas y figuras en `results/e2/` y `results/e9/`). Cifras con el conjunto completo C1+C2+C3+C4 y, salvo que se indique, sin electrodos secos porosos. Son mapas con un criterio univariante, conservador; E5 dirá cuánto separa un clasificador.
+
+- **Electrodos porosos.** Con los seis materiales, 11 condiciones no aptas del circuito integrado son indistinguibles de los sanos (todas, fallos de ganancia que se confunden con la atenuación de la tela). Sin los porosos no queda ninguna, y el rango de testabilidad sube de 2 a 4. Refuerza la opción (a) del punto 2.1.
+- **Escapes inevitables.** Integrado: ninguno con el criterio robusto; el detector de límites (1 % de falsas alarmas) solo deja escapar R9 abierta. Referencia: 10, casi todos de la pierna derecha (R12, R13, R14, C3), que incumplen el rechazo en modo común pero no se ven en las medidas, y los offsets de 50 mV en U1/U2. Estos últimos sí aparecerían midiendo la salida del amplificador de instrumentación (conjunto C1x).
+- **H3, apoyada.** Solo 3 de 23 componentes del integrado (R1, R2, R9) y 3 de 29 del de referencia se localizan sin ambigüedad. En media, cada componente se confunde con 4,7 y 6,7 otros. Grupos colineales previsibles a priori: las resistencias de ganancia (R5, R6, R11, R12), C5/R10, R13/R14 y R15/R16.
+- **H5, apoyada en parte.** La estructura de ambigüedad cambia con la arquitectura: el circuito integrado tiene menos escapes (0 frente a 10), menos confusión media (4,7 frente a 6,7) y más rango de testabilidad (4 frente a 3). En cambio, la separabilidad multivariante entre componentes es algo mayor en el de referencia (2,18 frente a 1,78). Los casos más ambiguos del de referencia son las resistencias simétricas de su amplificador (R5 y R6 se confunden con 21 componentes), en línea con lo que Chen et al. (2025) señalan para circuitos simétricos.
+- **Medida de modo común.** El tono de modo común inyectado por la pierna derecha no es sensible a ningún componente con el ruido de medida supuesto; es la razón de que los fallos de la pierna derecha queden ocultos.
 
 **Entregable:** figuras y tablas de testabilidad. **Cierre:** H3 y H5 evaluadas.
 

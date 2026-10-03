@@ -21,8 +21,8 @@ CLASSES = ["none", "circuit", "electrode"]
 
 def main() -> None:
     args = parser(__doc__.splitlines()[0], dataset=True).parse_args()
-    measured, _, cfg = load_measured(args.data)
-    out = results_dir("e6", cfg["circuit"])
+    measured, _, cfg = load_measured(args.data, args.electrode_kinds)
+    out = results_dir("e6", cfg["circuit"], args)
     seed = int(cfg["seed"])
 
     y = measured["origin"].map(CLASSES.index).to_numpy()
