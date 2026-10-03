@@ -1,0 +1,7 @@
+{
+  "circuit": "reference",
+  "nominal_gain": 413.89744326381333,
+  "nominal_compliant": true,
+  "n_mc": 500,
+  "mc_yield": 1.0
+}

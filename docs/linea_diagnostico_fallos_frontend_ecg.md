@@ -265,14 +265,21 @@ Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio 
 
 Los puntos abiertos de todas las fases están reunidos en `docs/pendientes.md`.
 
-### Fase 4 — Generación del dataset
-- [ ] Ejecutar todas las condiciones en ambos circuitos (`make dataset`)
+### Fase 4 — Generación del dataset ✅
+- [x] Ejecutar todas las condiciones en ambos circuitos (`make dataset`)
 - [x] Añadir ruido y cuantificación (se aplican al cargar los datos, para poder variarlos sin volver a simular)
 - [x] Etiquetado en tres niveles
-- [ ] Verificar el balance de clases sobre el dataset generado (`make report`)
+- [x] Verificar el balance de clases sobre el dataset generado (`make report`)
 - [x] Documentar el dataset (`docs/dataset.md`; las cifras de cada versión van en el `report.md` de su carpeta)
 
 **Entregable:** dataset versionado. **Cierre:** dataset completo y documentado.
+
+**Resultado (versión `data/v1`, commit `93a40d8`):** 63.600 casos del circuito integrado y 66.400 del de referencia, sin ninguna simulación fallida (77 y 80 minutos). Son aptos el 79 % y el 70 % de los casos, y el 100 % de los sanos. Las cifras completas están en el `report.md` de cada carpeta. Observaciones:
+
+- Los fallos de ±5 % solo sacan de especificación al circuito cuando tocan la ganancia (R11/R12 del integrado, la mitad de los casos; R7 y la etapa de ganancia del de referencia). Apoya H2.
+- En el circuito integrado ningún fallo de la pierna derecha activa (R7, R8, C4, U2, U3) incumple la norma: el camino pasivo de R9 hacia la referencia basta para el ensayo de 89 dB. Lo mismo ocurre con los seguidores U5 y U6.
+- Algunos fallos duros dejan el circuito apto aunque afectan a la seguridad, como R9 o R1/R2 en corto (desaparece la limitación de corriente hacia el paciente). La norma de prestaciones no los ve.
+- El balance de origen está muy descompensado: 5.000 sanos, 2.200 de electrodo y unos 57.000 de circuito.
 
 ### Fase 5 — Testabilidad (E2, E9)
 - [ ] Análisis de sensibilidad

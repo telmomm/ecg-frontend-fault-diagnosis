@@ -10,10 +10,10 @@ dist/
 
 # Generated data and results (published separately on Zenodo)
 data/*
-!data/README.md
-results/*
-!results/README.md
-!results/openalex_results/
+#!data/README.md
+#results/*
+#!results/README.md
+#!results/openalex_results/
 
 # Vendor SPICE models (copyrighted; fetched by scripts/fetch_vendor_models.py)
 models/

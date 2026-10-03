@@ -17,7 +17,7 @@ is the cause? Is the problem in the circuit or in the electrodes?
 |---|---|
 | 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Limits checked against the text of the standard; the open design decision on porous dry electrodes is in docs/pendientes.md |
 | 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests |
-| 4. Dataset | Ready to generate: resumable generation, integrity and class-balance report (`make report`), datasheet in docs/dataset.md. Only the smoke datasets have been run |
+| 4. Dataset | Closed: `data/v1` generated (63,600 + 66,400 cases, no failed simulation), checked with `make report`, datasheet in docs/dataset.md |
 | 5. Testability (E2, E9) | E2 first pass. E9 not written (a class-separability metric exists) |
 | 6. Models (E3–E6) | Untuned baselines that run end to end |
 | 7. Robustness (E7, E8) | Not written (the split by unseen magnitude exists) |
@@ -47,7 +47,7 @@ ecgfd faults                   # size of the fault catalogue
 # Smoke datasets: about 1,200 simulations and 2.5 minutes each
 make smoke
 
-# Full datasets: 63,600 + 66,400 simulations, roughly 4.5 hours on 8 cores.
+# Full datasets: 63,600 + 66,400 simulations, about 2.5 hours on 8 cores.
 # An interrupted run resumes from the last complete chunk when launched again.
 make dataset
 

@@ -36,13 +36,15 @@ Ninguno de los dos artículos da estos datos, así que quedan como supuestos dec
 
 | # | Decisión | Situación | Opciones | ¿Re-simular? |
 |---|---|---|---|---|
-| 2.1 | **Electrodos secos porosos frente a la red de entrada** | Con los valores medidos, un circuito sano ve en servicio entre 0,31 y 0,61 de la ganancia nominal con tela conductora (0,11–0,21 a 150 Hz) y entre 0,70 y 0,87 con polímero; con gel y metales sólidos, 0,94–1,02. Lo causan los 10 MΩ de polarización y el condensador diferencial de 1 nF | (a) Limitar la familia seca a acero, plata y platino; (b) rediseñar la entrada para electrodos secos (más impedancia, menos capacidad, o electrodos activos); (c) dejarlo así y tratarlo como dificultad del problema | Sí |
+| 2.1 | **Electrodos secos porosos frente a la red de entrada** | Con los valores medidos, un circuito sano ve en servicio entre 0,31 y 0,61 de la ganancia nominal con tela conductora (0,11–0,21 a 150 Hz) y entre 0,70 y 0,87 con polímero; con gel y metales sólidos, 0,94–1,02. Lo causan los 10 MΩ de polarización y el condensador diferencial de 1 nF | (a) Limitar la familia seca a acero, plata y platino; (b) rediseñar la entrada para electrodos secos (más impedancia, menos capacidad, o electrodos activos); (c) dejarlo así y tratarlo como dificultad del problema. El dataset `v1` incluye los seis materiales | (a) no: basta filtrar por `electrode_kind`; (b) sí; (c) no |
 | 2.2 | Inyección de las señales de autotest | `Vcal`, `Vcmt` e `Ilo` son fuentes ideales | Dejarlo como hipótesis declarada, o diseñar el circuito real de inyección | Sí, si se diseña |
 | 2.3 | Operacionales discretos | Modelo genérico; no hay pieza elegida | Elegir pieza y ajustar offset, ancho de banda y ruido | Sí |
 | 2.4 | Nodos de continua adicionales | `ina_out` y `rld_out` suponen canales de ADC libres; solo entran en el conjunto `C1x` | Decidir si el equipo los tendría | No |
 | 2.5 | Tono de 0,05 Hz en C2 | Es el que ve el paso alto, pero medirlo lleva decenas de segundos | Mantenerlo, o confiar en la cola de la respuesta al pulso | No |
 | 2.6 | PySpice | Sustituido por un lanzador propio de ngspice; el plan aún lo nombra en las herramientas | Confirmar el cambio y actualizar la tabla de herramientas del plan | No |
 | 2.7 | Modelo del circuito abierto | 1 GΩ en serie, en lugar de los 10 MΩ de la versión 1 | Confirmar | Sí, si cambia |
+| 2.8 | Fallos que afectan a la seguridad | R9 o R1/R2 en corto dejan el circuito apto según IEC 60601-2-25, pero eliminan la limitación de corriente hacia el paciente | Añadir un criterio de seguridad (corriente de paciente, IEC 60601-1) al nivel funcional, o declararlo como limitación | No, si se calcula con los valores guardados; sí, si hace falta una simulación nueva |
+| 2.9 | Desequilibrio de clases por origen | 5.000 sanos y 2.200 de electrodo frente a unos 57.000 de circuito | Ponderar las clases o submuestrear en E6, o generar más casos sanos y de electrodo | Solo si se generan más casos |
 
 ## 3. Sin implementar
 
@@ -63,7 +65,7 @@ Nada de esto impide avanzar; son ampliaciones.
 | Fase | Pendiente |
 |---|---|
 | 1. Lecturas y posicionamiento | Todas las lecturas y el borrador de introducción |
-| 4. Dataset | Generar los dos datasets completos (unas 4 horas), revisar el balance de clases y escribir su ficha |
+| 4. Dataset | Hecho (versión `data/v1`). Queda publicarlo en Zenodo, en la fase 8 |
 | 5. Testabilidad | E2 es una primera pasada con un criterio univariante; falta E9 (ya existe la métrica de separabilidad entre clases) |
 | 6. Modelos | E3–E6 corren con modelos sin ajustar y una sola partición; faltan validación para hiperparámetros, particiones repetidas, bandas de guarda en E3 y clases fusionadas por grupo de ambigüedad en E5 |
 | 7. Robustez | Faltan E7 y E8 (ya existe la partición por magnitud no vista) |

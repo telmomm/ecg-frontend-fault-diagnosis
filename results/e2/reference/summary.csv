@@ -1,0 +1,7 @@
+feature_set,n_features,n_conditions,n_groups,n_singletons,n_undetectable
+C1,1,308,1,0,303
+C1x,3,308,1,0,296
+C2,15,308,6,2,245
+C3,7,308,1,0,271
+C4,2,308,1,0,303
+C1+C2+C3+C4,25,308,9,5,242
