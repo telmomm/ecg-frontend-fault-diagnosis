@@ -29,21 +29,28 @@ def passive_tolerance(name: str, cfg: dict) -> float:
 def sample_electrodes(cfg: dict, rng: np.random.Generator) -> tuple[str, str, dict[str, dict]]:
     """Draw (family, electrode type, parameters of each electrode).
 
-    The three electrodes are of the same type, but their parameters are drawn
-    independently around its medians, so contact-impedance imbalance is part of the
-    normal variation.
+    The three electrodes are of the same type and, when the type has per-subject
+    data, on the same subject: its measured contact resistance replaces the median
+    Rd, with Cd scaled to keep the time constant. On top of that, the parameters of
+    each electrode are drawn independently, so contact-impedance imbalance is part of
+    the normal variation.
     """
     ecfg = cfg["electrodes"]
     names = list(ecfg["mix"])
     family = str(rng.choice(names, p=[float(ecfg["mix"][n]) for n in names]))
     kind = str(rng.choice(list(ecfg["families"][family])))
-    medians = ecfg["families"][family][kind]
+    spec = ecfg["families"][family][kind]
+    centre = {key: float(spec[key]) for key in ("rs", "rd", "cd")}
+    if "subject_rd" in spec:
+        rd = float(rng.choice(spec["subject_rd"]))
+        centre["cd"] *= centre["rd"] / rd
+        centre["rd"] = rd
     log_spread = np.log(float(ecfg["spread"]))
     electrodes = {}
     for name in ELECTRODES:
         e = {
-            key: float(medians[key]) * float(np.exp(rng.uniform(-log_spread, log_spread)))
-            for key in ("rs", "rd", "cd")
+            key: value * float(np.exp(rng.uniform(-log_spread, log_spread)))
+            for key, value in centre.items()
         }
         e["ehc"] = float(ecfg["nominal"]["ehc"]) + float(ecfg["ehc_abs"]) * rng.uniform(-1, 1)
         electrodes[name] = e

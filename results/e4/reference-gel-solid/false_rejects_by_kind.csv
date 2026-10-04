@@ -1,0 +1,17 @@
+trained_on,kind,false_rejects_per_split
+functional,electrode_high_z,1.5
+functional,electrode_off,110.33333333333333
+functional,healthy,1.0
+functional,opamp_aol,2.0
+functional,opamp_vos,1.0
+functional,open,1.0
+functional,parametric,29.666666666666668
+percentage,cap_degradation,259.6666666666667
+percentage,electrode_high_z,18.666666666666668
+percentage,electrode_off,2.0
+percentage,healthy,161.0
+percentage,opamp_aol,147.66666666666666
+percentage,opamp_vos,139.0
+percentage,open,198.0
+percentage,parametric,2947.6666666666665
+percentage,short,134.0

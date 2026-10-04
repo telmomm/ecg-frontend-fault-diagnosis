@@ -108,27 +108,42 @@ GBW 1 MHz, 30 nV/√Hz); the `reference` circuit uses TL07x-like figures (±3 mV
 
 Each electrode is a half-cell potential in series with Rs and Rd ‖ Cd, the single
 time-constant model of Swanson and Webster. Each simulated case draws a family (gel
-or dry, 50/50), then an electrode type of that family, shared by the three
-electrodes, and then every parameter of every electrode log-uniformly between half
-and twice the median of the type. Imbalance is therefore part of the normal variation.
+or dry, 50/50) and an electrode type of that family, shared by the three electrodes.
+For dry electrodes it also draws one of the six measured subjects: that subject's
+contact resistance replaces the median Rd, and Cd is scaled to keep the time
+constant. Finally every parameter of every electrode is drawn log-uniformly between
+half and twice that value, so imbalance is part of the normal variation.
 
-| Family | Type | Rs | Rd | Cd | Source |
+| Family | Type | Rs | Rd (median) | Cd (median) | Rd of the six subjects |
 |---|---|---|---|---|---|
-| Gel | Ag/AgCl with gel | 300 Ω | 51 kΩ | 47 nF | Rd ‖ Cd is the network that IEC 60601-2-25 puts in series with each lead to represent the skin-electrode impedance; Rs is assumed |
-| Dry | Conductive polymer | 220 Ω | 2.02 MΩ | 4.64 nF | Scientific Reports 14:8882 (2024), Table 3: medians fitted on nine subjects after 10 minutes of settling |
-| Dry | Conductive fabric, no membrane | 249 Ω | 8.94 MΩ | 0.44 nF | same |
-| Dry | Conductive fabric with membrane | 226 Ω | 7.38 MΩ | 0.675 nF | same |
-| Dry | Stainless steel | 102 Ω | 0.122 MΩ | 60.5 nF | same |
-| Dry | Silver | 167 Ω | 0.593 MΩ | 59.3 nF | same |
-| Dry | Platinum | 48 Ω | 0.418 MΩ | 5.44 µF | same |
+| Gel | Ag/AgCl with gel | 300 Ω | 51 kΩ | 47 nF | not available |
+| Dry | Conductive polymer | 110 Ω | 1.01 MΩ | 9.3 nF | 0.26–2.8 MΩ |
+| Dry | Conductive fabric, no membrane | 125 Ω | 4.47 MΩ | 0.88 nF | 1.0–25 MΩ |
+| Dry | Conductive fabric with membrane | 113 Ω | 3.69 MΩ | 1.35 nF | 0.66–68 MΩ |
+| Dry | Stainless steel | 51 Ω | 61 kΩ | 121 nF | 0.6 kΩ–0.44 MΩ |
+| Dry | Silver | 84 Ω | 297 kΩ | 119 nF | 0.8 kΩ–0.50 MΩ |
+| Dry | Platinum | 24 Ω | 209 kΩ | 10.9 µF | 0.8 kΩ–0.58 MΩ |
+
+Sources and assumptions:
+
+- **Dry medians**: Table 3 of *Scientific Reports* 14:8882 (2024), fitted after 10
+  minutes of settling. The paper measures a pair of electrodes in series, so the
+  values per electrode are half the resistances and twice the capacitance.
+- **Dry subjects**: open data of the same paper (doi:10.17632/j9rt95468p.5), mean |Z|
+  from 1 to 100 Hz of each subject at minute 10, halved and taken as that subject's
+  Rd. The spread between subjects is large: a geometric standard deviation of 2.3 for
+  the polymer, 4–5 for the fabrics and 17–31 for the solid metals, which split into
+  subjects in the megaohm range and subjects in the kiloohm range.
+- **Gel**: Rd ‖ Cd is the network that IEC 60601-2-25 puts in series with each lead to
+  represent the skin-electrode impedance. Rs and the absence of a subject spread are
+  assumed; neither paper measures gel electrodes.
+- **Assumed for every type**: the factor-of-two spread between the electrodes of one
+  case and the ±5 mV spread of the half-cell potential.
 
 The dry values agree in order of magnitude with *Sensors* 22:8510 (2022), which fits
 1.6 MΩ ‖ 151 nF for the stratum corneum under a 4 cm² stainless-steel electrode on a
-dry skin phantom. That paper uses a different circuit (with a series contact
-capacitance) and no gel electrodes, so it is not used for parameter values.
-
-Assumed, because neither paper gives it: the factor-of-two spread around each median,
-the ±5 mV spread of the half-cell potential, and Rs of the gel electrode.
+dry skin phantom; it uses a different circuit and no gel electrodes, so it is not
+used for parameter values.
 
 The patient is a body node coupled to mains (2 pF) and earth (200 pF), with the
 amplifier common isolated by 200 pF (Winter & Webster, 1983).
@@ -205,19 +220,14 @@ design decisions, features not implemented) is tracked in one place:
 
 ## Consequences worth knowing before the dataset
 
-- **Porous dry electrodes do not suit this input network.** In service, through
-  `Vcal`, healthy circuits measure the following fraction of the nominal gain:
-
-  | Electrode type | at 10 Hz | at 150 Hz (nominal 0.83) |
-  |---|---|---|
-  | Gel, stainless steel, silver, platinum | 0.94–1.02 | 0.75–0.86 |
-  | Conductive polymer | 0.70–0.87 | 0.46–0.63 |
-  | Conductive fabric | 0.31–0.61 | 0.11–0.21 |
-
-  The megaohm-level impedance of polymer and fabric electrodes forms a divider with
-  the 10 MΩ bias resistors and with the 1 nF differential RFI capacitor. The circuit
-  itself is compliant, since the standard only asks for 2.5 MΩ, but the signal is
-  badly attenuated. This is decision 2.1 in [pendientes.md](pendientes.md).
+- **High-impedance dry electrodes attenuate the signal in service.** The megaohm-level
+  impedance of polymer and fabric electrodes (and of solid ones on some subjects)
+  forms a divider with the 10 MΩ bias resistors and with the 1 nF differential RFI
+  capacitor, so healthy circuits can measure well below the nominal gain through
+  `Vcal`. The circuit itself is compliant, since the standard only asks for 2.5 MΩ.
+  It was decided to keep every electrode type and treat this as part of the problem;
+  the `report.md` of each dataset gives the gain measured per electrode type, and the
+  experiments can be repeated without the porous electrodes (`--electrode-kinds`).
 - **Electrode degradation is relative to the family.** A dried gel electrode can have
   the impedance of a healthy dry one.
 - **The system CMRR is dominated by the RLD.** With the INA333 degraded to 50 dB the
@@ -228,8 +238,8 @@ design decisions, features not implemented) is tracked in one place:
 - **AC features are small-signal.** A fault that would saturate the output under a
   real tone can show a huge linear gain; the measurement model clips tones to the ADC
   range.
-- **Extended DC nodes.** `ina_out` and `rld_out` assume spare ADC channels. Only `out`
-  belongs to the strict feature sets; the extended set is `C1x`.
+- **DC nodes.** The main feature sets read `out` and `ina_out`, which needs one spare
+  ADC channel; `rld_out` would need another and only enters the extended set `C1x`.
 
 ## Sources
 

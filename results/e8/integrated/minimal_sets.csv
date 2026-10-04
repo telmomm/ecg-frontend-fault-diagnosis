@@ -1,0 +1,7 @@
+task,repeat,full_score,full_time_s,n_measurements,time_s,score,measurements
+decision,0,0.9714063381691755,97.192,3.0,3.0,0.9626198273394152,cal_pulse + leadoff_tone_10 + diff_tone_150
+decision,1,0.9700778582937246,97.192,3.0,3.0,0.9607620131593305,cal_pulse + leadoff_tone_100 + diff_tone_150
+decision,2,0.9711866610148174,97.192,3.0,3.0,0.9635975083945811,cal_pulse + leadoff_tone_100 + diff_tone_150
+localisation,0,0.7298500781933,97.192,3.0,2.064,0.7241370755608709,cal_pulse + diff_tone_150 + dc_ina_out
+localisation,1,0.7326621307627788,97.192,3.0,2.064,0.7238641813393627,cal_pulse + diff_tone_150 + dc_ina_out
+localisation,2,0.7447151938968483,97.192,,,,

@@ -1,0 +1,7 @@
+{
+  "best_model": "random_forest",
+  "data": "/Users/telmomm/Desktop/ecg-frontend-fault-diagnosis/data/v2/integrated",
+  "n_cases": 10074,
+  "spearman_recall_vs_e2_confusable": -0.43783384209359927,
+  "p_value": 0.03666313777686912
+}

@@ -1,0 +1,12 @@
+# Test-only dataset for E7: same circuit and faults, but tolerances drawn from a
+# truncated normal instead of a uniform distribution, with another seed.
+extends: default.yaml
+
+seed: 20261003
+
+tolerances:
+  distribution: truncnorm
+
+dataset:
+  n_healthy: 1000
+  n_per_fault: 40

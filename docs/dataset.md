@@ -25,7 +25,8 @@ One folder per circuit (`integrated`, `reference`), each with:
 
 Each case is one circuit realisation: a healthy circuit drawn within manufacturing
 tolerances, with at most one injected fault, connected to three electrodes drawn
-from a gel or dry family. With the default configuration there are 5,000 healthy
+from a gel or dry family; dry electrodes take the contact resistance measured on one
+of six subjects. With the default configuration there are 5,000 healthy
 cases and 200 cases for each fault condition (293 conditions for `integrated`, 307
 for `reference`).
 
@@ -43,7 +44,7 @@ for `reference`).
 | `origin` | level 3: `none`, `circuit` or `electrode` |
 | `electrode_type`, `electrode_kind` | electrode family and type of the case |
 | `p_<name>` | realised value of every component, op-amp, INA and electrode parameter |
-| `dc_<node>` | C1: DC voltage at the output and at the extended nodes [V] |
+| `dc_<node>` | C1: DC voltage at the output, the INA output and the RLD output [V] |
 | `acd_mag_<f>`, `acd_ph_<f>` | C2: differential gain [V/V] and phase [deg] through the calibration source |
 | `acc_mag_<f>` | C2: gain from the common-mode test source [V/V] |
 | `zlo_mag_<f>` | C4: output per unit of lead-off test current [V/A] |
@@ -86,7 +87,8 @@ jobs. Models, values and sources are documented in [circuit.md](circuit.md).
 - Simulation only: behavioural models of the amplifiers, ideal self-test sources,
   single faults, no ageing.
 - Frequency-domain features are small-signal values.
-- The spread of the electrode parameters around the published medians is assumed.
+- Dry electrodes follow six measured subjects per material; the spread between the
+  electrodes of one case and the gel electrode parameters are assumed.
 - The full list of open points is in [pendientes.md](pendientes.md).
 
 ## Distribution

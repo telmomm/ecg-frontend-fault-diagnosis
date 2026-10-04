@@ -1,8 +1,8 @@
 PY ?= .venv/bin/python
-DATA ?= data/v1
+DATA ?= data/v2
 CIRCUITS = integrated reference
 
-.PHONY: setup test lint smoke dataset report e1 testability experiments
+.PHONY: setup test lint smoke dataset report e1 testability models models-quick models-sensitivity shift-datasets robustness all-experiments
 
 setup:
 	python3 -m venv .venv
@@ -41,10 +41,47 @@ testability:
 	$(PY) experiments/e9_architecture.py --data-dir $(DATA)
 	$(PY) experiments/e9_architecture.py --data-dir $(DATA) --electrode-kinds $(SOLID) --tag gel-solid
 
-# E2-E6 on the datasets under $(DATA)
-experiments:
+# Phase 6: E3-E6 on both circuits with every electrode type, then E9 with the E5 scores
+MODELS = e3_spec_prediction e4_severity e6_origin
+models:
 	for c in $(CIRCUITS); do \
-		for e in e2_ambiguity_groups e3_spec_prediction e4_severity e5_localisation e6_origin; do \
-			$(PY) experiments/$$e.py --data $(DATA)/$$c; \
+		for e in $(MODELS); do $(PY) experiments/$$e.py --data $(DATA)/$$c; done; \
+		$(PY) experiments/e5_localisation.py --data $(DATA)/$$c --cnn; \
+	done
+	$(PY) experiments/e9_architecture.py --data-dir $(DATA)
+
+# E3, E4 and E6 only (minutes); E5, the slow one, is left as it is
+models-quick:
+	for c in $(CIRCUITS); do \
+		for e in $(MODELS); do $(PY) experiments/$$e.py --data $(DATA)/$$c; done; \
+	done
+
+# Sensitivity of phase 6 to the electrodes: type given to the models, and no porous dry ones
+models-sensitivity:
+	for c in $(CIRCUITS); do \
+		for e in $(MODELS) e5_localisation; do \
+			$(PY) experiments/$$e.py --data $(DATA)/$$c --known-electrode; \
+			$(PY) experiments/$$e.py --data $(DATA)/$$c --electrode-kinds $(SOLID) --tag gel-solid; \
 		done; \
 	done
+
+# Phase 7. Small test-only datasets generated with other tolerance settings (about an hour)
+SHIFTS = truncnorm tolerance
+shift-datasets:
+	for c in $(CIRCUITS); do \
+		for s in $(SHIFTS); do \
+			$(PY) -m ecgfd.cli --config configs/shift_$$s.yaml --circuit $$c generate --out data/shift/$$s/$$c; \
+		done; \
+	done
+
+# Phase 7: E7 (unseen magnitudes, noise and quantisation, other tolerances) and E8 (minimal tests)
+robustness:
+	for c in $(CIRCUITS); do \
+		$(PY) experiments/e7_robustness.py --data $(DATA)/$$c \
+			--shift-data data/shift/truncnorm/$$c data/shift/tolerance/$$c; \
+		$(PY) experiments/e8_minimal_tests.py --data $(DATA)/$$c; \
+		$(PY) experiments/e8_minimal_tests.py --data $(DATA)/$$c --strict; \
+	done
+
+# Every experiment of phases 5 to 7 on existing datasets (several hours)
+all-experiments: testability models models-sensitivity robustness

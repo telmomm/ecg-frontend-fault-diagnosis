@@ -25,27 +25,31 @@ Ninguno de los dos artículos da estos datos, así que quedan como supuestos dec
 
 | # | Punto | Estado actual | Cómo cerrarlo | ¿Re-simular? |
 |---|---|---|---|---|
-| 1.5 | Electrodo de gel | Rd ‖ Cd es la red de 51 kΩ ‖ 47 nF que la norma usa para representar el electrodo; la resistencia serie de 300 Ω es un supuesto. El artículo de *Sensors* 2022 no mide electrodos de gel | Buscar una fuente con parámetros medidos de Ag/AgCl con gel, o declarar que se usa la red de la norma | Sí |
-| 1.7 | Dispersión de los parámetros de electrodo | Factor 2 en torno a cada mediana y ±5 mV en el potencial de media celda, supuestos. El artículo de 2024 solo publica medianas en la tabla; los datos por sujeto están en IEEE DataPort y Mendeley Data | Calcular la dispersión real con esos datos abiertos | Sí |
-| 1.7b | Medida de los electrodos secos | Los parámetros se ajustaron a una medida entre dos electrodos; si representan el par y no un solo electrodo, Rd sería la mitad y Cd el doble | Aclararlo con el método del artículo o con sus datos | Sí |
-| 1.4 | Simplificaciones de los ensayos | Ruido como 6,6 × valor eficaz en vez de pico a valle en 10 s; margen dinámico calculado desde el punto de trabajo y no con la señal de 40 Hz desplazada; línea base leída 50 ms tras el impulso; respuesta en frecuencia por el método sinusoidal y de impulso, no por los ECG de calibración | Decidir si se aceptan y declararlas en el artículo | Sí, si se cambia algún ensayo |
-| 1.8 | Rechazo en modo común del INA333 a ganancia 4 | 102 dB interpolado entre los datos de ganancia 1 y 10; el macromodelo de TI da 100 dB | Aceptar la interpolación o consultar a TI | Sí, si cambia |
-| 1.10 | Modo monitorización | Solo se aplica la norma de diagnóstico; el plan cita también IEC 60601-2-27, que no está en la carpeta | Decidir si se añade como segundo juego de límites | No |
+| 1.5 | Electrodo de gel | Rd ‖ Cd es la red de 51 kΩ ‖ 47 nF que la norma usa para representar el electrodo; la resistencia serie de 300 Ω y la ausencia de dispersión entre sujetos son supuestos. Ningún artículo de la carpeta mide electrodos de gel | Buscar una fuente con parámetros medidos de Ag/AgCl con gel, o declarar que se usa la red de la norma | Sí |
+| 1.7 | ~~Dispersión de los parámetros de electrodo~~ | **Resuelto con los datos abiertos del artículo de 2024:** cada caso con electrodo seco usa la resistencia de contacto medida en uno de los seis sujetos. Siguen siendo supuestos el factor 2 entre los electrodos de un mismo caso y los ±5 mV de media celda | — | Hecho en la versión 2 del dataset |
+| 1.7b | ~~Medida de los electrodos secos~~ | **Resuelto:** la medida es de un par de electrodos en serie; los valores por electrodo son la mitad de las resistencias y el doble de la capacidad | — | Hecho en la versión 2 del dataset |
+| 1.4 | ~~Simplificaciones de los ensayos~~ | **Aceptadas**; se declaran en el artículo: ruido como 6,6 × valor eficaz, margen dinámico desde el punto de trabajo, línea base leída 50 ms tras el impulso, respuesta en frecuencia por el método sinusoidal y de impulso | — | No |
+| 1.8 | ~~Rechazo en modo común del INA333 a ganancia 4~~ | **Aceptada** la interpolación (102 dB; el macromodelo de TI da 100 dB) | — | No |
+| 1.10 | ~~Modo monitorización~~ | **Decidido:** solo se aplica la norma de diagnóstico | — | No |
 
 ## 2. Decisiones de diseño abiertas
 
 | # | Decisión | Situación | Opciones | ¿Re-simular? |
 |---|---|---|---|---|
-| 2.1 | **Electrodos secos porosos frente a la red de entrada** | Con los valores medidos, un circuito sano ve en servicio entre 0,31 y 0,61 de la ganancia nominal con tela conductora (0,11–0,21 a 150 Hz) y entre 0,70 y 0,87 con polímero; con gel y metales sólidos, 0,94–1,02. Lo causan los 10 MΩ de polarización y el condensador diferencial de 1 nF | (a) Limitar la familia seca a acero, plata y platino; (b) rediseñar la entrada para electrodos secos (más impedancia, menos capacidad, o electrodos activos); (c) dejarlo así y tratarlo como dificultad del problema. El dataset `v1` incluye los seis materiales | (a) no: basta filtrar por `electrode_kind`; (b) sí; (c) no |
-| 2.2 | Inyección de las señales de autotest | `Vcal`, `Vcmt` e `Ilo` son fuentes ideales | Dejarlo como hipótesis declarada, o diseñar el circuito real de inyección | Sí, si se diseña |
-| 2.3 | Operacionales discretos | Modelo genérico; no hay pieza elegida | Elegir pieza y ajustar offset, ancho de banda y ruido | Sí |
-| 2.4 | Nodos de continua adicionales | `ina_out` y `rld_out` suponen canales de ADC libres; solo entran en el conjunto `C1x` | Decidir si el equipo los tendría | No |
-| 2.5 | Tono de 0,05 Hz en C2 | Es el que ve el paso alto, pero medirlo lleva decenas de segundos | Mantenerlo, o confiar en la cola de la respuesta al pulso | No |
-| 2.6 | PySpice | Sustituido por un lanzador propio de ngspice; el plan aún lo nombra en las herramientas | Confirmar el cambio y actualizar la tabla de herramientas del plan | No |
-| 2.7 | Modelo del circuito abierto | 1 GΩ en serie, en lugar de los 10 MΩ de la versión 1 | Confirmar | Sí, si cambia |
-| 2.8 | Fallos que afectan a la seguridad | R9 o R1/R2 en corto dejan el circuito apto según IEC 60601-2-25, pero eliminan la limitación de corriente hacia el paciente | Añadir un criterio de seguridad (corriente de paciente, IEC 60601-1) al nivel funcional, o declararlo como limitación | No, si se calcula con los valores guardados; sí, si hace falta una simulación nueva |
-| 2.10 | Medida de modo común (C2) | El tono de 0,1 V inyectado por la pierna derecha no ve ningún componente con el ruido supuesto, y los fallos de la pierna derecha que incumplen el rechazo en modo común no se detectan (circuito de referencia, R9 abierta en el integrado) | Subir la amplitud o promediar más el tono, o medir la salida de la pierna derecha (`rld_out`, ya en C1x) | No: amplitud, ruido y promediado se aplican al cargar los datos |
-| 2.9 | Desequilibrio de clases por origen | 5.000 sanos y 2.200 de electrodo frente a unos 57.000 de circuito | Ponderar las clases o submuestrear en E6, o generar más casos sanos y de electrodo | Solo si se generan más casos |
+| 2.1 | ~~Electrodos secos porosos frente a la red de entrada~~ | **Decidido: opción (c).** Se mantienen los seis materiales y la atenuación con electrodos porosos se trata como dificultad del problema. La variante sin porosos (`--electrode-kinds`, etiqueta `gel-solid`) y la de tipo de electrodo conocido (`--known-electrode`) quedan como análisis de sensibilidad | — | No |
+| 2.2 | ~~Inyección de las señales de autotest~~ | **Decidido:** `Vcal`, `Vcmt` e `Ilo` son fuentes ideales y se declaran como hipótesis del estudio | — | No |
+| 2.3 | ~~Operacionales discretos~~ | **Decidido:** modelo genérico, declarado como hipótesis; no se elige pieza | — | No |
+| 2.4 | ~~Nodos de continua adicionales~~ | **Decidido:** la salida del amplificador de instrumentación (`ina_out`) entra en el conjunto principal de medidas (C1); la salida de la pierna derecha (`rld_out`) sigue solo en `C1x` | — | No |
+| 2.5 | ~~Tono de 0,05 Hz en C2~~ | **Resuelto por E8:** no aporta ni a la decisión ni a la localización y consume 80 de los 97 segundos del autotest | Quitarlo de la recomendación de medidas | No |
+| 2.6 | ~~PySpice~~ | **Decidido:** lanzador propio de ngspice; tabla de herramientas del plan actualizada | — | No |
+| 2.7 | ~~Modelo del circuito abierto~~ | **Decidido:** 1 GΩ en serie | — | No |
+| 2.8 | ~~Fallos que afectan a la seguridad~~ | **Decidido:** se declara como limitación. R9 o R1/R2 en corto dejan el circuito apto según la norma de prestaciones aunque eliminan la limitación de corriente hacia el paciente; el nivel funcional no incluye criterios de seguridad eléctrica (IEC 60601-1), y se comenta en la discusión | — | No |
+| 2.13 | ~~Localización por grupo de ambigüedad~~ | **Implementado:** los grupos se obtienen de la sensibilidad, sin mirar los fallos (integrado: R5+R6+R11+R12, C5+R10, R13+R14, R15+R16). E5 da el resultado por grupo como principal y E7 puntúa también por grupo | — | No |
+| 2.14 | ~~Nodo de salida del amplificador de instrumentación~~ | **Decidido:** ver 2.4 | — | No |
+| 2.11 | ~~Electrodo desconectado frente a R1/R2 abierta~~ | **Decidido:** un mismo grupo. En E6, R1 o R2 abierta cuenta como la clase electrodo/cable | — | No |
+| 2.12 | Regresión de especificaciones con banda de guarda | Los objetivos recortados producen muchos empates y la banda de guarda pasa de aceptar demasiado a rechazarlo casi todo | Usar regresión cuantílica o un clasificador por especificación si se quiere un punto de operación fino | No |
+| 2.10 | ~~Medida de modo común (C2)~~ | **Resuelto por E7:** subir la amplitud del tono a 1 V o alargarlo diez veces no hace detectables los fallos de la pierna derecha (se escapa alrededor de la mitad). Se mantiene el tono por defecto y se recomienda leer la salida de la pierna derecha si se quieren cubrir esos fallos | — | No |
+| 2.9 | Desequilibrio de clases por origen | 5.000 sanos y 2.200 de electrodo frente a unos 57.000 de circuito. E6 ya pondera las clases y define el origen por lo que hay que hacer, con lo que el reparto pasa a ser 48.000 / 13.400 / 2.200 | Generar más casos de electrodo si se quiere afinar H4 | Solo si se generan más casos |
 
 ## 3. Sin implementar
 
@@ -60,6 +64,7 @@ Nada de esto impide avanzar; son ampliaciones.
 | 3.5 | Tonos medidos en transitorio | Las ganancias de C2 y C4 son de pequeña señal; el modelo de medida recorta al rango del ADC |
 | 3.6 | Modelo de ruido de medida | Primera aproximación; debe seguir el procedimiento real de adquisición cuando se defina |
 | 3.7 | Ruido del macromodelo de TI | Dio valores no creíbles en ngspice y no se comparó |
+| 3.9 | CNN 1D sobre la respuesta al pulso | Revisada (normalización con el rango del ADC, cinco bloques y cabeza densa sin promediado temporal, planificación del ritmo de aprendizaje, GPU del Mac). En validación sube de 0,11 a unos 0,40 de F1 por componente, pero sigue por debajo del bosque aleatorio sobre los siete descriptores del pulso (0,61). No es aportación del trabajo; se informa tal cual y no se ajusta más |
 | 3.8 | Métricas de testabilidad | E2 usa un criterio univariante (conservador) con mediana y rango intercuartílico, umbral de 3 desviaciones y una desviación de referencia del 10 %. Con media y desviación típica, los fallos que saturan la salida parecían indetectables; por eso se usan estadísticos robustos y se añade un detector de límites; los grupos transitivos encadenan componentes, por eso se informa también de la confusión directa. La separabilidad de E9 (distancia entre centroides sobre dispersión) se dispara con medidas saturadas, como pasa con C4. Conviene contrastarlas con los resultados de E5 |
 
 ## 4. Trabajo pendiente por fases
@@ -67,10 +72,10 @@ Nada de esto impide avanzar; son ampliaciones.
 | Fase | Pendiente |
 |---|---|
 | 1. Lecturas y posicionamiento | Todas las lecturas y el borrador de introducción |
-| 4. Dataset | Hecho (versión `data/v1`). Queda publicarlo en Zenodo, en la fase 8 |
-| 5. Testabilidad | Hecha: H3 apoyada, H5 apoyada en parte (resultado en el plan). Contrastar con E5 |
-| 6. Modelos | E3–E6 corren con modelos sin ajustar y una sola partición; faltan validación para hiperparámetros, particiones repetidas, bandas de guarda en E3 y clases fusionadas por grupo de ambigüedad en E5 |
-| 7. Robustez | Faltan E7 y E8 (ya existe la partición por magnitud no vista) |
+| 4. Dataset | Hecho (versión `data/v2`). Queda publicarlo en Zenodo, en la fase 8 |
+| 5. Testabilidad | Hecha: H3 y H5 apoyadas (resultado en el plan) |
+| 6. Modelos | Hecha: H1, H2 y H4 evaluadas, con las variantes de electrodos (resultado en el plan) |
+| 7. Robustez | Hecha (resultado en el plan) |
 | 8. Publicación | Todo |
 
 ## 5. Del estado del arte
@@ -83,7 +88,7 @@ Recogidos de [SOTA/sota_diagnostico_fallos_frontend_ecg.md](SOTA/sota_diagnostic
 
 ## 6. Repositorio
 
-- No hay ningún commit todavía.
-- La licencia MIT tiene un titular genérico; falta poner el nombre real y, si se quiere, un fichero de cita.
+- Licencia MIT con el autor como titular. Versión actual 0.1.0; la 1.0.0 se reserva para cuando sea estable.
+- Versión 2 del dataset generada y ensayos relanzados; el plan recoge sus resultados. Los manifiestos de `data/v2` apuntan al commit `6a49f58`, pero se generaron con cambios aún sin confirmar: conviene hacer commit del estado actual y anotarlo.
 - Decidir si se versiona `results/openalex_results/` (9 MB) y los ficheros de `docs/SOTA/` (uno de ellos pesa 2,8 MB).
 - `docs/normative_and_papers/` está excluida de git: la norma es una copia con licencia de uso de AENOR y no puede publicarse. Los dos artículos son de acceso abierto y podrían versionarse aparte.

@@ -29,3 +29,6 @@ models/
 
 # Standards and papers: the standard is a licensed copy and must not be published
 docs/normative_and_papers/
+
+# Trial runs of the experiments on the smoke datasets
+results/smoke/

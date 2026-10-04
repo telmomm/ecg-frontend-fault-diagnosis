@@ -206,7 +206,7 @@ Antes del entrenamiento se añaden ruido y cuantificación de un ADC típico, co
 
 | Herramienta | Uso |
 |---|---|
-| ngspice + PySpice | Simulación y automatización |
+| ngspice | Simulación, lanzado desde Python con un lanzador propio |
 | schemdraw | Esquemas generados desde la tabla de componentes del código (`scripts/draw_schematics.py`) |
 | NumPy, pandas | Procesado |
 | scikit-learn | Modelos clásicos, regresión, selección de características |
@@ -218,6 +218,8 @@ Antes del entrenamiento se añaden ruido y cuantificación de un ADC típico, co
 ## 11. Fases de desarrollo
 
 Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio de cierre.
+
+> Los resultados de las fases 4 a 7 corresponden a la versión 2 del dataset (`data/v2`): electrodos secos según los datos por sujeto del artículo de 2024, salida del amplificador de instrumentación dentro del conjunto principal de medidas, y localización por grupos de ambigüedad.
 
 ### Fase 0 — Estado del arte ✅
 - [x] Revisión inicial con búsqueda web
@@ -274,11 +276,12 @@ Los puntos abiertos de todas las fases están reunidos en `docs/pendientes.md`.
 
 **Entregable:** dataset versionado. **Cierre:** dataset completo y documentado.
 
-**Resultado (versión `data/v1`, commit `93a40d8`):** 63.600 casos del circuito integrado y 66.400 del de referencia, sin ninguna simulación fallida (77 y 80 minutos). Son aptos el 79 % y el 70 % de los casos, y el 100 % de los sanos. Las cifras completas están en el `report.md` de cada carpeta. Observaciones:
+**Resultado (versión `data/v2`):** 63.600 casos del circuito integrado y 66.400 del de referencia, sin ninguna simulación fallida (81 y 75 minutos). Son aptos el 79 % y el 70 % de los casos, y el 100 % de los sanos. Las cifras completas están en el `report.md` de cada carpeta. Observaciones:
 
 - Los fallos de ±5 % solo sacan de especificación al circuito cuando tocan la ganancia (R11/R12 del integrado, la mitad de los casos; R7 y la etapa de ganancia del de referencia). Apoya H2.
 - En el circuito integrado ningún fallo de la pierna derecha activa (R7, R8, C4, U2, U3) incumple la norma: el camino pasivo de R9 hacia la referencia basta para el ensayo de 89 dB. Lo mismo ocurre con los seguidores U5 y U6.
-- Algunos fallos duros dejan el circuito apto aunque afectan a la seguridad, como R9 o R1/R2 en corto (desaparece la limitación de corriente hacia el paciente). La norma de prestaciones no los ve.
+- Algunos fallos duros dejan el circuito apto aunque afectan a la seguridad, como R9 o R1/R2 en corto (desaparece la limitación de corriente hacia el paciente). La norma de prestaciones no los ve; se declara como limitación.
+- La ganancia medida en servicio por un circuito sano depende mucho del electrodo: entre 0,90 y 1,03 de la nominal con gel y metales sólidos, entre 0,59 y 1,01 con polímero, y entre 0,05 y 0,97 con tela (mediana 0,6–0,7).
 - El balance de origen está muy descompensado: 5.000 sanos, 2.200 de electrodo y unos 57.000 de circuito.
 
 ### Fase 5 — Testabilidad (E2, E9) ✅
@@ -288,30 +291,72 @@ Los puntos abiertos de todas las fases están reunidos en `docs/pendientes.md`.
 
 **Entregable:** figuras y tablas de testabilidad. **Cierre:** H3 y H5 evaluadas.
 
-**Resultado** (`make testability` sobre `data/v1`; tablas y figuras en `results/e2/` y `results/e9/`). Cifras con el conjunto completo C1+C2+C3+C4 y, salvo que se indique, sin electrodos secos porosos. Son mapas con un criterio univariante, conservador; E5 dirá cuánto separa un clasificador.
+**Resultado** (`make testability` sobre `data/v2`; tablas y figuras en `results/e2/` y `results/e9/`). Cifras con el conjunto completo C1+C2+C3+C4. Son mapas con un criterio univariante, conservador.
 
-- **Electrodos porosos.** Con los seis materiales, 11 condiciones no aptas del circuito integrado son indistinguibles de los sanos (todas, fallos de ganancia que se confunden con la atenuación de la tela). Sin los porosos no queda ninguna, y el rango de testabilidad sube de 2 a 4. Refuerza la opción (a) del punto 2.1.
-- **Escapes inevitables.** Integrado: ninguno con el criterio robusto; el detector de límites (1 % de falsas alarmas) solo deja escapar R9 abierta. Referencia: 10, casi todos de la pierna derecha (R12, R13, R14, C3), que incumplen el rechazo en modo común pero no se ven en las medidas, y los offsets de 50 mV en U1/U2. Estos últimos sí aparecerían midiendo la salida del amplificador de instrumentación (conjunto C1x).
-- **H3, apoyada.** Solo 3 de 23 componentes del integrado (R1, R2, R9) y 3 de 29 del de referencia se localizan sin ambigüedad. En media, cada componente se confunde con 4,7 y 6,7 otros. Grupos colineales previsibles a priori: las resistencias de ganancia (R5, R6, R11, R12), C5/R10, R13/R14 y R15/R16.
-- **H5, apoyada en parte.** La estructura de ambigüedad cambia con la arquitectura: el circuito integrado tiene menos escapes (0 frente a 10), menos confusión media (4,7 frente a 6,7) y más rango de testabilidad (4 frente a 3). En cambio, la separabilidad multivariante entre componentes es algo mayor en el de referencia (2,18 frente a 1,78). Los casos más ambiguos del de referencia son las resistencias simétricas de su amplificador (R5 y R6 se confunden con 21 componentes), en línea con lo que Chen et al. (2025) señalan para circuitos simétricos.
-- **Medida de modo común.** El tono de modo común inyectado por la pierna derecha no es sensible a ningún componente con el ruido de medida supuesto; es la razón de que los fallos de la pierna derecha queden ocultos.
+| | Integrado | Referencia |
+|---|---|---|
+| Condiciones no aptas indistinguibles de los sanos, todos los electrodos | 9 | 16 |
+| Ídem, sin electrodos secos porosos | 1 | 6 |
+| Ídem, detector de límites (1 % de falsas alarmas), sin porosos | 3 | 8 |
+| Rango de testabilidad (desviación del 10 %), todos / sin porosos | 2 / 4 | 2 / 3 |
+| Componentes localizables sin ambigüedad, todos / sin porosos | 4 de 23 / 5 de 23 | 2 de 29 / 5 de 29 |
+| Componentes con los que se confunde cada uno, en media, todos / sin porosos | 3,9 / 2,5 | 8,6 / 5,2 |
 
-**Entregable:** figuras y tablas de testabilidad. **Cierre:** H3 y H5 evaluadas.
+- **Electrodos porosos.** En el integrado, 8 de las 9 condiciones invisibles son fallos de ganancia de ±5 a ±20 %, que se confunden con la atenuación de un electrodo de alta impedancia; sin los porosos solo queda R9 abierta.
+- **Escapes estructurales.** En el de referencia quedan seis sin porosos, todos de la pierna derecha (R12, R13, R14, C3): incumplen el rechazo en modo común pero las medidas no los ven. Los offsets de U1/U2 dejaron de escapar al incluir la salida del amplificador de instrumentación en las medidas.
+- **H3, apoyada.** Pocos componentes se localizan sin ambigüedad, y los grupos se pueden anticipar con la sensibilidad sola. Integrado: R5+R6+R11+R12 (ganancia), C5+R10 (paso alto), R13+R14 (paso bajo), R15+R16 (referencia). Referencia: nueve resistencias de ganancia en un grupo, C4+R16, R19+R20 y R12+R13.
+- **H5, apoyada.** La estructura de ambigüedad cambia con la arquitectura: el integrado tiene menos escapes, menos confusión media y, según E5, mejor localización (F1 por componente 0,74 frente a 0,61). La separabilidad entre centroides es la única medida que no lo favorece: es parecida con todos los electrodos (1,5 en ambos) y algo mayor en el de referencia sin porosos (2,1 frente a 1,8). Las resistencias simétricas del amplificador discreto son las más ambiguas, en línea con Chen et al. (2025).
+- **Medida de modo común.** El tono de modo común no es sensible a ningún componente; E7 confirma que subir su amplitud o su duración no lo arregla.
 
-### Fase 6 — Modelos (E3–E6)
-- [ ] Regresión de especificaciones y decisión apto/no apto
-- [ ] Comparación gravedad funcional frente a porcentual
-- [ ] Localización
-- [ ] Electrodo frente a circuito
+### Fase 6 — Modelos (E3–E6) ✅
+- [x] Regresión de especificaciones y decisión apto/no apto (E3: detector de límites, regresión con banda de guarda y clasificador con umbral, para un objetivo de escapes del 1 %)
+- [x] Comparación gravedad funcional frente a porcentual (E4)
+- [x] Localización (E5: cinco clasificadores y CNN 1D; contraste con la ambigüedad prevista en E2)
+- [x] Electrodo frente a circuito (E6: tres clases con ponderación por desequilibrio)
 
 **Entregable:** resultados con intervalos de confianza. **Cierre:** H1, H2 y H4 evaluadas.
 
-### Fase 7 — Robustez y conjunto mínimo (E7, E8)
-- [ ] Magnitudes no vistas y cambio de tolerancias
-- [ ] Barrido de ruido y cuantificación
-- [ ] Selección de medidas y curva coste-rendimiento
+Protocolo común: tres repeticiones con partición entrenamiento/validación/prueba (52,5 / 17,5 / 30 %), hiperparámetros, bandas de guarda y umbrales elegidos solo en validación, e intervalos de confianza del 95 % sobre las repeticiones. Se lanza con `make models` (y `make models-sensitivity` para las variantes de electrodos).
+
+**Resultado** (sobre `data/v2`, con los seis tipos de electrodo y el conjunto completo C1+C2+C3+C4; tablas en `results/e3` a `results/e6`; entre paréntesis, intervalos de confianza del 95 %):
+
+- **H1, apoyada en el circuito integrado y no en el de referencia.**
+
+  | | Escapes | Falsos rechazos |
+  |---|---|---|
+  | Integrado, detector de límites | 22,5 % | 20,0 % |
+  | Integrado, regresión de especificaciones | 8,4 % | 1,5 % |
+  | Integrado, clasificador | 7,9 % | 0,7 % |
+  | Integrado, clasificador ajustado a 1 % de escapes | 0,9 % | 7,8 % (4,8–10,8) |
+  | Referencia, clasificador | 11,2 % | 1,2 % |
+  | Referencia, clasificador ajustado a 1 % de escapes | 1,2 % | 54 % (48–60) |
+
+  En el de referencia los escapes que quedan son fallos que las medidas no ven (pierna derecha), como anticipó E2. La regresión de especificaciones iguala al clasificador en su punto por defecto, pero su banda de guarda no da un punto de operación útil cerca del 1 % de escapes. Sin electrodos porosos, el integrado alcanza el 1 % de escapes con solo un 1,9 % de falsos rechazos; conocer el tipo de electrodo, en cambio, no ayuda.
+- **H2, apoyada.** Entrenar con "componente fuera de tolerancia" da un 37 % de falsos rechazos en ambos circuitos; entrenar con "circuito fuera de especificación", un 1,6 % y un 2,2 %, con menos escapes (4,1 % frente a 7,9 % en el integrado; 7,6 % frente a 8,3 % en el de referencia). Siguen siendo aptos más del 93 % de los fallos de ±5 % y entre el 54 % y el 66 % de los de ±50 %.
+- **H3, apoyada.** Localización sobre los casos no aptos, mejor modelo (bosque aleatorio):
+
+  | | Integrado | Referencia |
+  |---|---|---|
+  | Por grupo de ambigüedad: F1 macro / exactitud / entre los 3 primeros | 0,87 / 95 % / 99,9 % | 0,76 / 94 % / 99,4 % |
+  | Por componente: F1 macro / entre los 3 primeros | 0,74 / 96 % | 0,61 / 84 % |
+
+  Los componentes peor localizados son los de los grupos previstos por la sensibilidad (R5/R6, R13/R14, R11/R12). El acierto por componente se correlaciona con el número de componentes confundibles que predijo E2 (ρ = −0,42 y −0,51, p < 0,05). La CNN sobre la forma de onda queda por debajo de los modelos tabulares (F1 por grupo 0,56 y 0,32).
+- **H4, apoyada en parte.** Con las clases "nada que hacer / circuito no apto / electrodo o cable": F1 macro 0,89 y 0,87. Se reconoce el 99 % de los casos sin nada que hacer y el 95 % y 92 % de los circuitos no aptos, pero solo el 64 % y 61 % de los fallos de electrodo. Un electrodo desconectado se reconoce en el 75 % y 89 % de los casos, y la resistencia de protección abierta siempre. Lo que falla es la degradación del contacto: la mitad pasa por normal, porque una impedancia cinco o veinte veces mayor cae dentro de lo que se mide en otros sujetos sanos. Sin electrodos porosos el reconocimiento de electrodo sube al 76 % y 74 %.
+
+### Fase 7 — Robustez y conjunto mínimo (E7, E8) ✅
+- [x] Magnitudes no vistas y cambio de tolerancias (E7: magnitudes paramétricas fuera del entrenamiento; datasets de prueba con tolerancias gaussianas truncadas y con componentes al 2 % y 10 %)
+- [x] Barrido de ruido y cuantificación (E7: ruido del ADC de 0,1 a 10 mV y de 8 a 16 bits, entrenando en la misma condición o en la de referencia)
+- [x] Selección de medidas y curva coste-rendimiento (E8: selección voraz de acciones de autotest, con su tiempo, para la decisión de aptitud y para la localización)
 
 **Entregable:** recomendación de medidas mínimas. **Cierre:** resultados estables entre semillas.
+
+Se lanza con `make shift-datasets` y `make robustness`. **Resultado** (sobre `data/v2`; tablas y figuras en `results/e7/` y `results/e8/`; tres repeticiones, con intervalos estrechos en todas las cifras):
+
+- **Magnitudes no vistas.** La decisión de aptitud generaliza: la exactitud equilibrada baja entre 1 y 6 puntos al puntuar magnitudes que no estaban en el entrenamiento. La localización por componente no: cae del 45–70 % al 3–33 %, porque dentro de un grupo colineal el modelo distingue los componentes memorizando magnitudes. Por grupo de ambigüedad se mantiene: 99 % y 95 % de acierto en el integrado con magnitudes pequeñas e intermedias no vistas, y 84 % con las grandes (96 %, 81 % y 79 % en el de referencia). La localización debe darse por grupo.
+- **Ruido y cuantificación.** Entrenando en la misma condición, el rendimiento apenas cambia entre 0,1 y 10 mV de ruido y entre 8 y 16 bits. Entrenando a 1 mV y midiendo a 10 mV sí se degrada: los escapes del integrado pasan del 4 % al 10 % y los falsos rechazos del de referencia del 2 % al 19 %.
+- **Otras tolerancias.** Con distribución gaussiana truncada no cambia nada. Con componentes más holgados (2 % y 10 %) los escapes suben del 4,1 % al 7,1 % en el integrado y del 7,6 % al 11,4 % en el de referencia; la localización por grupo se mantiene en el integrado (F1 0,88 a 0,87) y cae en el de referencia (0,76 a 0,45), que es más frágil.
+- **Tono de modo común.** Subir su amplitud de 0,1 a 1 V o alargarlo diez veces no hace detectables los fallos de la pierna derecha: se escapan alrededor de la mitad en cualquier caso. Hace falta otra medida, como la salida de la pierna derecha.
+- **Conjunto mínimo de medidas.** El pulso de calibración es siempre la primera medida elegida. Para decidir la aptitud bastan 3 medidas y 3 segundos en el integrado (pulso, un tono de impedancia de contacto y el tono diferencial de 150 Hz) para quedar a menos de un punto del autotest completo, que dura 97 segundos; en el de referencia son 4 medidas, con la salida de la pierna derecha. Para localizar, en el integrado bastan el pulso, el tono de 150 Hz y la salida del amplificador de instrumentación (2 segundos); el de referencia necesita 5 o 6 medidas. Los tonos de 0,05 Hz, que suponen 80 de los 97 segundos, no se eligen nunca.
 
 ### Fase 8 — Redacción y publicación
 - [ ] Redactar el artículo (estructura en la sección 12)

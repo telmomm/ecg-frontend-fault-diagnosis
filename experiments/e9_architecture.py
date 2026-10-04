@@ -24,7 +24,7 @@ import numpy as np
 import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
-from _common import SERIES, load_measured, output_name, set_style
+from _common import SERIES, load_measured, output_name, results_root, set_style
 from ecgfd.config import REPO_ROOT
 from ecgfd.evaluation import centroid_separability
 from ecgfd.features import feature_sets
@@ -76,17 +76,19 @@ def main() -> None:
     rows = []
     for circuit in CIRCUITS:
         name = output_name(circuit, args)
-        e2 = REPO_ROOT / "results" / "e2" / name / "summary.csv"
+        e2 = results_root(args) / "e2" / name / "summary.csv"
         if not e2.exists():
             raise SystemExit(f"{e2} not found: run E2 on the {circuit} dataset first")
         summary = pd.read_csv(e2).set_index("feature_set")
-        e5_path = REPO_ROOT / "results" / "e5" / name / "baseline.csv"
+        e5_path = results_root(args) / "e5" / name / "localisation.csv"
         e5 = None
         source = e5_path.with_name("source.json")
         data_path = str(Path(f"{args.data_dir}/{circuit}").resolve())
         same_data = source.exists() and json.loads(source.read_text())["data"] == data_path
         if e5_path.exists() and same_data:
-            e5 = pd.read_csv(e5_path).groupby("feature_set")["f1_macro"].max()
+            scores = pd.read_csv(e5_path, header=[0, 1])
+            sets = scores.iloc[:, 0]  # first column: feature set
+            e5 = scores[("f1_macro", "mean")].groupby(sets).max()
         elif e5_path.exists():
             print(f"ignoring {e5_path}: it was not run on {data_path}")
 
@@ -109,7 +111,7 @@ def main() -> None:
             )
 
     table = pd.DataFrame(rows)
-    out = REPO_ROOT / "results" / "e9" / (args.tag or ("subset" if args.electrode_kinds else "all"))
+    out = results_root(args) / "e9" / (args.tag or ("subset" if args.electrode_kinds else "all"))
     out.mkdir(parents=True, exist_ok=True)
     table.to_csv(out / "comparison.csv", index=False)
     set_style()

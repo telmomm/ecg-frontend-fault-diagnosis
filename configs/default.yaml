@@ -31,9 +31,9 @@ circuits:
     measurement:
       adc: {bits: 12, vmin: 0.0, vmax: 3.3, noise_rms: 1.0e-3, dc_averages: 64}
       dc_nodes:
-        out: {scale: 1.0, extended: false}
-        ina_out: {scale: 1.0, extended: true}
-        rld_out: {scale: 1.0, extended: true}
+        out: {scale: 1.0}
+        ina_out: {scale: 1.0}
+        rld_out: {scale: 1.0}
   reference:                   # +-5 V, discrete three-op-amp INA (version 1 circuit)
     supply: {vcc: 5.0, vee: -5.0}
     opamp:                     # TL07x-like figures
@@ -47,9 +47,9 @@ circuits:
     measurement:
       adc: {bits: 12, vmin: -2.5, vmax: 2.5, noise_rms: 1.0e-3, dc_averages: 64}
       dc_nodes:
-        out: {scale: 1.0, extended: false}
-        ina_out: {scale: 0.5, extended: true}
-        rld_out: {scale: 0.5, extended: true}
+        out: {scale: 1.0}
+        ina_out: {scale: 0.5}
+        rld_out: {scale: 0.5}
 
 # --- Normal manufacturing variation (healthy circuits) -----------------------
 tolerances:
@@ -59,24 +59,54 @@ tolerances:
   overrides: {}                # per designator, e.g. {C5: 0.10}
 
 # --- Skin-electrode interface: Ehc in series with Rs and (Rd || Cd) ------------
-# Each case draws a family, then an electrode type of that family (the same for
-# the three electrodes), then each parameter of each electrode log-uniformly within
-# median / spread .. median * spread. docs/circuit.md gives the sources.
+# Each case draws a family, then an electrode type of that family (the same for the
+# three electrodes) and, for dry electrodes, one of the measured subjects, whose
+# contact resistance replaces the median Rd (Cd is scaled to keep Rd * Cd). Then every
+# parameter of every electrode is drawn log-uniformly within value / spread ..
+# value * spread. docs/circuit.md gives the sources and what is assumed.
 electrodes:
   nominal: {ehc: 0.222, rs: 1.0e+3, rd: 51.0e+3, cd: 47.0e-9}
   ehc_abs: 5.0e-3              # half-cell potential spread, +- [V] (assumed)
-  spread: 2.0                  # assumed: the sources give medians, not distributions
+  spread: 2.0                  # electrode-to-electrode spread within a case (assumed)
   mix: {gel: 0.5, dry: 0.5}    # probability of each family per simulated case
   families:
     gel:                       # network that IEC 60601-2-25 puts in series with each lead
       ag_agcl_gel: {rs: 300.0, rd: 51.0e+3, cd: 47.0e-9}
-    dry:                       # medians of Table 3 of Sci. Rep. 14:8882 (2024), after 10 min
-      conductive_polymer: {rs: 220.0, rd: 2.02e+6, cd: 4.64e-9}
-      fabric_no_membrane: {rs: 249.0, rd: 8.94e+6, cd: 0.440e-9}
-      fabric_membrane: {rs: 226.0, rd: 7.38e+6, cd: 0.675e-9}
-      stainless_steel: {rs: 102.0, rd: 0.122e+6, cd: 60.5e-9}
-      silver: {rs: 167.0, rd: 0.593e+6, cd: 59.3e-9}
-      platinum: {rs: 48.0, rd: 0.418e+6, cd: 5440.0e-9}
+    # Sci. Rep. 14:8882 (2024). rs, rd, cd: medians of Table 3 converted from the measured
+    # electrode pair to one electrode (half the resistances, twice the capacitance).
+    # subject_rd: half the mean |Z| from 1 to 100 Hz of each of the six subjects after
+    # 10 minutes (open data, doi:10.17632/j9rt95468p.5), taken as that subject's Rd.
+    dry:
+      conductive_polymer:
+        rs: 110
+        rd: 1.01e+06
+        cd: 9.28e-09
+        subject_rd: [1.09e+06, 2.58e+05, 1.25e+06, 2.75e+06, 6.28e+05, 5.38e+05]
+      fabric_no_membrane:
+        rs: 124.5
+        rd: 4.47e+06
+        cd: 8.8e-10
+        subject_rd: [1.59e+07, 5.29e+06, 2.48e+07, 1.04e+06, 3.36e+06, 1.15e+06]
+      fabric_membrane:
+        rs: 113
+        rd: 3.69e+06
+        cd: 1.35e-09
+        subject_rd: [6.58e+06, 1.2e+06, 6.84e+07, 6.56e+05, 4.69e+06, 1.81e+06]
+      stainless_steel:
+        rs: 51
+        rd: 6.1e+04
+        cd: 1.21e-07
+        subject_rd: [4.35e+05, 3.22e+04, 9.39e+04, 3.93e+05, 1.07e+03, 637]
+      silver:
+        rs: 83.5
+        rd: 2.965e+05
+        cd: 1.186e-07
+        subject_rd: [4.38e+05, 3.88e+05, 4.95e+05, 1.52e+05, 1.14e+03, 753]
+      platinum:
+        rs: 24
+        rd: 2.09e+05
+        cd: 1.088e-05
+        subject_rd: [5.79e+05, 3.77e+05, 799, 5.42e+05, 1.17e+03, 828]
 
 # Patient/mains coupling in service (Winter & Webster model). Mains is off during self-test.
 environment:
@@ -132,8 +162,8 @@ faults:
 
 # --- Measurements the instrument can take on itself ------------------------------
 measurement:
-  # DC readings (`dc_nodes`, per circuit): `out` is the main ADC channel; nodes marked
-  # `extended` assume a spare ADC channel and are only used by the C1x feature set.
+  # DC readings (`dc_nodes`, per circuit): `scale` is the divider in front of the ADC.
+  # Which nodes enter each feature set is decided in src/ecgfd/features.py.
   ac:
     freqs: [0.05, 0.5, 10.0, 50.0, 150.0]
     sweep: {fstart: 0.01, fstop: 1.0e+4, points_per_decade: 100}

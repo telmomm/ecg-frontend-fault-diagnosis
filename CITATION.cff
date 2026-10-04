@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "ecg-frontend-fault-diagnosis: specification-aware fault diagnosis of ECG analog front-ends"
+type: software
+authors:
+  - family-names: "Miguel-Medina"
+    given-names: "Telmo"
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/telmomm/ecg-frontend-fault-diagnosis"

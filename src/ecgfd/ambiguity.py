@@ -64,19 +64,30 @@ def fault_dictionary(df: pd.DataFrame, features: list[str]) -> tuple[pd.DataFram
     return grouped.median(), spread
 
 
+def envelope_limits(
+    healthy: pd.DataFrame, features: list[str], coverage: float = 0.99
+) -> tuple[pd.Series, pd.Series]:
+    """Per-feature limits of a limit test, from healthy cases.
+
+    Each feature gets the central interval of the healthy cases, widened so that the
+    union of all features keeps about `coverage` of them (Bonferroni).
+    """
+    tail = (1.0 - coverage) / (2 * len(features))
+    return healthy[features].quantile(tail), healthy[features].quantile(1.0 - tail)
+
+
+def envelope_flags(df: pd.DataFrame, limits: tuple[pd.Series, pd.Series]) -> np.ndarray:
+    """True for the cases with any feature outside its limits."""
+    lo, hi = limits
+    return ((df[lo.index] < lo) | (df[hi.index] > hi)).any(axis=1).to_numpy()
+
+
 def envelope_detection(
     df: pd.DataFrame, features: list[str], coverage: float = 0.99
 ) -> tuple[pd.Series, float]:
-    """Limit test: (fraction of each condition's cases flagged, false-alarm rate).
-
-    Each feature gets the central interval of the healthy cases, widened so that the
-    union of all features keeps about `coverage` of the healthy cases (Bonferroni). A
-    case is flagged when any feature falls outside its interval.
-    """
-    healthy = df[df["kind"] == "healthy"]
-    tail = (1.0 - coverage) / (2 * len(features))
-    lo, hi = healthy[features].quantile(tail), healthy[features].quantile(1.0 - tail)
-    flagged = ((df[features] < lo) | (df[features] > hi)).any(axis=1)
+    """Limit test: (fraction of each condition's cases flagged, false-alarm rate)."""
+    limits = envelope_limits(df[df["kind"] == "healthy"], features, coverage)
+    flagged = pd.Series(envelope_flags(df, limits), index=df.index)
     rate = flagged.groupby(df["condition"]).mean()
     return rate.drop("healthy"), float(rate["healthy"])
 
@@ -197,6 +208,31 @@ def testability_rank(z: pd.DataFrame, deviation_pct: float = 10.0, threshold: fl
         return 0
     singular = np.linalg.svd(z.to_numpy(), compute_uv=False)
     return int(np.sum(singular * deviation_pct >= threshold))
+
+
+def a_priori_groups(
+    z: pd.DataFrame, cos_threshold: float = 0.99, min_relative_norm: float = 0.01
+) -> dict[str, str]:
+    """Component -> ambiguity group, predicted from the sensitivities alone.
+
+    Components whose sensitivity vectors are parallel form a group, named after its
+    members ("R5+R6"); every other component is its own group. This is about which
+    components act on the measurements in the same way, whatever the size of the
+    effect, so no visibility threshold is applied. Components whose sensitivity is
+    below `min_relative_norm` of the largest one are left alone: the direction of a
+    nearly null vector is numerical noise.
+    """
+    norms = np.linalg.norm(z.to_numpy(), axis=0)
+    floor = min_relative_norm * norms.max()
+    keep = [c for c, n in zip(z.columns, norms, strict=True) if n >= floor]
+    v = z[keep].to_numpy() / norms[[z.columns.get_loc(c) for c in keep]]
+    close = np.triu(np.abs(v.T @ v) >= cos_threshold, k=1)
+    mapping = {name: name for name in z.columns}
+    for members in _groups(keep, zip(*np.nonzero(close), strict=True)):
+        if len(members) > 1:
+            label = "+".join(sorted(members, key=lambda n: (n[0], int(n[1:]))))
+            mapping.update({name: label for name in members})
+    return mapping
 
 
 def collinear_groups(

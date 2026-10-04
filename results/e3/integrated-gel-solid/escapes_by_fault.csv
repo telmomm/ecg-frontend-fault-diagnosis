@@ -1,0 +1,17 @@
+kind,level,rate,n
+cap_degradation,0.5,0.0,92
+ina_gain,-0.2,0.0,47
+ina_gain,-0.05,0.0,7
+opamp_aol,0.001,0.0,31
+opamp_vos,0.02,0.0,48
+opamp_vos,0.05,0.0,44
+open,0.0,0.03535353535353535,594
+parametric,-0.5,0.0,409
+parametric,-0.2,0.015625,192
+parametric,-0.1,0.0,97
+parametric,-0.05,0.05555555555555555,54
+parametric,0.05,0.02857142857142857,35
+parametric,0.1,0.0,94
+parametric,0.2,0.005208333333333333,192
+parametric,0.5,0.0027247956403269754,367
+short,0.0,0.002777777777777778,720

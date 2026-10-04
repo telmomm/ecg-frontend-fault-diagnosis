@@ -14,7 +14,6 @@
       "C1:parametric:-0.1",
       "C1:parametric:-0.2",
       "C1:parametric:-0.5",
-      "C1:short",
       "C2:cap_degradation:+0.2",
       "C2:cap_degradation:+0.5",
       "C2:open",
@@ -26,7 +25,6 @@
       "C2:parametric:-0.1",
       "C2:parametric:-0.2",
       "C2:parametric:-0.5",
-      "C2:short",
       "C3:cap_degradation:+0.2",
       "C3:cap_degradation:+0.5",
       "C3:open",
@@ -246,7 +244,6 @@
       "U1:ina_gain:-0.05",
       "U1:ina_gain:-0.2",
       "U1:ina_vos:+0.005",
-      "U1:ina_vos:+0.02",
       "U2:opamp_aol:+0.001",
       "U2:opamp_aol:+0.01",
       "U2:opamp_vos:+0.02",
@@ -278,8 +275,6 @@
       "rl:electrode_off"
     ],
     "undetectable_mostly_non_compliant": [
-      "C1:short",
-      "C2:short",
       "C3:short",
       "C5:cap_degradation:+0.5",
       "C5:open",
@@ -335,8 +330,6 @@
       "U4:opamp_aol:+0.001"
     ],
     "limit_test_missed_mostly_non_compliant": [
-      "C1:short",
-      "C2:short",
       "C3:short",
       "C5:cap_degradation:+0.5",
       "C5:open",
@@ -392,8 +385,6 @@
         "R2:open",
         "R3:short",
         "R4:short",
-        "C1:short",
-        "C2:short",
         "C3:short",
         "R5:open",
         "R5:short",
@@ -445,66 +436,46 @@
         "C7:parametric:+0.2",
         "C7:parametric:+0.5",
         "C7:cap_degradation:+0.5",
-        "R15:open",
-        "R15:short",
-        "R15:parametric:-0.5",
-        "R15:parametric:+0.5",
-        "R16:open",
-        "R16:short",
-        "R16:parametric:-0.5",
-        "R16:parametric:-0.2",
-        "R16:parametric:+0.5",
-        "C8:short",
         "U4:opamp_vos:+0.02",
         "U4:opamp_vos:+0.05",
         "U4:opamp_aol:+0.001",
         "U1:ina_gain:-0.2"
+      ],
+      [
+        "R15:open",
+        "R16:short",
+        "C8:short"
+      ],
+      [
+        "R15:short",
+        "R16:open"
+      ],
+      [
+        "C1:short"
+      ],
+      [
+        "C2:short"
+      ],
+      [
+        "R15:parametric:-0.5"
+      ],
+      [
+        "R15:parametric:+0.5"
+      ],
+      [
+        "R16:parametric:-0.5"
+      ],
+      [
+        "R16:parametric:-0.2"
+      ],
+      [
+        "R16:parametric:+0.5"
       ]
     ],
     "confusable_components": {
-      "C1": [
-        "C2",
-        "C3",
-        "C5",
-        "C6",
-        "C7",
-        "R1",
-        "R10",
-        "R11",
-        "R12",
-        "R13",
-        "R14",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R6",
-        "R9",
-        "U1"
-      ],
-      "C2": [
-        "C1",
-        "C3",
-        "C5",
-        "C6",
-        "C7",
-        "R1",
-        "R10",
-        "R11",
-        "R12",
-        "R13",
-        "R14",
-        "R2",
-        "R3",
-        "R4",
-        "R5",
-        "R6",
-        "R9",
-        "U1"
-      ],
+      "C1": [],
+      "C2": [],
       "C3": [
-        "C1",
-        "C2",
         "C5",
         "C6",
         "C7",
@@ -523,20 +494,15 @@
         "U1"
       ],
       "C5": [
-        "C1",
-        "C2",
         "C3",
         "C6",
         "C7",
-        "C8",
         "R1",
         "R10",
         "R11",
         "R12",
         "R13",
         "R14",
-        "R15",
-        "R16",
         "R2",
         "R3",
         "R4",
@@ -547,20 +513,15 @@
         "U4"
       ],
       "C6": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C7",
-        "C8",
         "R1",
         "R10",
         "R11",
         "R12",
         "R13",
         "R14",
-        "R15",
-        "R16",
         "R2",
         "R3",
         "R4",
@@ -571,20 +532,15 @@
         "U4"
       ],
       "C7": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
-        "C8",
         "R1",
         "R10",
         "R11",
         "R12",
         "R13",
         "R14",
-        "R15",
-        "R16",
         "R2",
         "R3",
         "R4",
@@ -594,17 +550,10 @@
         "U1"
       ],
       "C8": [
-        "C5",
-        "C6",
-        "C7",
-        "R11",
-        "R12",
         "R15",
         "R16"
       ],
       "R1": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -623,8 +572,6 @@
         "U1"
       ],
       "R10": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -643,20 +590,15 @@
         "U1"
       ],
       "R11": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
         "C7",
-        "C8",
         "R1",
         "R10",
         "R12",
         "R13",
         "R14",
-        "R15",
-        "R16",
         "R2",
         "R3",
         "R4",
@@ -667,20 +609,15 @@
         "U4"
       ],
       "R12": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
         "C7",
-        "C8",
         "R1",
         "R10",
         "R11",
         "R13",
         "R14",
-        "R15",
-        "R16",
         "R2",
         "R3",
         "R4",
@@ -691,8 +628,6 @@
         "U4"
       ],
       "R13": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -711,8 +646,6 @@
         "U1"
       ],
       "R14": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -731,28 +664,14 @@
         "U1"
       ],
       "R15": [
-        "C5",
-        "C6",
-        "C7",
         "C8",
-        "R11",
-        "R12",
-        "R16",
-        "U4"
+        "R16"
       ],
       "R16": [
-        "C5",
-        "C6",
-        "C7",
         "C8",
-        "R11",
-        "R12",
-        "R15",
-        "U4"
+        "R15"
       ],
       "R2": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -771,8 +690,6 @@
         "U1"
       ],
       "R3": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -791,8 +708,6 @@
         "U1"
       ],
       "R4": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -811,8 +726,6 @@
         "U1"
       ],
       "R5": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -831,8 +744,6 @@
         "U1"
       ],
       "R6": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -851,8 +762,6 @@
         "U1"
       ],
       "R9": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -871,8 +780,6 @@
         "U1"
       ],
       "U1": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
@@ -894,28 +801,21 @@
         "C5",
         "C6",
         "R11",
-        "R12",
-        "R15",
-        "R16"
+        "R12"
       ]
     },
     "component_groups": [
       [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
         "C7",
-        "C8",
         "R1",
         "R10",
         "R11",
         "R12",
         "R13",
         "R14",
-        "R15",
-        "R16",
         "R2",
         "R3",
         "R4",
@@ -924,6 +824,17 @@
         "R9",
         "U1",
         "U4"
+      ],
+      [
+        "C8",
+        "R15",
+        "R16"
+      ],
+      [
+        "C1"
+      ],
+      [
+        "C2"
       ]
     ],
     "collinear_components": [
@@ -1840,6 +1751,7 @@
       "C2:parametric:-0.1",
       "C2:parametric:-0.2",
       "C2:parametric:-0.5",
+      "C2:short",
       "C3:cap_degradation:+0.2",
       "C3:cap_degradation:+0.5",
       "C3:open",
@@ -1974,6 +1886,7 @@
       "R8:parametric:-0.2",
       "R8:parametric:-0.5",
       "R8:short",
+      "R9:open",
       "R9:parametric:+0.05",
       "R9:parametric:+0.1",
       "R9:parametric:+0.2",
@@ -1995,6 +1908,7 @@
       "U3:opamp_aol:+0.01",
       "U3:opamp_vos:+0.02",
       "U3:opamp_vos:+0.05",
+      "U4:opamp_aol:+0.001",
       "U4:opamp_aol:+0.01",
       "U4:opamp_vos:+0.02",
       "U5:opamp_aol:+0.001",
@@ -2005,14 +1919,21 @@
       "U6:opamp_aol:+0.01",
       "U6:opamp_vos:+0.02",
       "U6:opamp_vos:+0.05",
+      "la+ra:electrode_high_z:+5",
+      "la:electrode_high_z:+5",
+      "ra:electrode_high_z:+5",
       "rl:electrode_high_z:+20",
-      "rl:electrode_high_z:+5"
+      "rl:electrode_high_z:+5",
+      "rl:electrode_off"
     ],
     "undetectable_mostly_non_compliant": [
+      "C2:short",
       "R15:parametric:+0.5",
       "R15:parametric:-0.5",
       "R16:parametric:+0.5",
       "R16:parametric:-0.5",
+      "R9:open",
+      "U4:opamp_aol:+0.001",
       "U4:opamp_vos:+0.02"
     ],
     "limit_test_missed_mostly_non_compliant": [
@@ -2020,7 +1941,10 @@
       "R15:parametric:-0.5",
       "R16:parametric:+0.5",
       "R16:parametric:-0.5",
+      "R5:parametric:+0.2",
+      "R6:parametric:+0.2",
       "R9:open",
+      "U4:opamp_aol:+0.001",
       "U4:opamp_vos:+0.02"
     ],
     "condition_groups_non_compliant": [
@@ -2029,31 +1953,42 @@
         "C2:short",
         "C3:short",
         "R5:open",
+        "R5:parametric:+0.2",
+        "R5:parametric:+0.5",
         "R6:open",
+        "R6:parametric:+0.2",
+        "R6:parametric:+0.5",
+        "R9:open",
         "C5:open",
         "R10:short",
         "R11:open",
         "R11:short",
+        "R11:parametric:+0.05",
+        "R11:parametric:+0.1",
+        "R11:parametric:+0.2",
+        "R11:parametric:+0.5",
         "R12:open",
         "R12:short",
         "R12:parametric:-0.5",
+        "R12:parametric:-0.2",
+        "R12:parametric:-0.1",
+        "R12:parametric:-0.05",
         "C6:short",
         "C7:short",
         "R15:open",
         "R15:short",
+        "R15:parametric:-0.5",
+        "R15:parametric:+0.5",
         "R16:open",
         "R16:short",
+        "R16:parametric:-0.5",
+        "R16:parametric:-0.2",
+        "R16:parametric:+0.5",
         "C8:short",
-        "U4:opamp_vos:+0.05"
-      ],
-      [
-        "R5:parametric:+0.2",
-        "R6:parametric:+0.2",
-        "R11:parametric:+0.05",
-        "R11:parametric:+0.1",
-        "R12:parametric:-0.1",
-        "R12:parametric:-0.05",
-        "U4:opamp_aol:+0.001"
+        "U4:opamp_vos:+0.02",
+        "U4:opamp_vos:+0.05",
+        "U4:opamp_aol:+0.001",
+        "U1:ina_gain:-0.2"
       ],
       [
         "R5:parametric:-0.2",
@@ -2062,20 +1997,6 @@
         "R11:parametric:-0.05",
         "R12:parametric:+0.05",
         "R12:parametric:+0.1"
-      ],
-      [
-        "R15:parametric:-0.5",
-        "R15:parametric:+0.5",
-        "R16:parametric:-0.5",
-        "R16:parametric:-0.2",
-        "R16:parametric:+0.5",
-        "U4:opamp_vos:+0.02"
-      ],
-      [
-        "R5:parametric:+0.5",
-        "R6:parametric:+0.5",
-        "R11:parametric:+0.2",
-        "U1:ina_gain:-0.2"
       ],
       [
         "R5:parametric:-0.5",
@@ -2114,19 +2035,10 @@
         "R2:open"
       ],
       [
-        "R9:open"
-      ],
-      [
         "C5:short"
       ],
       [
         "R11:parametric:-0.5"
-      ],
-      [
-        "R11:parametric:+0.5"
-      ],
-      [
-        "R12:parametric:-0.2"
       ],
       [
         "R12:parametric:+0.2"
@@ -2159,7 +2071,6 @@
       ],
       "C2": [
         "C1",
-        "C3",
         "C8",
         "R11",
         "R12",
@@ -2167,11 +2078,12 @@
         "R16",
         "R5",
         "R6",
+        "R9",
+        "U1",
         "U4"
       ],
       "C3": [
         "C1",
-        "C2",
         "C8",
         "R10",
         "R11",
@@ -2281,6 +2193,7 @@
         "R11",
         "R12",
         "R16",
+        "R9",
         "U4"
       ],
       "R16": [
@@ -2295,6 +2208,7 @@
         "R11",
         "R12",
         "R15",
+        "R9",
         "U4"
       ],
       "R2": [],
@@ -2322,8 +2236,14 @@
         "U1",
         "U4"
       ],
-      "R9": [],
+      "R9": [
+        "C2",
+        "R15",
+        "R16",
+        "U4"
+      ],
       "U1": [
+        "C2",
         "R11",
         "R5",
         "R6"
@@ -2342,7 +2262,8 @@
         "R15",
         "R16",
         "R5",
-        "R6"
+        "R6",
+        "R9"
       ]
     },
     "component_groups": [
@@ -2361,6 +2282,7 @@
         "R16",
         "R5",
         "R6",
+        "R9",
         "U1",
         "U4"
       ],
@@ -2377,9 +2299,6 @@
       ],
       [
         "R2"
-      ],
-      [
-        "R9"
       ]
     ],
     "collinear_components": [
@@ -2392,10 +2311,6 @@
       [
         "C5",
         "R10"
-      ],
-      [
-        "R13",
-        "R14"
       ],
       [
         "C7"
@@ -2413,6 +2328,8 @@
       "R8",
       "C4",
       "R9",
+      "R13",
+      "R14",
       "C6",
       "R15",
       "R16",
@@ -2503,6 +2420,7 @@
       "R10:parametric:+0.05",
       "R10:parametric:+0.1",
       "R10:parametric:+0.2",
+      "R10:parametric:+0.5",
       "R10:parametric:-0.05",
       "R10:parametric:-0.1",
       "R10:parametric:-0.2",
@@ -2605,7 +2523,6 @@
       "U3:opamp_aol:+0.01",
       "U3:opamp_vos:+0.02",
       "U3:opamp_vos:+0.05",
-      "U4:opamp_aol:+0.001",
       "U4:opamp_aol:+0.01",
       "U5:opamp_aol:+0.001",
       "U5:opamp_aol:+0.01",
@@ -2626,10 +2543,15 @@
     ],
     "undetectable_mostly_non_compliant": [
       "R12:open",
-      "R9:open",
-      "U4:opamp_aol:+0.001"
+      "R9:open"
     ],
     "limit_test_missed_mostly_non_compliant": [
+      "C6:open",
+      "C7:parametric:+0.5",
+      "R13:parametric:+0.5",
+      "R14:parametric:+0.5",
+      "R5:parametric:+0.2",
+      "R6:parametric:+0.2",
       "R9:open"
     ],
     "condition_groups_non_compliant": [
@@ -2736,7 +2658,8 @@
         "R14",
         "R2",
         "R5",
-        "R6"
+        "R6",
+        "U1"
       ],
       "C3": [
         "C1",
@@ -2938,6 +2861,7 @@
         "R12"
       ],
       "U1": [
+        "C2",
         "R11",
         "R12",
         "R5",
@@ -3024,6 +2948,7 @@
       "C1:parametric:-0.1",
       "C1:parametric:-0.2",
       "C1:parametric:-0.5",
+      "C1:short",
       "C2:cap_degradation:+0.2",
       "C2:cap_degradation:+0.5",
       "C2:open",
@@ -3035,6 +2960,7 @@
       "C2:parametric:-0.1",
       "C2:parametric:-0.2",
       "C2:parametric:-0.5",
+      "C2:short",
       "C3:cap_degradation:+0.2",
       "C3:cap_degradation:+0.5",
       "C3:open",
@@ -3197,6 +3123,7 @@
       "R4:parametric:-0.1",
       "R4:parametric:-0.2",
       "R4:parametric:-0.5",
+      "R5:open",
       "R5:parametric:+0.05",
       "R5:parametric:+0.1",
       "R5:parametric:+0.2",
@@ -3206,6 +3133,7 @@
       "R5:parametric:-0.2",
       "R5:parametric:-0.5",
       "R5:short",
+      "R6:open",
       "R6:parametric:+0.05",
       "R6:parametric:+0.1",
       "R6:parametric:+0.2",
@@ -3270,6 +3198,8 @@
       "U6:opamp_aol:+0.01",
       "U6:opamp_vos:+0.02",
       "U6:opamp_vos:+0.05",
+      "la+ra:electrode_high_z:+5",
+      "la:electrode_high_z:+20",
       "la:electrode_high_z:+5",
       "ra:electrode_high_z:+5",
       "rl:electrode_high_z:+20",
@@ -3277,6 +3207,54 @@
       "rl:electrode_off"
     ],
     "undetectable_mostly_non_compliant": [
+      "C1:short",
+      "C2:short",
+      "C5:cap_degradation:+0.5",
+      "C5:parametric:-0.5",
+      "C5:short",
+      "C6:open",
+      "C7:cap_degradation:+0.5",
+      "C7:parametric:+0.5",
+      "C7:parametric:-0.5",
+      "R10:parametric:-0.5",
+      "R11:parametric:+0.1",
+      "R11:parametric:+0.2",
+      "R11:parametric:+0.5",
+      "R11:parametric:-0.05",
+      "R11:parametric:-0.1",
+      "R11:parametric:-0.2",
+      "R11:parametric:-0.5",
+      "R12:parametric:+0.05",
+      "R12:parametric:+0.1",
+      "R12:parametric:+0.2",
+      "R12:parametric:+0.5",
+      "R12:parametric:-0.1",
+      "R12:parametric:-0.2",
+      "R12:parametric:-0.5",
+      "R13:parametric:+0.5",
+      "R14:parametric:+0.5",
+      "R15:parametric:+0.5",
+      "R15:parametric:-0.5",
+      "R16:parametric:+0.5",
+      "R16:parametric:-0.5",
+      "R5:open",
+      "R5:parametric:+0.2",
+      "R5:parametric:+0.5",
+      "R5:parametric:-0.2",
+      "R5:parametric:-0.5",
+      "R5:short",
+      "R6:open",
+      "R6:parametric:+0.2",
+      "R6:parametric:+0.5",
+      "R6:parametric:-0.2",
+      "R6:parametric:-0.5",
+      "R6:short",
+      "R9:open",
+      "U1:ina_gain:-0.2",
+      "U4:opamp_aol:+0.001",
+      "U4:opamp_vos:+0.02"
+    ],
+    "limit_test_missed_mostly_non_compliant": [
       "C5:cap_degradation:+0.5",
       "C5:parametric:-0.5",
       "C5:short",
@@ -3315,47 +3293,6 @@
       "R6:parametric:-0.2",
       "R6:parametric:-0.5",
       "R6:short",
-      "R9:open",
-      "U1:ina_gain:-0.2",
-      "U4:opamp_aol:+0.001",
-      "U4:opamp_vos:+0.02"
-    ],
-    "limit_test_missed_mostly_non_compliant": [
-      "C5:cap_degradation:+0.5",
-      "C5:parametric:-0.5",
-      "C5:short",
-      "C6:open",
-      "C7:cap_degradation:+0.5",
-      "C7:parametric:+0.5",
-      "C7:parametric:-0.5",
-      "R10:parametric:-0.5",
-      "R11:parametric:+0.1",
-      "R11:parametric:+0.2",
-      "R11:parametric:+0.5",
-      "R11:parametric:-0.05",
-      "R11:parametric:-0.1",
-      "R11:parametric:-0.2",
-      "R12:parametric:+0.05",
-      "R12:parametric:+0.1",
-      "R12:parametric:+0.2",
-      "R12:parametric:+0.5",
-      "R12:parametric:-0.1",
-      "R12:parametric:-0.2",
-      "R12:parametric:-0.5",
-      "R13:parametric:+0.5",
-      "R14:parametric:+0.5",
-      "R15:parametric:+0.5",
-      "R15:parametric:-0.5",
-      "R16:parametric:+0.5",
-      "R16:parametric:-0.5",
-      "R5:parametric:+0.2",
-      "R5:parametric:+0.5",
-      "R5:parametric:-0.2",
-      "R5:parametric:-0.5",
-      "R6:parametric:+0.2",
-      "R6:parametric:+0.5",
-      "R6:parametric:-0.2",
-      "R6:parametric:-0.5",
       "R9:open",
       "U1:ina_gain:-0.2",
       "U4:opamp_aol:+0.001",
@@ -3457,6 +3394,7 @@
         "R4",
         "R5",
         "R6",
+        "U1",
         "U4"
       ],
       "C2": [
@@ -3477,6 +3415,7 @@
         "R4",
         "R5",
         "R6",
+        "U1",
         "U4"
       ],
       "C3": [
@@ -3493,6 +3432,8 @@
         "R14",
         "R15",
         "R16",
+        "R3",
+        "U1",
         "U4"
       ],
       "C5": [
@@ -3531,6 +3472,7 @@
         "R14",
         "R15",
         "R16",
+        "R3",
         "R5",
         "R6",
         "R9",
@@ -3573,6 +3515,8 @@
         "R14",
         "R15",
         "R16",
+        "R3",
+        "U1",
         "U4"
       ],
       "R1": [
@@ -3592,6 +3536,7 @@
         "R14",
         "R15",
         "R16",
+        "R3",
         "R5",
         "R6",
         "R9",
@@ -3656,6 +3601,7 @@
         "R14",
         "R15",
         "R16",
+        "R3",
         "R5",
         "R6",
         "R9",
@@ -3676,6 +3622,8 @@
         "R13",
         "R15",
         "R16",
+        "R3",
+        "R4",
         "R5",
         "R6",
         "R9",
@@ -3696,6 +3644,7 @@
         "R13",
         "R14",
         "R16",
+        "R3",
         "R5",
         "R6",
         "R9",
@@ -3716,6 +3665,7 @@
         "R13",
         "R14",
         "R15",
+        "R3",
         "R5",
         "R6",
         "R9",
@@ -3728,15 +3678,23 @@
       "R3": [
         "C1",
         "C2",
+        "C3",
         "C5",
+        "C6",
         "C7",
+        "C8",
+        "R10",
         "R11",
         "R12",
+        "R13",
+        "R14",
+        "R15",
+        "R16",
         "R4",
         "R5",
         "R6",
-        "R9",
-        "U1"
+        "U1",
+        "U4"
       ],
       "R4": [
         "C1",
@@ -3745,10 +3703,10 @@
         "C7",
         "R11",
         "R12",
+        "R14",
         "R3",
         "R5",
         "R6",
-        "R9",
         "U1"
       ],
       "R5": [
@@ -3802,17 +3760,19 @@
         "R14",
         "R15",
         "R16",
-        "R3",
-        "R4",
         "R5",
         "R6",
         "U1",
         "U4"
       ],
       "U1": [
+        "C1",
+        "C2",
+        "C3",
         "C5",
         "C6",
         "C7",
+        "C8",
         "R10",
         "R11",
         "R12",
@@ -3842,6 +3802,7 @@
         "R14",
         "R15",
         "R16",
+        "R3",
         "R5",
         "R6",
         "R9",
@@ -4051,6 +4012,7 @@
       "R8:parametric:-0.2",
       "R8:parametric:-0.5",
       "R8:short",
+      "R9:open",
       "R9:parametric:+0.05",
       "R9:parametric:+0.1",
       "R9:parametric:+0.2",
@@ -4063,7 +4025,6 @@
       "U1:ina_cmrr:+50",
       "U1:ina_cmrr:+70",
       "U1:ina_vos:+0.005",
-      "U1:ina_vos:+0.02",
       "U2:opamp_aol:+0.001",
       "U2:opamp_aol:+0.01",
       "U2:opamp_vos:+0.02",
@@ -4081,34 +4042,30 @@
       "U6:opamp_aol:+0.01",
       "U6:opamp_vos:+0.02",
       "U6:opamp_vos:+0.05",
+      "la+ra:electrode_high_z:+5",
+      "la:electrode_high_z:+5",
+      "ra:electrode_high_z:+5",
       "rl:electrode_high_z:+20",
-      "rl:electrode_high_z:+5"
+      "rl:electrode_high_z:+5",
+      "rl:electrode_off"
     ],
-    "undetectable_mostly_non_compliant": [],
+    "undetectable_mostly_non_compliant": [
+      "R9:open"
+    ],
     "limit_test_missed_mostly_non_compliant": [
+      "R5:parametric:+0.2",
+      "R6:parametric:+0.2",
       "R9:open"
     ],
     "condition_groups_non_compliant": [
       [
-        "C1:short",
-        "C2:short",
         "C3:short",
-        "R5:open",
-        "R6:open",
         "C5:open",
         "R10:short",
-        "R11:open",
         "R11:short",
         "R12:open",
-        "R12:short",
-        "R12:parametric:-0.5",
         "C6:short",
         "C7:short",
-        "R15:open",
-        "R15:short",
-        "R16:open",
-        "R16:short",
-        "C8:short",
         "U4:opamp_vos:+0.05"
       ],
       [
@@ -4144,12 +4101,25 @@
         "R10:parametric:-0.5"
       ],
       [
+        "R15:open",
+        "R16:short",
+        "C8:short"
+      ],
+      [
         "R3:short",
         "R4:short"
       ],
       [
+        "R5:open",
+        "R6:open"
+      ],
+      [
         "R5:short",
         "R6:short"
+      ],
+      [
+        "R11:open",
+        "R12:short"
       ],
       [
         "R13:open",
@@ -4164,10 +4134,20 @@
         "C7:cap_degradation:+0.5"
       ],
       [
+        "R15:short",
+        "R16:open"
+      ],
+      [
         "R1:open"
       ],
       [
         "R2:open"
+      ],
+      [
+        "C1:short"
+      ],
+      [
+        "C2:short"
       ],
       [
         "R9:open"
@@ -4180,6 +4160,9 @@
       ],
       [
         "R11:parametric:+0.5"
+      ],
+      [
+        "R12:parametric:-0.5"
       ],
       [
         "R12:parametric:-0.2"
@@ -4222,25 +4205,9 @@
       ]
     ],
     "confusable_components": {
-      "C1": [
-        "C2",
-        "C3",
-        "R11",
-        "R12",
-        "R5",
-        "R6"
-      ],
-      "C2": [
-        "C1",
-        "C3",
-        "R11",
-        "R12",
-        "R5",
-        "R6"
-      ],
+      "C1": [],
+      "C2": [],
       "C3": [
-        "C1",
-        "C2",
         "R10",
         "R11",
         "R12"
@@ -4251,25 +4218,15 @@
         "R12"
       ],
       "C6": [
-        "C8",
         "R10",
         "R11",
         "R12",
-        "R15",
-        "R16",
         "U4"
       ],
       "C7": [
-        "C8",
-        "R12",
-        "R15",
-        "R16"
+        "R12"
       ],
       "C8": [
-        "C6",
-        "C7",
-        "R11",
-        "R12",
         "R15",
         "R16"
       ],
@@ -4282,33 +4239,23 @@
         "R12"
       ],
       "R11": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
-        "C8",
         "R10",
         "R12",
-        "R15",
-        "R16",
         "R5",
         "R6",
         "U1",
         "U4"
       ],
       "R12": [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
         "C7",
-        "C8",
         "R10",
         "R11",
-        "R15",
-        "R16",
         "R5",
         "R6",
         "U4"
@@ -4320,22 +4267,12 @@
         "R13"
       ],
       "R15": [
-        "C6",
-        "C7",
         "C8",
-        "R11",
-        "R12",
-        "R16",
-        "U4"
+        "R16"
       ],
       "R16": [
-        "C6",
-        "C7",
         "C8",
-        "R11",
-        "R12",
-        "R15",
-        "U4"
+        "R15"
       ],
       "R2": [],
       "R3": [
@@ -4345,16 +4282,12 @@
         "R3"
       ],
       "R5": [
-        "C1",
-        "C2",
         "R11",
         "R12",
         "R6",
         "U1"
       ],
       "R6": [
-        "C1",
-        "C2",
         "R11",
         "R12",
         "R5",
@@ -4369,29 +4302,27 @@
       "U4": [
         "C6",
         "R11",
-        "R12",
-        "R15",
-        "R16"
+        "R12"
       ]
     },
     "component_groups": [
       [
-        "C1",
-        "C2",
         "C3",
         "C5",
         "C6",
         "C7",
-        "C8",
         "R10",
         "R11",
         "R12",
-        "R15",
-        "R16",
         "R5",
         "R6",
         "U1",
         "U4"
+      ],
+      [
+        "C8",
+        "R15",
+        "R16"
       ],
       [
         "R13",
@@ -4400,6 +4331,12 @@
       [
         "R3",
         "R4"
+      ],
+      [
+        "C1"
+      ],
+      [
+        "C2"
       ],
       [
         "R1"
@@ -4423,10 +4360,6 @@
         "R10"
       ],
       [
-        "R13",
-        "R14"
-      ],
-      [
         "R15",
         "R16"
       ],
@@ -4446,6 +4379,8 @@
       "R8",
       "C4",
       "R9",
+      "R13",
+      "R14",
       "C6",
       "C8"
     ]

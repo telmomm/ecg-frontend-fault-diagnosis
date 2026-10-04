@@ -33,12 +33,14 @@ def apply_measurement_model(
     cfg: dict,
     rng: np.random.Generator,
     adc: dict | None = None,
+    ac: dict | None = None,
 ) -> tuple[pd.DataFrame, np.ndarray]:
     """Return (features as measured, waveforms as measured).
 
     The returned frame keeps every label/metadata column of `df`, replaces the raw
     features by their measured values and adds the derived ones (CMRR, pulse features).
-    `adc` overrides `measurement.adc`, e.g. to sweep noise or resolution.
+    `adc` overrides `measurement.adc`, e.g. to sweep noise or resolution; `ac`
+    overrides `measurement.ac`, e.g. the amplitude of a test tone or its duration.
     """
     mcfg = cfg["measurement"]
     adc = {**mcfg["adc"], **(adc or {})}
@@ -56,7 +58,7 @@ def apply_measurement_model(
         out[f"dc_{node}"] = quantise(v, adc) / scale
 
     # tones: (feature prefix, stimulus amplitude, frequencies, has a phase feature)
-    ac, lead_off = mcfg["ac"], mcfg["lead_off"]
+    ac, lead_off = {**mcfg["ac"], **(ac or {})}, mcfg["lead_off"]
     sigma_tone = sigma * np.sqrt(2.0 / float(ac["n_samples"]))
     tones = (
         ("acd", float(ac["diff_amplitude"]), ac["freqs"], True),

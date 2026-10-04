@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from ecgfd.ambiguity import (
+    a_priori_groups,
     ambiguity_groups,
     collinear_groups,
     component_groups,
@@ -27,6 +28,7 @@ from ecgfd.evaluation import (
     replica_split,
 )
 from ecgfd.faults import HEALTHY, Fault, fault_catalogue
+from ecgfd.features import feature_sets, measurement_groups
 from ecgfd.measurement import quantise
 from ecgfd.sampling import passive_tolerance, sample_instance
 from ecgfd.specs import SPEC_NAMES, compliance, spec_limits
@@ -71,10 +73,14 @@ def test_electrodes_are_drawn_around_their_type(cfg):
     for seed in range(60):
         inst = sample_instance(cfg, np.random.default_rng(seed))
         seen.add(inst.electrode_kind)
-        medians = families[inst.electrode_type][inst.electrode_kind]
+        spec = families[inst.electrode_type][inst.electrode_kind]
+        centres = spec.get("subject_rd", [spec["rd"]])  # one measured subject, or the median
         for electrode in inst.electrodes.values():
-            for key, median in medians.items():
-                assert median / spread <= electrode[key] <= median * spread
+            assert spec["rs"] / spread <= electrode["rs"] <= spec["rs"] * spread
+            assert any(c / spread <= electrode["rd"] <= c * spread for c in centres)
+            # the time constant of the type is kept, within the spread of both parameters
+            tau = electrode["rd"] * electrode["cd"] / (spec["rd"] * spec["cd"])
+            assert 1 / spread**2 <= tau <= spread**2
     assert seen == {kind for family in families.values() for kind in family}
 
 
@@ -215,3 +221,26 @@ def test_robust_dictionary_sees_a_saturating_fault():
     assert separability(centre, spread).loc["healthy", "F"] > 30
     detected, false_alarm = envelope_detection(df, ["g"], coverage=0.99)
     assert detected["F"] == 1.0 and false_alarm <= 0.02
+
+
+def test_measurement_groups_cover_the_features_once(cfg):
+    groups = measurement_groups(cfg)
+    columns = [c for cols, _ in groups.values() for c in cols]
+    assert len(columns) == len(set(columns))
+    assert all(time > 0 for _, time in groups.values())
+    # every feature of the sets is obtained from some group (CMRR from both tones of a frequency)
+    available = set(columns) | {c.replace("acc_mag", "cmrr_db") for c in columns}
+    for features in feature_sets(cfg).values():
+        assert set(features) <= available
+    # the slowest action is the lowest tone: two periods of it
+    slowest = max(groups, key=lambda name: groups[name][1])
+    assert slowest.endswith("_0.05") and groups[slowest][1] == 40.0
+
+
+def test_a_priori_groups_follow_parallel_sensitivities():
+    # A and B act alike, C differently, D is negligible and must not be grouped by chance
+    z = pd.DataFrame(
+        {"R1": [1.0, 0.0], "R2": [-2.0, 0.0], "C1": [0.0, 0.5], "C2": [1e-6, 0.0]},
+        index=["f1", "f2"],
+    )
+    assert a_priori_groups(z) == {"R1": "R1+R2", "R2": "R1+R2", "C1": "C1", "C2": "C2"}

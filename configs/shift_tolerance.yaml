@@ -1,0 +1,13 @@
+# Test-only dataset for E7: looser components (2 % resistors, 10 % capacitors) than
+# the ones the models were trained on, with another seed.
+extends: default.yaml
+
+seed: 20261004
+
+tolerances:
+  resistor: 0.02
+  capacitor: 0.10
+
+dataset:
+  n_healthy: 1000
+  n_per_fault: 40
