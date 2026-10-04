@@ -1,0 +1,25 @@
+\begin{table}[!t]
+\caption{Robustness of the Compliance Decision (Class-Weighted Classifier) and of Group-Level
+Location. Mean of Three Repetitions}
+\label{tab:robustness}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.40\columnwidth}cccccc@{}}
+\toprule
+ & \multicolumn{3}{c}{\cA} & \multicolumn{3}{c}{\cB} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Condition & Esc. & F.r. & F1 & Esc. & F.r. & F1 \\
+\midrule
+Default (\SI{1}{\milli\volt}, 12 bits) & 4.1 & 1.7 & 0.88 & 7.6 & 2.2 & 0.77 \\
+\SI{10}{\milli\volt} noise, matched training & 4.2 & 1.6 & 0.86 & 7.8 & 2.2 & 0.75 \\
+\SI{10}{\milli\volt} noise, trained at \SI{1}{\milli\volt} & 9.7 & 1.2 & 0.79 & 6.6 & 18.8 & 0.71 \\
+8 bits, matched training & 3.9 & 1.6 & 0.88 & 7.5 & 2.2 & 0.76 \\
+8 bits, trained at 12 bits & 7.0 & 1.2 & 0.87 & 7.2 & 4.2 & 0.75 \\
+Truncated Gaussian tolerances & 3.8 & 1.6 & 0.89 & 7.4 & 2.4 & 0.77 \\
+\SI{2}{\percent} resistors, \SI{10}{\percent} capacitors & 7.1 & 1.9 & 0.87 & 11.4 & 2.9 & 0.45 \\
+\bottomrule
+\multicolumn{7}{@{}p{0.97\columnwidth}@{}}{\footnotesize Esc.: escapes (\%). F.r.: false rejects
+(\%). F1: macro F1 of the location by ambiguity group. The last two rows are scored on
+separately generated datasets.}
+\end{tabular}
+\end{table}

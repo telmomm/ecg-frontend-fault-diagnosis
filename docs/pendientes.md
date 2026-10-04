@@ -25,7 +25,7 @@ Ninguno de los dos artículos da estos datos, así que quedan como supuestos dec
 
 | # | Punto | Estado actual | Cómo cerrarlo | ¿Re-simular? |
 |---|---|---|---|---|
-| 1.5 | Electrodo de gel | Rd ‖ Cd es la red de 51 kΩ ‖ 47 nF que la norma usa para representar el electrodo; la resistencia serie de 300 Ω y la ausencia de dispersión entre sujetos son supuestos. Ningún artículo de la carpeta mide electrodos de gel | Buscar una fuente con parámetros medidos de Ag/AgCl con gel, o declarar que se usa la red de la norma | Sí |
+| 1.5 | ~~Electrodo de gel~~ | **Decidido:** se declara que el electrodo de gel se representa con la red de 51 kΩ ‖ 47 nF que IEC 60601-2-25 pone en serie con cada cable; la resistencia serie de 300 Ω y la dispersión entre electrodos son supuestos del estudio | — | No |
 | 1.7 | ~~Dispersión de los parámetros de electrodo~~ | **Resuelto con los datos abiertos del artículo de 2024:** cada caso con electrodo seco usa la resistencia de contacto medida en uno de los seis sujetos. Siguen siendo supuestos el factor 2 entre los electrodos de un mismo caso y los ±5 mV de media celda | — | Hecho en la versión 2 del dataset |
 | 1.7b | ~~Medida de los electrodos secos~~ | **Resuelto:** la medida es de un par de electrodos en serie; los valores por electrodo son la mitad de las resistencias y el doble de la capacidad | — | Hecho en la versión 2 del dataset |
 | 1.4 | ~~Simplificaciones de los ensayos~~ | **Aceptadas**; se declaran en el artículo: ruido como 6,6 × valor eficaz, margen dinámico desde el punto de trabajo, línea base leída 50 ms tras el impulso, respuesta en frecuencia por el método sinusoidal y de impulso | — | No |
@@ -71,7 +71,7 @@ Nada de esto impide avanzar; son ampliaciones.
 
 | Fase | Pendiente |
 |---|---|
-| 1. Lecturas y posicionamiento | Todas las lecturas y el borrador de introducción |
+| 1. Lecturas y posicionamiento | Cerrada. Notas y borrador (`docs/lecturas_fase1.md`, `docs/paper/introduction_draft.md`) contrastados con los textos de los once trabajos. Para la redacción final: cinco referencias de apoyo citadas por su resumen (9, 10, 15, 18, 19) y dos afirmaciones sin referencia, listadas al final del borrador |
 | 4. Dataset | Hecho (versión `data/v2`). Queda publicarlo en Zenodo, en la fase 8 |
 | 5. Testabilidad | Hecha: H3 y H5 apoyadas (resultado en el plan) |
 | 6. Modelos | Hecha: H1, H2 y H4 evaluadas, con las variantes de electrodos (resultado en el plan) |

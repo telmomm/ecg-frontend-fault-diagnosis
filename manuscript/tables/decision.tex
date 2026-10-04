@@ -1,0 +1,28 @@
+\begin{table}[!t]
+\caption{Compliance Decision From the Main Feature Set. Mean of Three Repetitions and
+\SI{95}{\percent} Confidence Interval, in Percent}
+\label{tab:decision}
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Circuit & Method & Escapes & False rejects \\
+\midrule
+A & Limit test & 22.5 (21.4--23.6) & 20.0 (19.8--20.3) \\
+ & Specification regression & 8.4 (6.7--10.2) & 1.5 (1.3--1.6) \\
+ & Classifier & 7.9 (6.4--9.4) & 0.7 (0.4--1.0) \\
+ & Classifier, \SI{1}{\percent} escape target & 0.9 (0.8--1.0) & 7.8 (4.8--10.8) \\
+\addlinespace
+B & Limit test & 35.3 (34.7--35.8) & 17.0 (16.5--17.6) \\
+ & Specification regression & 11.4 (10.0--12.8) & 2.4 (1.9--2.9) \\
+ & Classifier & 11.2 (10.3--12.1) & 1.2 (1.1--1.2) \\
+ & Classifier, \SI{1}{\percent} escape target & 1.2 (0.6--1.7) & 54.0 (48.0--60.0) \\
+\addlinespace
+\multicolumn{4}{@{}l}{\emph{Without porous dry electrodes}} \\
+A & Classifier & 4.2 (3.5--4.9) & 0.7 (0.4--0.9) \\
+ & Classifier, \SI{1}{\percent} escape target & 1.0 (0.9--1.1) & 1.9 (1.3--2.5) \\
+B & Classifier & 6.7 (6.2--7.1) & 1.0 (0.6--1.4) \\
+ & Classifier, \SI{1}{\percent} escape target & 1.0 (0.7--1.3) & 48.7 (39.4--58.1) \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,20 @@
+\begin{table}[!t]
+\caption{Fault Model}
+\label{tab:faults}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.27\columnwidth}p{0.53\columnwidth}cc@{}}
+\toprule
+Fault & Model & \multicolumn{2}{c}{Conditions} \\
+ & & A & B \\
+\midrule
+Open, short & \SI{1}{\giga\ohm} in series; \SI{1}{\ohm} in parallel & 48 & 52 \\
+Parametric & $\pm$5, $\pm$10, $\pm$20, $\pm$\SI{50}{\percent} of nominal & 192 & 208 \\
+Capacitor degradation & $-$\SI{20}{\percent} with \SI{10}{\ohm} in series; $-$\SI{50}{\percent} with \SI{100}{\ohm} & 16 & 12 \\
+Op-amp & offset of 20 or \SI{50}{\milli\volt}; open-loop gain divided by 100 or 1000 & 20 & 24 \\
+Integrated amplifier & offset of 5 or \SI{20}{\milli\volt}; CMRR of 70 or \SI{50}{\decibel}; gain error of $-$5 or $-$\SI{20}{\percent} & 6 & -- \\
+Electrode detached & \SI{1}{\giga\ohm} in series (each of three electrodes) & 3 & 3 \\
+Electrode degraded & $R_d$ multiplied and $C_d$ divided by 5 or 20 (each electrode, and both input electrodes) & 8 & 8 \\
+\bottomrule
+\end{tabular}
+\end{table}

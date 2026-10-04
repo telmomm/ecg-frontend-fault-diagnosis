@@ -1,0 +1,42 @@
+\section{Discussion}
+\label{sec:discussion}
+
+The results support a self-test in two levels for the realistic circuit. The compliance decision
+can be set to let through about \SI{1}{\percent} of the non-compliant circuits while rejecting
+\SI{8}{\percent} of the compliant ones, or \SI{2}{\percent} when porous dry electrodes are
+excluded. A limit test cannot approach this, because it asks whether the circuit looks like a
+healthy one, which is neither necessary nor sufficient for compliance. The second level should
+report an ambiguity group, not a component: the groups are known from the nominal circuit, they
+hold for fault magnitudes the model has not seen, and in \cA\ a group names two to four parts
+that set the same quantity. The comparison of labels has a direct practical reading: a detector
+trained in the usual way of the diagnosis literature would take out of service more than a third
+of the instruments that still meet the standard. The cost is low: three measurements and three
+seconds give the decision, and the tones below the high-pass corner are not needed, which
+matters because the self-test runs with the patient connected.
+
+The electrode limits both levels. A healthy circuit on a high-impedance electrode measures a
+reduced gain through the calibration source, which is what a gain fault looks like; on \cA\ this
+accounts for eight of the nine invisible fault conditions, and false rejects fall from 7.8 to
+\SI{1.9}{\percent} without porous electrodes. A
+degraded contact can only be recognized against the normal contact of the same subject, which a
+single self-test does not know. A self-test that kept a reference per patient, or that could
+disconnect the electrodes from the calibration path, would remove most of the difficulty;
+neither was studied.
+
+The two circuits differ only in how the instrumentation amplifier is built, and that changes the
+conclusions. The discrete amplifier adds seven resistors that all act on the gain and several
+DRL faults that are non-compliant and invisible; evaluated only on it, the method would have been
+judged unable to reach a low escape rate. This supports the argument of~\cite{chen2025} that the
+circuit conditions the conclusions, with a different remedy: the ambiguity of the given circuit
+is computed and the diagnosis reported at that level. The invisible DRL faults also show a limit
+of the measurements: where a spare converter channel is available, a dc reading of the DRL output
+is worth more than a larger common-mode tone.
+
+\emph{Limitations.} The study is based on simulation, with behavioral amplifier models and ideal
+self-test sources; transfer to hardware has not been tested. Faults are single and aging is not
+modeled. The dry-electrode model rests on six subjects per material, and the gel model and the
+spread between electrodes are assumed. The noise specification is computed from the rms value
+and the input range from the operating point. The specifications are those of performance: some
+hard faults leave the circuit compliant while removing a protection (a short across the resistor
+that limits the current into the right-leg electrode), and a self-test aimed at safety would
+have to label them separately.

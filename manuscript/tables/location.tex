@@ -1,0 +1,20 @@
+\begin{table}[!t]
+\caption{Location of the Cause on Non-Compliant Cases: Macro F1 (Mean of Three Repetitions)}
+\label{tab:location}
+\centering
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{By ambiguity group} & \multicolumn{2}{c}{By component} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Model & A & B & A & B \\
+\midrule
+$k$-nearest neighbors & 0.83 & 0.70 & 0.67 & 0.55 \\
+Random forest & 0.86 & 0.76 & 0.74 & 0.61 \\
+Support vector machine & 0.86 & 0.71 & 0.69 & 0.53 \\
+Gradient boosting & 0.87 & 0.74 & 0.73 & 0.59 \\
+Multilayer perceptron & 0.81 & 0.71 & 0.66 & 0.53 \\
+Convolutional network$^{\mathrm{a}}$ & 0.56 & 0.32 & -- & -- \\
+\bottomrule
+\multicolumn{5}{@{}l}{\footnotesize $^{\mathrm{a}}$On the sampled pulse response only.}
+\end{tabular}
+\end{table}

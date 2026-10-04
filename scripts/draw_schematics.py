@@ -21,6 +21,14 @@ from ecgfd.config import REPO_ROOT  # noqa: E402
 
 OUT_DIR = REPO_ROOT / "docs" / "figures"
 RAIL = {"integrated": 1.75, "reference": 3.5}  # half distance between the input rails
+# The manuscript figure is printed at page width, where the labels of the documentation
+# drawing would be about 4 pt: its copy is drawn with larger text and without the title.
+PAPER_FONT_SCALE = 1.4
+_font_scale = 1.0
+
+
+def _fs(size: float) -> float:
+    return size * _font_scale
 
 
 def _value(p) -> str:
@@ -37,7 +45,7 @@ class Sheet:
     def __init__(self, circuit: Circuit):
         self.c = circuit
         self.d = schemdraw.Drawing(show=False)
-        self.d.config(fontsize=11, bgcolor="white")
+        self.d.config(fontsize=_fs(11), bgcolor="white")
 
     def part(self, name: str, a, b, loc: str = "top"):
         p = self.c.passive(name)
@@ -63,7 +71,9 @@ class Sheet:
             self.tag(p, "vref", "bottom")
 
     def text(self, p, text: str, size: int = 13):
-        self.d += elm.Label().right().at(p).label(text, halign="left", fontsize=size)
+        if size >= 14 and _font_scale != 1.0:
+            return  # sheet title: the manuscript figure has a caption instead
+        self.d += elm.Label().right().at(p).label(text, halign="left", fontsize=_fs(size))
 
     def opamp(self, name: str, plus, plus_on_top: bool = True):
         """Op-amp with its + input at `plus`; returns the placed element."""
@@ -84,6 +94,9 @@ class Sheet:
 
     def save(self, stem: str):
         OUT_DIR.mkdir(parents=True, exist_ok=True)
+        if _font_scale != 1.0:
+            self.d.save(str(OUT_DIR / f"{stem}.pdf"))  # vector copy for the manuscript
+            return
         self.d.save(str(OUT_DIR / f"{stem}.svg"))
         self.d.save(str(OUT_DIR / f"{stem}.png"), dpi=130)
 
@@ -118,10 +131,10 @@ def input_network(s: Sheet, n: dict[str, str], x_end: float):
         s.part(n["c_diff"], (x, y), (x, -y), loc="bottom")
         s.dot((x, y)), s.dot((x, -y))
         x += 2.0
-    s.d += elm.SourceI().endpoints((x, -y), (x, y)).label("Ilo\nlead-off test", loc="bottom")
+    s.d += elm.SourceI().endpoints((x, -y), (x, y)).label("Ilo", loc="bottom")
     s.dot((x, y)), s.dot((x, -y))
-    s.d += elm.Label().at((x_end - 0.3, y + 0.35)).label("inp", fontsize=10)
-    s.d += elm.Label().at((x_end - 0.3, -y - 0.35)).label("inn", fontsize=10)
+    s.d += elm.Label().at((x_end - 0.3, y + 0.35)).label("inp", fontsize=_fs(10))
+    s.d += elm.Label().at((x_end - 0.3, -y - 0.35)).label("inn", fontsize=_fs(10))
     return (x_end, y), (x_end, -y)
 
 
@@ -129,7 +142,7 @@ def back_half(s: Sheet, start, n: dict[str, str]):
     """High-pass, gain stage and Sallen-Key low-pass, from the INA output to the ADC."""
     x, y = start
     s.dot(start)
-    s.d += elm.Label().at((x, y + 0.4)).label("ina_out", fontsize=10)
+    s.d += elm.Label().at((x + 0.1, y - 0.45)).label("ina_out", fontsize=_fs(10))
     hp = (x + 2.5, y)
     s.part(n["c_hp"], start, hp)
     s.dot(hp)
@@ -168,7 +181,7 @@ def back_half(s: Sheet, start, n: dict[str, str]):
 def rld_integrator(s: Sheet, cm, n: dict[str, str]):
     """Driven-right-leg integrator from the common-mode node `cm` to the RL electrode."""
     s.dot(cm)
-    s.d += elm.Label().at((cm[0], cm[1] - 0.4)).label("cm", fontsize=10)
+    s.d += elm.Label().at((cm[0], cm[1] - 0.4)).label("cm", fontsize=_fs(10))
     op = s.opamp(n["u_rld"], (cm[0] + 1.0, cm[1] - 1.24), plus_on_top=False)
     s.wire(cm, op.in1)
     out = op.out
@@ -186,12 +199,13 @@ def rld_integrator(s: Sheet, cm, n: dict[str, str]):
     end = (out[0] + 3.2, out[1])
     s.part(n["r_lim"], out, end)
     s.tag(end, "RL electrode")
-    s.d += elm.Label().at((out[0] + 0.2, out[1] - 0.4)).label("rld_out", fontsize=10, halign="left")
+    label = elm.Label().at((out[0] + 0.2, out[1] - 0.8))
+    s.d += label.label("rld_out", fontsize=_fs(10), halign="left")
 
 
 def electrode_inset(s: Sheet, origin):
     x, y = origin
-    s.text((x, y + 1.9), "Skin-electrode model (LA, RA and RL)", 11)
+    s.text((x, y + 2.7), "Skin-electrode model (LA, RA and RL)", 11)
     s.tag((x, y), "body", "left")
     s.d += elm.SourceV().endpoints((x, y), (x + 2.2, y)).label("Ehc", loc="bottom").reverse()
     s.d += elm.Resistor().endpoints((x + 2.2, y), (x + 4.7, y)).label("Rs", loc="bottom")
@@ -254,8 +268,8 @@ def draw_integrated() -> Sheet:
     x = 19.5
     s.text((x - 0.5, row + 5.2), "Mid-supply reference", 11)
     s.d += elm.Vdd().right().at((x, row + 3.0)).label("VCC 3.3 V")
-    s.part("R15", (x, row + 3.0), (x, row), loc="bottom")
-    s.part("R16", (x, row), (x, row - 3.0), loc="bottom")
+    s.part("R15", (x, row + 3.0), (x, row), loc="top")
+    s.part("R16", (x, row), (x, row - 3.0), loc="top")
     s.part("C8", (x + 1.8, row), (x + 1.8, row - 3.0), loc="bottom")
     s.wire((x, row - 3.0), (x + 1.8, row - 3.0))
     s.d += elm.Ground().right().at((x, row - 3.0))
@@ -286,8 +300,8 @@ def draw_reference() -> Sheet:
     for op, fb in ((u1, fb1), (u2, fb2)):
         s.wire(op.in1, (op.in1[0] - 0.5, op.in1[1]), (op.in1[0] - 0.5, fb[1]), fb)
         s.dot(fb), s.dot(op.out)
-    s.d += elm.Label().at((xo - 0.1, u1.out[1] + 0.4)).label("o1", fontsize=10)
-    s.d += elm.Label().at((xo - 0.1, u2.out[1] - 0.4)).label("o2", fontsize=10)
+    s.d += elm.Label().at((xo - 0.1, u1.out[1] + 0.4)).label("o1", fontsize=_fs(10))
+    s.d += elm.Label().at((xo - 0.1, u2.out[1] - 0.4)).label("o2", fontsize=_fs(10))
 
     # difference stage
     p, q = (xo + 3.6, u1.out[1]), (xo + 3.6, u2.out[1])
@@ -326,10 +340,13 @@ def draw_reference() -> Sheet:
 
 
 def main() -> None:
+    global _font_scale
     for draw in (draw_integrated, draw_reference):
-        sheet = draw()
-        sheet.save(f"schematic_{sheet.c.name}")
-        print(f"wrote {OUT_DIR / f'schematic_{sheet.c.name}'}.svg and .png")
+        for _font_scale in (1.0, PAPER_FONT_SCALE):
+            sheet = draw()
+            sheet.save(f"schematic_{sheet.c.name}")
+        print(f"wrote {OUT_DIR / f'schematic_{sheet.c.name}'}.svg, .png and .pdf")
+    _font_scale = 1.0
 
 
 if __name__ == "__main__":

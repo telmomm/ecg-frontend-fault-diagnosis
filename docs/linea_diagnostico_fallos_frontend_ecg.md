@@ -230,16 +230,22 @@ Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio 
 
 **Entregable:** resumen del SOTA. **Cierre:** hueco reformulado.
 
-### Fase 1 — Lecturas clave y posicionamiento
-- [ ] Leer Chen et al. (2025), IEEE TIM
-- [ ] Leer Dieste-Velasco (2025), Integration
-- [ ] Leer el trabajo del electroencefalógrafo (2025) y el de LSTM en equipos médicos (2021)
-- [ ] Leer la revisión de test analógico de 2010 y los dos trabajos fundacionales de *alternate test* (1998)
-- [ ] Leer el trabajo de ITC 2022 sobre test estadístico y ML
-- [ ] Leer DiffDA-Net (2026)
-- [ ] Redactar borrador de introducción y estado del arte (2–3 páginas)
+### Fase 1 — Lecturas clave y posicionamiento ✅
+- [x] Leer Chen et al. (2025), IEEE TIM
+- [x] Leer Dieste-Velasco (2025), Integration (y los de 2021 y 2024)
+- [x] Leer el trabajo del electroencefalógrafo (2025) y el de LSTM en equipos médicos (2021) (el segundo, en traducción automática)
+- [x] Leer la revisión de test analógico de 2010 y los dos trabajos fundacionales de *alternate test* (1998)
+- [x] Leer el trabajo de ITC 2022 sobre test estadístico y ML
+- [x] Leer DiffDA-Net (2026)
+- [x] Redactar borrador de introducción y estado del arte (`docs/paper/introduction_draft.md`)
 
 **Entregable:** borrador de introducción. **Cierre:** las cinco aportaciones están justificadas con referencias.
+
+**Estado:** el borrador y las notas de lectura (`docs/lecturas_fase1.md`) están contrastados con los textos de los once trabajos. La revisión de 2010 se leyó entera; del resto, el método, el modelo de fallo, los datos y las conclusiones. Las cinco aportaciones tienen su respaldo en una tabla. Quedan para la redacción final cinco referencias de apoyo citadas por su resumen y dos afirmaciones sin referencia (qué detectan por sí solos los front-ends integrados y cuándo se verifica la conformidad), listadas al final del borrador.
+
+**Resultado de contrastar:** el trabajo de ITC 2022 no une test por especificaciones y diagnóstico (define el fallo por tolerancia, sobre los circuitos de referencia); Dieste-Velasco (2021) ya agrupa por simulación los fallos indistinguibles antes de entrenar, y pasa a citarse como precedente del tratamiento por grupos.
+
+**Cambio de posicionamiento.** La revisión de 2010 recoge diagnóstico apoyado en *alternate test* para transceptores de RF integrados. La aportación 1 no puede formularse como "unir verificación de especificaciones y localización" sin más; se acota a una red de componentes discretos, en servicio, con las medidas del propio equipo, contra una norma clínica y con el electrodo como confusor.
 
 ### Fase 2 — Diseño del circuito y especificaciones ✅
 - [x] Elegir el front-end integrado y conseguir su macromodelo (o definir el modelo de comportamiento): **INA333** de Texas Instruments, con modelo de comportamiento construido con su hoja de datos y contrastado a nivel de bloque con el macromodelo del fabricante
@@ -341,7 +347,7 @@ Protocolo común: tres repeticiones con partición entrenamiento/validación/pru
   | Por componente: F1 macro / entre los 3 primeros | 0,74 / 96 % | 0,61 / 84 % |
 
   Los componentes peor localizados son los de los grupos previstos por la sensibilidad (R5/R6, R13/R14, R11/R12). El acierto por componente se correlaciona con el número de componentes confundibles que predijo E2 (ρ = −0,42 y −0,51, p < 0,05). La CNN sobre la forma de onda queda por debajo de los modelos tabulares (F1 por grupo 0,56 y 0,32).
-- **H4, apoyada en parte.** Con las clases "nada que hacer / circuito no apto / electrodo o cable": F1 macro 0,89 y 0,87. Se reconoce el 99 % de los casos sin nada que hacer y el 95 % y 92 % de los circuitos no aptos, pero solo el 64 % y 61 % de los fallos de electrodo. Un electrodo desconectado se reconoce en el 75 % y 89 % de los casos, y la resistencia de protección abierta siempre. Lo que falla es la degradación del contacto: la mitad pasa por normal, porque una impedancia cinco o veinte veces mayor cae dentro de lo que se mide en otros sujetos sanos. Sin electrodos porosos el reconocimiento de electrodo sube al 76 % y 74 %.
+- **H4, apoyada en parte.** Con las clases "nada que hacer / circuito no apto / electrodo o cable": F1 macro 0,89 y 0,87. Se reconoce el 99 % de los casos sin nada que hacer y el 94 % y 92 % de los circuitos no aptos, pero solo el 64 % y 61 % de los fallos de electrodo. Un electrodo desconectado se reconoce en el 75 % y 89 % de los casos, y la resistencia de protección abierta siempre. Lo que falla es la degradación del contacto: la mitad pasa por normal, porque una impedancia cinco o veinte veces mayor cae dentro de lo que se mide en otros sujetos sanos. Sin electrodos porosos el reconocimiento de electrodo sube al 76 % y 74 %.
 
 ### Fase 7 — Robustez y conjunto mínimo (E7, E8) ✅
 - [x] Magnitudes no vistas y cambio de tolerancias (E7: magnitudes paramétricas fuera del entrenamiento; datasets de prueba con tolerancias gaussianas truncadas y con componentes al 2 % y 10 %)
@@ -359,8 +365,8 @@ Se lanza con `make shift-datasets` y `make robustness`. **Resultado** (sobre `da
 - **Conjunto mínimo de medidas.** El pulso de calibración es siempre la primera medida elegida. Para decidir la aptitud bastan 3 medidas y 3 segundos en el integrado (pulso, un tono de impedancia de contacto y el tono diferencial de 150 Hz) para quedar a menos de un punto del autotest completo, que dura 97 segundos; en el de referencia son 4 medidas, con la salida de la pierna derecha. Para localizar, en el integrado bastan el pulso, el tono de 150 Hz y la salida del amplificador de instrumentación (2 segundos); el de referencia necesita 5 o 6 medidas. Los tonos de 0,05 Hz, que suponen 80 de los 97 segundos, no se eligen nunca.
 
 ### Fase 8 — Redacción y publicación
-- [ ] Redactar el artículo (estructura en la sección 12)
-- [ ] Publicar el dataset en Zenodo con DOI
+- [ ] Redactar el artículo (estructura en la sección 12): borrador completo en `manuscript/` (plantilla de IEEE TIM, 8 páginas más 4 de material suplementario, sin cargos por exceso; se genera con `make paper`; la versión larga de 12 páginas queda en `manuscript/long_version/`); pendiente de revisión del autor
+- [x] Publicar el dataset en Zenodo: <https://doi.org/10.5281/zenodo.23134950>
 - [ ] Limpiar y documentar el repositorio
 - [ ] Preprint
 - [ ] Envío a revista

@@ -32,3 +32,17 @@ docs/normative_and_papers/
 
 # Trial runs of the experiments on the smoke datasets
 results/smoke/
+
+# LaTeX build files of the manuscript
+manuscript/*.aux
+manuscript/*.bbl
+manuscript/*.blg
+manuscript/*.fdb_latexmk
+manuscript/*.fls
+manuscript/*.out
+manuscript/*.synctex.gz
+
+# Archive uploaded to Zenodo and the publisher's template (not ours to redistribute)
+data.zip
+manuscript/IEEE-Transactions-LaTeX2e-templates-and-instructions/
+manuscript/aux_files/

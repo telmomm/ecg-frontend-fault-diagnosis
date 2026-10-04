@@ -1,0 +1,89 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Machine-Learning Diagnosis of Analog Circuits}
+Data-driven fault diagnosis of analog circuits is an active field. Typical studies simulate hard
+faults (open and short circuits) or soft faults (a component shifted by a given percentage) under
+component tolerances, extract features from node voltages or from the frequency or time response,
+and train a classifier. Dieste-Velasco has addressed hard faults in transistor amplifier stages
+with a pattern-recognition neural network that uses a few accessible measurements, after grouping
+the faults that those measurements cannot tell apart~\cite{dieste2021}; hard faults under
+tolerances with a fuzzy inference system tuned by particle swarm optimization~\cite{dieste2024};
+and soft faults in a Sallen-Key band-pass filter with seven classical classifiers on six voltages,
+measured at two points and three frequencies, where the classes are the nominal circuit and a low
+and a high deviation of each of seven components, reaching \SI{97.9}{\percent}
+accuracy~\cite{dieste2025}. Deep models that learn features from raw responses are also
+common~\cite{yang2020}, and explainable classifiers on frequency-response features have been
+applied to parametric faults~\cite{rajpal2026}.
+
+Three aspects of this literature are relevant here. First, the circuits: the Sallen-Key band-pass
+filter and the four-op-amp biquad high-pass filter recur as
+benchmarks~\cite{dieste2025,chen2025,zhang2026,srimani2022}, and Chen \emph{et
+al.}~\cite{chen2025} show that their symmetries produce overlapping fault responses, which they
+quantify with the distance between class centroids and the variance within classes over 100
+training runs. Second, generalization across fault severities is recognized as an open problem:
+Zhang \emph{et al.}~\cite{zhang2026} combine diffusion-based augmentation with domain adaptation
+to transfer from a \SI{50}{\percent} to a \SI{25}{\percent} parametric deviation on those two
+circuits and reach \SI{71}{\percent} accuracy on thirteen classes, a figure they present as an
+upper bound. Third, the limits of what can be diagnosed are known from testability theory, which
+defines ambiguity groups as sets of components whose faults cannot be distinguished from the
+available measurements~\cite{starzyk2000}. In all of this work a fault is a deviation of a
+component, usually by a fixed percentage of 25 or \SI{50}{\percent} against tolerances of 5 to
+\SI{10}{\percent}~\cite{chen2025,zhang2026}; whether the circuit still meets its requirements is
+not considered.
+
+\subsection{Specification-Based and Alternate Test}
+In production test, analog and mixed-signal circuits are checked against their specifications
+because widely applicable fault models are lacking, and the cost of doing so has driven the
+search for cheaper methods~\cite{cheng2010}. Alternate test predicts the specifications, or
+directly the pass/fail outcome, from signatures that are cheap to measure. It rests on the
+correlation between process parameters, signatures and specifications; the acceptance region in
+signature space is obtained by Monte Carlo simulation and statistical classification, or a
+regression from signatures to specifications is calibrated on a sample of measured
+devices~\cite{cheng2010,voorakaranam2007}. Variyam and Chatterjee formulated test generation as
+the reduction of the probability of misclassifying a bad circuit as good and vice
+versa~\cite{variyam1998spec}, and addressed how the pass/fail threshold of alternate tests is
+set~\cite{variyam1998synth}. Redundant specification tests can be removed by statistical
+learning~\cite{biswas2005}. Machine-learning diagnosis is also presented at test venues, though on
+the same benchmark filters and with a fault defined as a component outside its
+tolerance~\cite{srimani2022}.
+
+Alternate test has also been used for diagnosis. Cheng and Chang~\cite{cheng2010} review methods
+in which the signatures, captured by built-in sensors, are related by statistical learning to the
+source of a failure in integrated RF transceivers, and they call for test resources to be shared
+with in-field testing. Our work follows the same principle and differs in its object and setting:
+the components of a discrete network around an integrated amplifier, rather than the blocks of an
+integrated circuit; a self-test run in service with the converter of the instrument, rather than
+production or wafer-level test; the requirements of a clinical standard, rather than data-sheet
+specifications; and a confounder, the electrode, that has no counterpart in integrated-circuit
+test.
+
+\subsection{Faults in ECG Acquisition and in Biomedical Equipment}
+Work on faults in ECG acquisition operates on the recorded signal. FauDigPro~\cite{agarwal2022}
+classifies ECG signals as normal or affected by a drift or a bias, both injected numerically into
+recorded signals, and forecasts sensor failure; recent systems detect anomalies and sensor faults
+in wearable and connected ECG devices~\cite{khezripour2026,adams2026}. These methods detect that
+the data are bad. They do not say which part of the circuit has failed, nor whether the
+instrument still meets its specifications.
+
+At circuit level we have found two precedents in biomedical equipment. Gao~\cite{gao2025}
+classifies faults of a simulated electroencephalograph circuit with wavelet-packet features and a
+neural network and reports a missed-detection rate below \SI{9}{\percent}; the circuit, the
+faults and their number are not described. Liu \emph{et al.}~\cite{liu2021} diagnose the control
+board of a therapy device without schematics, from port signals and observed symptoms of seven
+fault categories, with a long short-term memory network. Neither considers component tolerances,
+compliance with specifications or the electrodes.
+
+\subsection{The Skin-Electrode Interface}
+The standard represents the skin-electrode impedance by \SI{51}{\kilo\ohm} in parallel with
+\SI{47}{\nano\farad} in series with each lead~\cite{iec60601225}. Dry electrodes depart widely
+from that figure. Joutsen \emph{et al.}~\cite{joutsen2024} fitted a single time-constant model to
+impedance measured with dry electrodes of several materials and found parallel resistances from
+about \SI{0.1}{\mega\ohm} for stainless steel to almost \SI{9}{\mega\ohm} for conductive fabric;
+their open data show, for a given material, differences of one to three orders of magnitude
+between subjects. An electrode impedance of megaohms forms a divider with the input network of a
+conventional front-end and attenuates the signal, so a healthy instrument on a high-impedance
+electrode can resemble a faulty one on a good electrode. Common-mode interference adds to this,
+since any imbalance between electrodes converts part of it into a differential signal, which the
+driven-right-leg circuit reduces but does not cancel~\cite{winter1983}. To our knowledge no
+previous work separates electrode degradation from a fault of the circuit behind it.

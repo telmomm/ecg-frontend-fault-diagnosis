@@ -1,0 +1,21 @@
+\begin{table}[!t]
+\caption{Origin Classification on the Test Part of One Repetition (Random Forest, Main Feature
+Set)}
+\label{tab:origin}
+\centering
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+ & & \multicolumn{3}{c}{Predicted} & \\
+\cmidrule(lr){3-5}
+Circuit & True & None & Circuit & Electrode & Recall \\
+\midrule
+A & None & \num{14314} & 63 & 60 & \SI{99.2}{\percent} \\
+ & Circuit & 189 & \num{3649} & 25 & \SI{94.5}{\percent} \\
+ & Electrode & 269 & 15 & 496 & \SI{63.6}{\percent} \\
+\addlinespace
+B & None & \num{13029} & 136 & 68 & \SI{98.5}{\percent} \\
+ & Circuit & 445 & \num{5417} & 45 & \SI{91.7}{\percent} \\
+ & Electrode & 278 & 25 & 477 & \SI{61.2}{\percent} \\
+\bottomrule
+\end{tabular}
+\end{table}

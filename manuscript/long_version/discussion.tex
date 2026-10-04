@@ -1,0 +1,68 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{What the Results Mean for a Self-Test}
+
+The results support a self-test in two levels for the realistic circuit. The first level, the
+compliance decision, can be set to let through about \SI{1}{\percent} of the non-compliant
+circuits while rejecting \SI{8}{\percent} of the compliant ones, or \SI{2}{\percent} when porous
+dry electrodes are excluded. A limit test on the same measurements cannot approach this, because
+it asks whether the circuit looks like a healthy one, which is neither necessary nor sufficient
+for compliance. The second level should report an ambiguity group, not a component. The groups
+are known from the nominal circuit before any fault is simulated, group-level location holds for
+fault magnitudes the model has not seen, and for repair the difference is small: in \cA\ a group
+names two to four parts that set the same quantity.
+
+The comparison of labels has a direct practical reading. A detector trained in the way that is
+usual in the diagnosis literature, on whether a component deviates, would take out of service
+more than a third of the instruments that still meet the standard. This is not a weakness of the
+classifier but of the question it is asked; the same model, asked about compliance, is right.
+
+The cost of the self-test is low. Three measurements and three seconds give the decision, and the
+most expensive ones, the tones below the high-pass corner, are not needed. This matters in
+practice because the self-test has to run with the patient connected and without a signal.
+
+\subsection{The Electrode as a Confounder}
+
+The electrode limits both levels. A healthy circuit on a high-impedance electrode measures a
+reduced gain through the calibration source, which is what a gain fault looks like. On \cA\ this
+accounts for eight of the nine invisible fault conditions, and false rejects at the
+\SI{1}{\percent} escape target fall from 7.8 to \SI{1.9}{\percent} when porous electrodes are
+left out. And a
+degraded contact can only be recognized against the normal contact of the same subject, which a
+single self-test does not know. Two consequences follow. The lead-off tone is among the first
+measurements selected, plausibly because it tells the model how much of the attenuation the
+electrode explains; that reading of the selection is ours and was not tested separately. And a self-test that kept a reference per patient, or that could disconnect the
+electrodes from the calibration path, would remove most of the difficulty; neither option was
+studied here.
+
+\subsection{Realistic and Benchmark-Like Circuits}
+
+The two circuits share the signal chain and differ in how the instrumentation amplifier is built,
+and that difference changes the conclusions. The discrete amplifier adds seven matched resistors
+that all act on the gain, which merge into one group of nine with the gain stage, and its
+common-mode sensing makes several faults of the DRL stage both non-compliant and invisible. The
+integrated amplifier removes the first problem and, in this design, the second. A method
+evaluated only on the benchmark-like circuit would have been judged unable to reach a low escape
+rate; evaluated on the realistic one it can. This supports the argument of~\cite{chen2025} that
+the choice of circuit conditions the conclusions, with a different remedy: instead of redesigning
+the circuit to be separable, the ambiguity that the given circuit has is computed and the
+diagnosis is reported at that level.
+
+The invisible DRL faults also show a limit of the measurements. Raising the amplitude or the
+duration of the common-mode tone does not help, whereas the dc reading of the DRL output is the
+third measurement selected for the decision on \cB\ in every repetition. Where a spare converter
+channel is available, it is better spent there.
+
+\subsection{Limitations}
+
+The study is based on simulation only, with behavioral models of the amplifiers and ideal
+self-test sources; how well models trained on simulated data transfer to hardware has not been
+tested. Faults are single, and aging is not modeled. The frequency-domain features are
+small-signal values. The dry-electrode model rests on six measured subjects per material; the
+gel electrode has no spread between subjects, and the spread between the electrodes of one case
+is assumed. The noise specification is computed from the rms value and the input range from the
+operating point, instead of from the time-domain tests of the standard. Finally, the
+specifications are those of performance: some hard faults leave the circuit compliant while
+removing a protection (a short across the resistor that limits the current into the right-leg
+electrode, for instance), and a self-test aimed at safety would have to label them separately.

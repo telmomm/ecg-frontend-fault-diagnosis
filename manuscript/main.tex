@@ -1,0 +1,103 @@
+% Manuscript for IEEE Transactions on Instrumentation and Measurement.
+% Build: latexmk -pdf main.tex   (or `make paper` from the repository root)
+% Figures: python scripts/paper_figures.py   (reads results/, writes manuscript/figures/)
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{xcolor}
+\graphicspath{{figures/}}
+% units in math mode (the text font has no upright omega); bold and italic context is kept
+\sisetup{range-phrase={--}, range-units=single, per-mode=symbol,
+  reset-text-series=false, text-series-to-math=true,
+  reset-text-shape=false, reset-text-family=false}
+\hyphenation{elec-trode elec-trodes meas-ure-ment meas-ure-ments}
+
+% Anything still to be supplied or confirmed by the authors. Search for \todo before submission.
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+\newcommand{\cA}{Circuit~A}
+\newcommand{\cB}{Circuit~B}
+
+\begin{document}
+
+\title{Specification-Aware Fault Diagnosis of ECG Analog Front-Ends: Bridging Alternate Test and
+Machine-Learning Diagnosis for In-Service Self-Test}
+
+\author{Telmo~Miguel-Medina%
+\thanks{Manuscript received October 4, 2026.}%
+\thanks{T. Miguel-Medina is with the Electromechanical Engineering Department, University of
+Burgos, Burgos, Spain (e-mail: tmiguel@ubu.es; ORCID: 0009-0004-0654-6650).}%
+\thanks{This article has supplementary material provided by the author. The dataset and the code
+are openly available; see the Data and Code Availability section.}}
+
+\markboth{IEEE Transactions on Instrumentation and Measurement}%
+{Miguel-Medina: Specification-Aware Fault Diagnosis of ECG Analog Front-Ends}
+
+\maketitle
+
+\begin{abstract}
+An electrocardiograph whose analog front-end has drifted out of specification still produces a
+trace. This paper studies, by simulation, a self-test that the instrument can run in service with its own converter and
+internal test signals. Two questions that the literature treats separately are joined: whether
+the circuit still complies with the requirements of IEC~60601-2-25, as in alternate test, and
+which component is responsible, as in machine-learning fault diagnosis. A third one is added:
+whether the cause lies in the circuit or in the electrodes. About \num{130000} Monte Carlo cases
+of two front-ends (an integrated instrumentation amplifier with its discrete network, and a
+discrete three-op-amp amplifier) are simulated with hard, parametric and electrode faults, gel
+and dry electrodes, and eleven specification values per case. On the integrated design a
+classifier reaches \SI{0.9}{\percent} of escapes at \SI{7.8}{\percent} of false rejects, against
+\SI{22.5}{\percent} and \SI{20.0}{\percent} for a limit test. Labeling a fault by component
+deviation instead of by loss of compliance raises false rejects from \SI{1.6}{\percent} to
+\SI{37}{\percent}. The groups of components that cannot be told apart are predicted from the
+sensitivities of the nominal circuit; diagnosis at that level reaches a macro F1 of 0.87 and
+holds for fault magnitudes absent from training, whereas component-level diagnosis does not.
+Non-compliant circuits are recognized in \SI{94}{\percent} of the cases and electrode problems in
+\SI{64}{\percent}. Three measurements taking \SI{3}{\second} decide compliance within one point
+of the balanced accuracy of the complete \SI{97}{\second} self-test.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Alternate test, ambiguity groups, analog fault diagnosis, biopotential amplifier, built-in
+self-test, electrocardiography, machine learning, skin-electrode impedance.
+\end{IEEEkeywords}
+
+\input{sections/introduction}
+\input{sections/related_work}
+\input{sections/methods}
+\input{sections/results}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\section*{Data and Code Availability}
+The simulation pipeline, the experiments and the scripts that produce every table and figure of
+this paper are available at \url{https://github.com/telmomm/ecg-frontend-fault-diagnosis}. The
+dataset (both circuits, with the specification values, the three levels of labels and the
+configuration needed to regenerate it) is archived on Zenodo, doi:
+\url{10.5281/zenodo.23134950}.
+
+\section*{Acknowledgment}
+
+This work uses AI-generated content. Claude (Anthropic; Claude Opus) was used to assist in
+writing the code of the simulation pipeline and of the experiments, in producing the figures,
+and in drafting the text of all the sections of this article. The author has reviewed and edited
+the content and takes full responsibility for the final content of the paper.
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,references}
+
+\begin{IEEEbiographynophoto}{Telmo Miguel-Medina}
+is an Associate Professor of Electronics with the Electromechanical Engineering Department,
+University of Burgos, Burgos, Spain, where he teaches electronics in the health engineering and
+industrial electronics degrees. He is the author of a textbook on electronics for biomedical
+engineering. His research interests include biomedical electronic instrumentation, RF measurement
+and electronic systems, interpretable machine learning for clinical prediction, and open and
+reproducible research software.
+\end{IEEEbiographynophoto}
+
+\end{document}

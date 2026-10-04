@@ -134,9 +134,10 @@ Sources and assumptions:
   Rd. The spread between subjects is large: a geometric standard deviation of 2.3 for
   the polymer, 4–5 for the fabrics and 17–31 for the solid metals, which split into
   subjects in the megaohm range and subjects in the kiloohm range.
-- **Gel**: Rd ‖ Cd is the network that IEC 60601-2-25 puts in series with each lead to
-  represent the skin-electrode impedance. Rs and the absence of a subject spread are
-  assumed; neither paper measures gel electrodes.
+- **Gel**: by decision, the gel electrode is the network that IEC 60601-2-25 puts in
+  series with each lead to represent the skin-electrode impedance (51 kΩ ‖ 47 nF). Rs
+  and the absence of a subject spread are assumptions of the study; neither paper
+  measures gel electrodes.
 - **Assumed for every type**: the factor-of-two spread between the electrodes of one
   case and the ±5 mV spread of the half-cell potential.
 

@@ -1,0 +1,362 @@
+\section{Results}
+\label{sec:results}
+
+\subsection{Dataset}
+
+The campaign produced \num{63600} cases of \cA\ and \num{66400} of \cB, with no failed
+simulation. All healthy cases are compliant. Of all cases, \SI{79.0}{\percent} of \cA\ and
+\SI{69.8}{\percent} of \cB\ are compliant, although only \SI{7.9}{\percent} and \SI{7.5}{\percent}
+are healthy: most injected faults do not take the circuit out of specification.
+Fig.~\ref{fig:compliance} shows it for parametric faults. With one component \SI{5}{\percent} off
+nominal, between 93 and \SI{96}{\percent} of the circuits remain compliant, and those that do not
+are the ones in which the component sets the gain. With one component \SI{50}{\percent} off,
+between 54 and \SI{66}{\percent} remain compliant. Among hard faults, \SI{46}{\percent} of the
+open circuits and \SI{33}{\percent} of the short circuits of \cA\ leave it compliant (31 and
+\SI{19}{\percent} in \cB).
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{compliance_by_magnitude}
+\caption{Circuits that still meet every specification when one passive component deviates from
+its nominal value by the given percentage, the others staying within tolerance. Each point is the
+mean over all the passive components of the circuit, 200 cases per component.}
+\label{fig:compliance}
+\end{figure}
+
+In \cA\ no fault of the DRL integrator or of its input buffer (R7, R8, C4, U2, U3) violates a
+specification, and neither do faults of the output and reference buffers (U5, U6); the passive
+path through the output resistor of the DRL stage is enough for the \SI{89}{\decibel} test. Degrading the CMRR of the integrated amplifier to \SI{50}{\decibel} is
+equally harmless, since the common-mode rejection of the system is dominated by the DRL loop.
+
+The electrode has a large effect on what the self-test sees. The gain that a healthy \cA\
+measures through $V_\mathrm{cal}$ at \SI{10}{\hertz}, relative to nominal, lies between 0.90 and
+1.02 with gel and solid-metal electrodes, between 0.59 and 1.00 with the polymer, and between
+0.05 and 0.97 with the fabrics (median 0.60 to 0.67). The megaohm-level contact impedance of
+porous electrodes forms a divider with the input network. The circuit is nonetheless compliant,
+because the standard tests the input impedance with \SI{620}{\kilo\ohm}.
+
+\subsection{Testability}
+\label{sec:res-testability}
+
+\begin{table}[!t]
+\caption{Testability of the Main Feature Set (Univariate Criterion)}
+\label{tab:testability}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.50\columnwidth}cccc@{}}
+\toprule
+ & \multicolumn{2}{c}{\cA} & \multicolumn{2}{c}{\cB} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Electrodes & All & No porous & All & No porous \\
+\midrule
+Non-compliant conditions$^{\mathrm{a}}$ indistinguishable from healthy & 9 & 1 & 16 & 6 \\
+Non-compliant conditions$^{\mathrm{a}}$ missed by the limit test & 15 & 3 & 35 & 8 \\
+Testability rank (\SI{10}{\percent} deviation) & 2 & 4 & 2 & 3 \\
+Components located without ambiguity & 4/23 & 5/23 & 2/29 & 5/29 \\
+Mean number of components each one can be mistaken for & 3.9 & 2.5 & 8.6 & 5.2 \\
+\bottomrule
+\multicolumn{5}{@{}p{0.97\columnwidth}@{}}{\footnotesize $^{\mathrm{a}}$Fault conditions in
+which most cases are non-compliant, out of 293 (\cA) and 307 (\cB).}
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:testability} summarizes the analysis of Section~\ref{sec:testability}. Three
+observations follow.
+
+First, some non-compliant faults cannot be seen. In \cA, eight of the nine invisible conditions
+are gain errors of 5 to \SI{20}{\percent}, which are confused with the attenuation caused by a
+high-impedance electrode; without porous electrodes only the open output resistor of the DRL
+stage remains. In \cB\ six remain without porous electrodes, all in the DRL stage: they violate
+the common-mode rejection requirement and the measurements do not see them.
+
+Second, few components can be located without ambiguity, and the groups are predictable. The
+sensitivities~\eqref{eq:sensitivity} alone give, for \cA, the groups R5+R6+R11+R12 (the resistors
+that set the gain of the two stages), C5+R10 (high-pass filter), R13+R14 (low-pass filter) and
+R15+R16 (reference divider). For \cB\ they give one group with the nine resistors that set the
+gain (seven in the instrumentation amplifier and two in the gain stage), and the groups C4+R16
+(high-pass filter), R19+R20 (low-pass filter) and R12+R13 (common-mode sensing).
+
+Third, the structure depends on the architecture. \cA\ has fewer invisible faults and each
+component can be mistaken for fewer others. The ratio of the distance between class centroids to
+the spread within classes, a measure of the kind used in~\cite{chen2025}, is the only one that does not
+favor it: 1.5 for both circuits with all electrodes, and 1.8 against 2.1 without porous
+electrodes.
+
+In the sensitivity analysis the common-mode tone responds to none of the components of either
+circuit.
+
+\subsection{Compliance Decision}
+\label{sec:res-decision}
+
+\begin{table}[!t]
+\caption{Compliance Decision From the Main Feature Set. Mean of Three Repetitions and
+\SI{95}{\percent} Confidence Interval, in Percent}
+\label{tab:decision}
+\centering
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Circuit & Method & Escapes & False rejects \\
+\midrule
+A & Limit test & 22.5 (21.4--23.6) & 20.0 (19.8--20.3) \\
+ & Specification regression & 8.4 (6.7--10.2) & 1.5 (1.3--1.6) \\
+ & Classifier & 7.9 (6.4--9.4) & 0.7 (0.4--1.0) \\
+ & Classifier, \SI{1}{\percent} escape target & 0.9 (0.8--1.0) & 7.8 (4.8--10.8) \\
+\addlinespace
+B & Limit test & 35.3 (34.7--35.8) & 17.0 (16.5--17.6) \\
+ & Specification regression & 11.4 (10.0--12.8) & 2.4 (1.9--2.9) \\
+ & Classifier & 11.2 (10.3--12.1) & 1.2 (1.1--1.2) \\
+ & Classifier, \SI{1}{\percent} escape target & 1.2 (0.6--1.7) & 54.0 (48.0--60.0) \\
+\addlinespace
+\multicolumn{4}{@{}l}{\emph{Without porous dry electrodes}} \\
+A & Classifier & 4.2 (3.5--4.9) & 0.7 (0.4--0.9) \\
+ & Classifier, \SI{1}{\percent} escape target & 1.0 (0.9--1.1) & 1.9 (1.3--2.5) \\
+B & Classifier & 6.7 (6.2--7.1) & 1.0 (0.6--1.4) \\
+ & Classifier, \SI{1}{\percent} escape target & 1.0 (0.7--1.3) & 48.7 (39.4--58.1) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{operating_points}
+\caption{Operating points of the four decision methods on the main feature set, for all electrode
+types (filled markers) and without porous dry electrodes (open markers). Bars are \SI{95}{\percent}
+confidence intervals over three repetitions. Both axes are logarithmic.}
+\label{fig:operating}
+\end{figure*}
+
+Table~\ref{tab:decision} and Fig.~\ref{fig:operating} give the result. The limit test is poor in
+both senses: it accepts between a fifth and a third of the non-compliant circuits and rejects a
+fifth of the compliant ones, because a wide healthy envelope (widened further by the electrodes)
+and a narrow compliance region do not coincide. The specification regression and the classifier
+are close to each other at their default operating points. Per specification, the error of the
+regression is between 8 and \SI{36}{\percent} of the limit, the largest for the input-impedance
+test.
+
+An instrument needs a low escape rate. Lowering the threshold of the classifier brings escapes
+on \cA\ to \SI{0.9}{\percent} at the cost of \SI{7.8}{\percent} of false rejects, and of only
+\SI{1.9}{\percent} without porous dry electrodes. On \cB\ the same escape rate costs more than
+half of the compliant circuits. The escapes that remain there are the DRL faults that the
+measurements do not see, as the testability analysis anticipated; no threshold can recover a
+fault that leaves no trace. The guard band on the regression does not provide a usable operating
+point: reaching \SI{1}{\percent} of escapes rejects more than \SI{90}{\percent} of the compliant
+circuits in both designs.
+
+Telling the classifier which electrode type is connected does not help (\SI{8.3}{\percent} of
+false rejects at the same escape target on \cA). The variation that matters is between subjects,
+not between materials.
+
+No single set of measurements is sufficient. With the escape target, the pulse response alone
+(C3) gives \SI{44}{\percent} of false rejects on \cA, and each of the other sets alone gives more
+than \SI{75}{\percent}.
+
+\subsection{Functional Against Percentage Severity}
+\label{sec:res-severity}
+
+\begin{table}[!t]
+\caption{Detector Trained on the Percentage Label or on the Functional Label, Scored Against
+Compliance. Mean of Three Repetitions, in Percent}
+\label{tab:severity}
+\centering
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Circuit & Trained on & Labeled bad & Escapes & False rejects \\
+\midrule
+A & Percentage & 88.7 & 7.9 & 36.8 \\
+ & Functional & 21.0 & 4.1 & 1.6 \\
+B & Percentage & 89.2 & 8.3 & 36.5 \\
+ & Functional & 30.2 & 7.6 & 2.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:severity} compares the two definitions of a fault. A detector trained to recognize
+that a component is out of tolerance rejects \SI{37}{\percent} of the circuits that comply with
+the standard, in both designs. Trained on compliance, the same model rejects \SI{1.6}{\percent}
+and \SI{2.2}{\percent}, and it also has fewer escapes. The false rejects of the percentage-trained
+detector are dominated by parametric faults that are real but harmless. The escape rate of the
+functional detector is lower here than in Table~\ref{tab:decision} because this experiment
+weights the classes, which moves the operating point.
+
+\subsection{Location}
+\label{sec:res-location}
+
+\begin{table}[!t]
+\caption{Location of the Cause on Non-Compliant Cases: Macro F1 (Mean of Three Repetitions)}
+\label{tab:location}
+\centering
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{By ambiguity group} & \multicolumn{2}{c}{By component} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+Model & A & B & A & B \\
+\midrule
+$k$-nearest neighbors & 0.83 & 0.70 & 0.67 & 0.55 \\
+Random forest & 0.86 & 0.76 & 0.74 & 0.61 \\
+Support vector machine & 0.86 & 0.71 & 0.69 & 0.53 \\
+Gradient boosting & 0.87 & 0.74 & 0.73 & 0.59 \\
+Multilayer perceptron & 0.81 & 0.71 & 0.66 & 0.53 \\
+Convolutional network$^{\mathrm{a}}$ & 0.56 & 0.32 & -- & -- \\
+\bottomrule
+\multicolumn{5}{@{}l}{\footnotesize $^{\mathrm{a}}$On the sampled pulse response only.}
+\end{tabular}
+\end{table}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{recall_by_component}
+\caption{Recall of each component by the best component-level model (random forest) on
+non-compliant cases. Hatched bars are members of the ambiguity groups predicted from the
+sensitivities of the nominal circuit; a bracket joins the members of each group.}
+\label{fig:recall}
+\end{figure}
+
+There are \num{13364} non-compliant cases of \cA\ over 23 components and \num{20033} of \cB\ over
+29. Table~\ref{tab:location} gives the macro F1 of each model. At the level of the a priori
+ambiguity groups the best models reach 0.87 on \cA\ and 0.76 on \cB; with the random forest the
+classification accuracy is 95 and \SI{94}{\percent}, and the true group is among the three most probable in
+99.9 and \SI{99.4}{\percent} of the cases. At component level the macro F1 falls to 0.74 and
+0.61.
+
+Fig.~\ref{fig:recall} shows where the component-level errors are. In \cA\ they concentrate in the
+predicted groups: the two halves of the gain resistor (R5, R6), the two resistors of the low-pass
+filter (R13, R14) and, to a lesser degree, the gain-stage and reference resistors. The recall of a
+component decreases with the number of components that the testability analysis predicted it
+could be mistaken for (Spearman $\rho=-0.42$, $p=0.045$ for \cA; $\rho=-0.51$, $p=0.005$ for
+\cB). In \cB\ the nine resistors of the gain group are all located with a recall between 29 and
+\SI{64}{\percent}.
+
+Two components of \cA\ outside the predicted groups are also located poorly: the bypass capacitor
+of the reference (C8), which the analysis of simulated faults, though not the sensitivities,
+links to the reference divider, and the integrated amplifier (U1), whose non-compliant faults are
+gain errors indistinguishable from those of its gain resistors. The convolutional network on the raw pulse response is clearly below
+the tabular models that use all the measurements.
+
+\subsection{Electrode or Circuit}
+\label{sec:res-origin}
+
+\begin{table}[!t]
+\caption{Origin Classification on the Test Part of One Repetition (Random Forest, Main Feature
+Set)}
+\label{tab:origin}
+\centering
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+ & & \multicolumn{3}{c}{Predicted} & \\
+\cmidrule(lr){3-5}
+Circuit & True & None & Circuit & Electrode & Recall \\
+\midrule
+A & None & \num{14314} & 63 & 60 & \SI{99.2}{\percent} \\
+ & Circuit & 189 & \num{3649} & 25 & \SI{94.5}{\percent} \\
+ & Electrode & 269 & 15 & 496 & \SI{63.6}{\percent} \\
+\addlinespace
+B & None & \num{13029} & 136 & 68 & \SI{98.5}{\percent} \\
+ & Circuit & 445 & \num{5417} & 45 & \SI{91.7}{\percent} \\
+ & Electrode & 278 & 25 & 477 & \SI{61.2}{\percent} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:origin} shows the three-class result; the macro F1 over three repetitions is 0.89
+for \cA\ and 0.87 for \cB. A case with nothing to act on is recognized in \SI{99}{\percent} of
+the cases and a non-compliant circuit in 94 and \SI{92}{\percent}. Circuit faults are almost
+never taken for electrode problems.
+
+Electrode problems are recognized in only 64 and \SI{61}{\percent} of the cases, and the
+breakdown by type explains why. An open protection resistor is always recognized. A detached
+electrode is recognized in 75 and \SI{89}{\percent} of the cases. A degraded contact is
+recognized in half of the cases in \cA\ and in \SI{41}{\percent} in \cB, and otherwise passes as
+normal: a contact impedance five or twenty times higher than that of the same subject falls
+within what is measured on other subjects with healthy contacts. Without porous dry electrodes
+the recall of the electrode class rises to 76 and \SI{74}{\percent}.
+
+\subsection{Robustness}
+\label{sec:res-robustness}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{unseen_magnitudes}
+\caption{Location of the cause for parametric faults of magnitudes that were present in training
+or held out of it entirely, scored on the non-compliant cases of those magnitudes. The model is
+trained to name the component; the group bars count a prediction as correct when it falls in the
+ambiguity group of the true component.}
+\label{fig:unseen}
+\end{figure*}
+
+\subsubsection{Unseen magnitudes}
+The compliance decision generalizes to fault magnitudes that were not in the training data: its
+balanced accuracy on the held-out magnitudes falls by less than 2 points with respect to a model
+trained with every magnitude, except for \SI{50}{\percent} deviations on \cA\ (6 points). Component-level location does not (Fig.~\ref{fig:unseen}): the
+share of correctly located components falls from between 21 and \SI{70}{\percent} to between 2 and
+\SI{33}{\percent}. Within a group of components with parallel sensitivities the model can only
+tell the members apart by the size of the effect, that is, by memorizing the magnitudes it was
+shown. Counted at group level, the same predictions remain correct in 99 and \SI{95}{\percent} of
+the cases on \cA\ for held-out small and intermediate magnitudes and in \SI{84}{\percent} for
+large ones (96, 81 and \SI{79}{\percent} on \cB).
+
+\subsubsection{Noise, resolution and tolerances}
+Table~\ref{tab:robustness} gives the remaining results. When the models are trained at the same
+noise level and resolution at which they are used, the results barely change from 0.1 to
+\SI{10}{\milli\volt} of noise and from 8 to 16 bits. When they are trained at
+\SI{1}{\milli\volt} and used at \SI{10}{\milli\volt}, escapes on \cA\ rise from 4 to
+\SI{10}{\percent} and false rejects on \cB\ from 2 to \SI{19}{\percent}. A different tolerance
+distribution changes nothing. Looser components (\SI{2}{\percent} resistors and \SI{10}{\percent}
+capacitors) raise escapes in both circuits; group-level location is unaffected in \cA\ and
+degrades strongly in \cB.
+
+\begin{table}[!t]
+\caption{Robustness of the Compliance Decision (Class-Weighted Classifier) and of Group-Level
+Location. Mean of Three Repetitions}
+\label{tab:robustness}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.40\columnwidth}cccccc@{}}
+\toprule
+ & \multicolumn{3}{c}{\cA} & \multicolumn{3}{c}{\cB} \\
+\cmidrule(lr){2-4}\cmidrule(l){5-7}
+Condition & Esc. & F.r. & F1 & Esc. & F.r. & F1 \\
+\midrule
+Default (\SI{1}{\milli\volt}, 12 bits) & 4.1 & 1.7 & 0.88 & 7.6 & 2.2 & 0.77 \\
+\SI{10}{\milli\volt} noise, matched training & 4.2 & 1.6 & 0.86 & 7.8 & 2.2 & 0.75 \\
+\SI{10}{\milli\volt} noise, trained at \SI{1}{\milli\volt} & 9.7 & 1.2 & 0.79 & 6.6 & 18.8 & 0.71 \\
+8 bits, matched training & 3.9 & 1.6 & 0.88 & 7.5 & 2.2 & 0.76 \\
+8 bits, trained at 12 bits & 7.0 & 1.2 & 0.87 & 7.2 & 4.2 & 0.75 \\
+Truncated Gaussian tolerances & 3.8 & 1.6 & 0.89 & 7.4 & 2.4 & 0.77 \\
+\SI{2}{\percent} resistors, \SI{10}{\percent} capacitors & 7.1 & 1.9 & 0.87 & 11.4 & 2.9 & 0.45 \\
+\bottomrule
+\multicolumn{7}{@{}p{0.97\columnwidth}@{}}{\footnotesize Esc.: escapes (\%). F.r.: false rejects
+(\%). F1: macro F1 of the location by ambiguity group. The last two rows are scored on
+separately generated datasets.}
+\end{tabular}
+\end{table}
+
+\subsubsection{Common-mode tone}
+Raising the amplitude of the common-mode tone from 0.1 to \SI{1}{\volt}, or making it ten times
+longer, does not make the faults of the DRL stage detectable: about half of the non-compliant
+cases of that stage escape whatever the setting (51 to \SI{45}{\percent} in \cA, 53 to
+\SI{55}{\percent} in \cB). The limitation is not one of signal-to-noise ratio; a different
+measurement is needed.
+
+\subsection{Minimal Set of Measurements}
+\label{sec:res-minimal}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{cost_performance}
+\caption{Score on the test part as self-test measurements are added one at a time by greedy
+selection on the validation part, against the accumulated duration of the self-test. One line
+per repetition. Dashed lines are the score with all the measurements.}
+\label{fig:cost}
+\end{figure*}
+
+Fig.~\ref{fig:cost} shows the score as measurements are added; the candidates are the 15 actions
+of Table~\ref{tab:measurements} and the dc reading of the DRL output. The calibration pulse is
+always selected first. For the compliance decision on \cA, three measurements taking \SI{3}{\second}
+(the pulse, one lead-off tone and the differential tone at \SI{150}{\hertz}) are within one point
+of the complete self-test of \SI{97}{\second}, in the three repetitions. \cB\ needs a fourth, the
+dc reading of the DRL output, which is the measurement that sees its DRL faults. For location on
+\cA, the pulse, the \SI{150}{\hertz} tone and the dc reading of the instrumentation-amplifier
+output (\SI{2}{\second}) reach the score of the complete set in two of the three repetitions; \cB\
+needs five or six measurements. The \SI{0.05}{\hertz} tones, which account for 80 of the
+\SI{97}{\second}, are never among the first three measurements selected.

@@ -1,0 +1,325 @@
+\section{Methods}
+\label{sec:methods}
+
+The study is a simulation campaign followed by a set of experiments on its results. Every case is
+one realization of a front-end: its components drawn within manufacturing tolerances, at most one
+injected fault, and three electrodes drawn from a population. Two simulations are run per case.
+The first takes the measurements that the instrument could take on itself, with the patient's
+electrodes connected. The second measures the specifications of the standard, with the test
+networks that the standard prescribes. The first gives the features; the second gives the labels.
+
+\subsection{Circuits}
+\label{sec:circuits}
+
+Both circuits are single-lead front-ends (lead~I, left arm minus right arm) with the same signal
+chain: series protection and radio-frequency filtering at the inputs, bias resistors, an
+instrumentation amplifier, a first-order high-pass filter, a gain stage, a second-order
+Sallen-Key low-pass filter and a driven-right-leg (DRL) integrator. Table~\ref{tab:circuits}
+summarizes them.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{schematic_integrated}
+\caption{\cA: integrated instrumentation amplifier with its discrete network, on a single
+\SI{3.3}{\volt} supply. $V_\mathrm{cal}$, $V_\mathrm{cmt}$ and $I_\mathrm{lo}$ are the internal
+self-test sources; nets with the same name are connected. The electrode model at the lower right
+is placed between the body and each of the three leads.}
+\label{fig:schematic}
+\end{figure*}
+
+\cA\ (Fig.~\ref{fig:schematic}) is the object of the study. It is built around a Texas
+Instruments INA333~\cite{ina333} on a single \SI{3.3}{\volt} supply with a buffered mid-supply
+reference. The values of the discrete network follow from the standard. The first-stage gain is
+4.03, so that a $\pm$\SI{300}{\milli\volt} electrode offset stays within the output swing. The
+high-pass corner is \SI{0.041}{\hertz} (\SI{1}{\micro\farad}, \SI{3.9}{\mega\ohm}), as required
+by the impulse-response test of the standard, which a \SI{0.5}{\hertz} corner does not pass. The low-pass
+filter is a Butterworth response at \SI{185}{\hertz}, which leaves the response at
+\SI{150}{\hertz} at 0.83 of mid-band. The bias resistors are \SI{10}{\mega\ohm}, the DRL
+integrator has unity gain at \SI{1.6}{\kilo\hertz}, and a \SI{100}{\kilo\ohm} resistor limits the
+current into the right-leg electrode. The gain-setting resistor is split in two halves whose
+midpoint senses the common-mode voltage.
+
+\cB\ replaces the integrated amplifier by three operational amplifiers and seven resistors on
+$\pm$\SI{5}{\volt} supplies, keeps the same filters and uses a first-stage gain of 10.36. It has
+the resistor symmetries that Chen \emph{et al.}~\cite{chen2025} identify in benchmark circuits
+and stands for the circuits of the diagnosis literature. Its schematic is in the repository.
+
+\begin{table}[!t]
+\caption{The Two Circuits}
+\label{tab:circuits}
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & \cA & \cB \\
+\midrule
+Instrumentation amplifier & INA333 & three op-amps \\
+Supply & \SI{3.3}{\volt} & $\pm$\SI{5}{\volt} \\
+Gain (first stage / total) & 4.03 / 278 & 10.36 / 414 \\
+Resistors / capacitors with faults & 16 / 8 & 20 / 6 \\
+Discrete op-amps & 5 & 6 \\
+Converter range & 0 to \SI{3.3}{\volt} & $\pm$\SI{2.5}{\volt} \\
+Fault conditions & 293 & 307 \\
+Simulated cases & \num{63600} & \num{66400} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The circuits are simulated with ngspice~\cite{ngspice}, driven from Python. The INA333 is
+represented by a behavioral model built from its data sheet: the three-amplifier structure with
+its internal resistors, a single-pole response, white input noise, output clamping, and an error
+source for the offset and for a finite common-mode rejection ratio (CMRR) of random sign. The
+discrete operational amplifiers use a single-pole model with offset, noise and clamping. In a
+bench of the amplifier alone, the behavioral model and the manufacturer's macromodel agree in
+gain (4.03) and in CMRR at \SI{50}{\hertz} (\SI{102}{\decibel} against \SI{100}{\decibel}). The
+macromodel was not used for the campaign: it has fixed typical parameters, which allows neither
+Monte Carlo variation of the block nor faults in it, and in the complete circuit it was about
+200 times slower and its operating point did not converge to a valid solution.
+
+Healthy variation is modeled by drawing every resistor uniformly within $\pm$\SI{1}{\percent} of
+its nominal value and every capacitor within $\pm$\SI{5}{\percent}; amplifier offsets, open-loop
+gains and the CMRR of the INA333 are drawn within their data-sheet ranges.
+
+\subsection{Electrodes and Patient}
+\label{sec:electrodes}
+
+Each electrode is a half-cell potential in series with a resistance $R_s$ and with a parallel
+pair $R_d \parallel C_d$. Half of the cases use gel electrodes and half dry ones. A gel electrode
+takes the network that the standard places in series with each lead, \SI{51}{\kilo\ohm} in
+parallel with \SI{47}{\nano\farad}, with $R_s=\SI{300}{\ohm}$. A dry electrode takes one of six
+materials (conductive polymer, conductive fabric with and without a membrane, stainless steel,
+silver, platinum), with the median $R_s$, $R_d$ and $C_d$ fitted by Joutsen \emph{et
+al.}~\cite{joutsen2024} converted from an electrode pair to a single electrode; the median $R_d$
+ranges from \SI{61}{\kilo\ohm} for stainless steel to \SI{4.5}{\mega\ohm} for fabric. For each
+dry case one of the six subjects of their open data is drawn, and that subject's contact
+resistance replaces the median $R_d$, with $C_d$ scaled to keep the time constant. Between
+subjects it spans \SI{0.26}{\mega\ohm} to \SI{2.8}{\mega\ohm} for the polymer, \SI{0.66}{\mega\ohm}
+to \SI{68}{\mega\ohm} for the fabrics, and \SI{0.6}{\kilo\ohm} to \SI{0.58}{\mega\ohm} for the
+solid metals. Finally, every parameter of each of the three electrodes is drawn log-uniformly
+between half and twice its value, so that imbalance between electrodes is part of the normal
+variation. The polymer and the two fabrics are referred to below as porous dry electrodes.
+
+The patient is a body node coupled to the mains and to earth, with the amplifier common isolated
+from earth, as in the model of Winter and Webster~\cite{winter1983}.
+
+Two of these choices are assumptions rather than measurements: the gel electrode has no spread
+between subjects, and the factor of two between the electrodes of one case is not taken from
+data.
+
+\subsection{Specifications and Functional Labels}
+\label{sec:specs}
+
+The front-end is treated as part of a diagnostic electrocardiograph. Eleven quantities are
+evaluated for every case following clause 201.12.4 of IEC~60601-2-25~\cite{iec60601225}, with the
+limits of Table~\ref{tab:specs}. They are measured with the test networks of the standard at the
+inputs, not with the patient's electrodes: the CMRR test applies \SI{10}{\volt} rms at 50 and
+\SI{60}{\hertz} with \SI{51}{\kilo\ohm} in parallel with \SI{47}{\nano\farad} in each lead in
+turn, without and with a $\pm$\SI{300}{\milli\volt} offset; the input-impedance test places
+\SI{620}{\kilo\ohm} in parallel with \SI{4.7}{\nano\farad} in series with a lead. A case is
+\emph{compliant} when the eleven quantities are within their limits. Both nominal circuits and
+500 healthy Monte Carlo realizations of each are compliant.
+
+\begin{table}[!t]
+\caption{Specifications Evaluated for Every Case (IEC~60601-2-25, Clause 201.12.4) and Values of
+the Nominal Circuits}
+\label{tab:specs}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Specification & Limit & \cA & \cB \\
+\midrule
+Gain error at \SI{10}{\hertz} & $\le$ \SI{5}{\percent} & 0 & 0 \\
+Response, \SIrange{0.67}{40}{\hertz}, deviation & $\le$ \SI{10}{\percent} & \SI{0.3}{\percent} & \SI{0.3}{\percent} \\
+Response, \SIrange{40}{150}{\hertz}, minimum & $\ge$ 0.70 & 0.83 & 0.83 \\
+Response, \SIrange{40}{500}{\hertz}, maximum & $\le$ 1.10 & 1.00 & 1.00 \\
+Baseline shift after impulse$^{\mathrm{a}}$ & $\le$ \SI{100}{\micro\volt} & \SI{75}{\micro\volt} & \SI{75}{\micro\volt} \\
+Baseline slope after impulse$^{\mathrm{a}}$ & $\le$ \SI{300}{\micro\volt\per\second} & \SI{18}{\micro\volt\per\second} & \SI{18}{\micro\volt\per\second} \\
+Common-mode rejection & $\ge$ \SI{89}{\decibel} & \SI{122}{\decibel} & \SI{111}{\decibel} \\
+Noise, peak to valley$^{\mathrm{b}}$ & $\le$ \SI{30}{\micro\volt} & \SI{5.4}{\micro\volt} & \SI{3.4}{\micro\volt} \\
+Loss with \SI{620}{\kilo\ohm} $\parallel$ \SI{4.7}{\nano\farad} & $\le$ \SI{20}{\percent} & \SI{3.0}{\percent} & \SI{3.0}{\percent} \\
+Gain change with $\pm$\SI{300}{\milli\volt} offset & $\le$ \SI{5}{\percent} & 0 & 0 \\
+Input range & $\ge$ \SI{5}{\milli\volt} & \SI{5.8}{\milli\volt} & \SI{6.0}{\milli\volt} \\
+\bottomrule
+\multicolumn{4}{@{}l}{\footnotesize $^{\mathrm{a}}$\SI{3}{\milli\volt}, \SI{100}{\milli\second}
+impulse; referred to the input.}\\
+\multicolumn{4}{@{}l}{\footnotesize $^{\mathrm{b}}$Referred to the input, \SIrange{0.05}{150}{\hertz};
+taken as 6.6 times the rms value.}
+\end{tabular}
+\end{table}
+
+Each case carries three levels of labels. The \emph{functional} label is compliance, together
+with the list of violated specifications and their continuous values. The \emph{location} label
+is the component that was altered. The \emph{origin} label is none, circuit or electrode. Because
+the specifications belong to the circuit, an electrode fault leaves the case compliant; it
+changes the self-test measurements, and the origin label records why. For comparison, the
+\emph{percentage} label of the diagnosis literature is also kept: a case is faulty when a
+component was altered, whatever the effect.
+
+\subsection{Fault Model}
+
+One fault at most is injected per case (Table~\ref{tab:faults}). Parametric faults include small
+deviations on purpose, since deviations of 5 or \SI{10}{\percent} are where functional and
+percentage severity disagree most. Each fault condition is simulated 200 times and the healthy
+circuit \num{5000} times, with independent draws of tolerances and electrodes.
+
+\begin{table}[!t]
+\caption{Fault Model}
+\label{tab:faults}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.27\columnwidth}p{0.53\columnwidth}cc@{}}
+\toprule
+Fault & Model & \multicolumn{2}{c}{Conditions} \\
+ & & A & B \\
+\midrule
+Open, short & \SI{1}{\giga\ohm} in series; \SI{1}{\ohm} in parallel & 48 & 52 \\
+Parametric & $\pm$5, $\pm$10, $\pm$20, $\pm$\SI{50}{\percent} of nominal & 192 & 208 \\
+Capacitor degradation & $-$\SI{20}{\percent} with \SI{10}{\ohm} in series; $-$\SI{50}{\percent} with \SI{100}{\ohm} & 16 & 12 \\
+Op-amp & offset of 20 or \SI{50}{\milli\volt}; open-loop gain divided by 100 or 1000 & 20 & 24 \\
+Integrated amplifier & offset of 5 or \SI{20}{\milli\volt}; CMRR of 70 or \SI{50}{\decibel}; gain error of $-$5 or $-$\SI{20}{\percent} & 6 & -- \\
+Electrode detached & \SI{1}{\giga\ohm} in series (each of three electrodes) & 3 & 3 \\
+Electrode degraded & $R_d$ multiplied and $C_d$ divided by 5 or 20 (each electrode, and both input electrodes) & 8 & 8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Self-Test Measurements}
+\label{sec:measurements}
+
+The instrument is assumed to have three internal test sources (Fig.~\ref{fig:schematic}): a
+floating source $V_\mathrm{cal}$ in series with one lead, which gives the \SI{1}{\milli\volt}
+calibration pulse and a differential tone; a source $V_\mathrm{cmt}$ at the reference input of
+the DRL amplifier, which the body follows and which therefore gives a common-mode tone; and a
+differential current $I_\mathrm{lo}$ into the inputs, as in ac lead-off detection, whose response
+is proportional to the contact impedance. They are modeled as ideal sources; how the instrument
+generates them is outside the scope of the study. All responses are read at the output of the
+chain by the converter of the instrument, with the patient's electrodes connected and no ECG or
+mains signal present.
+
+Table~\ref{tab:measurements} lists the four sets of measurements. The main feature set has 26
+features. The reading of the instrumentation-amplifier output needs one spare converter channel;
+a reading of the DRL output would need another and is only used where stated.
+
+\begin{table}[!t]
+\caption{Self-Test Measurements}
+\label{tab:measurements}
+\centering
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lp{0.58\columnwidth}cc@{}}
+\toprule
+Set & Measurement & Features & Time \\
+\midrule
+C1 & Dc level at the output and at the instrumentation-amplifier output & 2 & \SI{0.13}{\second} \\
+C2 & Differential and common-mode tones at 0.05, 0.5, 10, 50 and \SI{150}{\hertz}: gain, phase and CMRR estimate & 15 & \SI{94}{\second} \\
+C3 & Response to the \SI{1}{\milli\volt}, \SI{200}{\milli\second} calibration pulse: baseline, peak, final value, undershoot, tail, rise time, area & 7 & \SI{1}{\second} \\
+C4 & Response to a \SI{1}{\nano\ampere} lead-off current at 10 and \SI{100}{\hertz} & 2 & \SI{2}{\second} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The simulation results are noise-free. A measurement model is applied when the features are
+built, so that it can be varied without new simulations: Gaussian noise of \SI{1}{\milli\volt}
+rms at the converter input, a 12-bit converter sampling at \SI{1}{\kilo\hertz}, clipping to its
+range, dc readings averaged over 64 samples and tones estimated from \num{1000} samples or two
+periods, whichever is longer. Referred to the input of \cA, one code is \SI{2.9}{\micro\volt}. The
+two \SI{0.05}{\hertz} tones account for 80 of the \SI{97}{\second} that the complete self-test
+takes.
+
+\subsection{Testability Analysis}
+\label{sec:testability}
+
+What the measurements can distinguish is analyzed before any model is trained, in two ways.
+
+The first uses only the nominal circuit. The sensitivity of feature $f_i$ to component $p_j$ is
+expressed in units of the spread of that feature over healthy circuits,
+\begin{equation}
+z_{ij} = \frac{0.01\,p_j}{\sigma_i}\,\frac{\partial f_i}{\partial p_j},
+\label{eq:sensitivity}
+\end{equation}
+so that $z_{ij}=1$ means that a \SI{1}{\percent} deviation of the component moves the feature by
+one standard deviation of the healthy population. Two components whose columns of
+$Z=[z_{ij}]$ are parallel act on the measurements in the same way, and a deviation of one can be
+mimicked by a deviation of the other. Components whose columns have an absolute cosine of at
+least 0.99 are joined in an \emph{a priori ambiguity group}; the remaining components, the
+amplifiers and the electrodes are groups of one. The number of singular values $s$ of $Z$ with
+$10\,s\ge 3$ is reported as the testability rank: the number of independent directions along
+which a \SI{10}{\percent} deviation moves the features by at least three healthy standard
+deviations.
+
+The second uses the simulated faults. Each fault condition is summarized by the median and the
+interquartile range of every feature, which, unlike the mean and the standard deviation, are not
+distorted by the heavy tails of faults that saturate the output. Two conditions are called
+indistinguishable when no single feature separates their medians by three pooled spreads. This
+criterion is univariate and therefore conservative; it gives a map of which non-compliant
+conditions look healthy and which components can be mistaken for which, against which the trained
+models are later compared.
+
+\subsection{Decision, Location and Origin Models}
+\label{sec:models}
+
+\subsubsection{Compliance decision}
+Four methods decide pass or fail from the same features. The \emph{limit test} is the classical
+reference: a case fails if any feature falls outside the interval that contains the healthy
+circuits, with the intervals widened so that jointly they keep \SI{99}{\percent} of them. The
+\emph{specification regression} follows alternate test: one gradient-boosting regressor per
+specification, and a case fails if any predicted value is beyond its limit. The
+\emph{classifier} is a gradient-boosting classifier of compliance at its default threshold. The
+\emph{classifier with an escape target} lowers the decision threshold to the value that, on the
+validation data, lets through \SI{1}{\percent} of the non-compliant cases; the regression has an
+equivalent guard band. The quality of the decision is given by the escape rate, the fraction of
+non-compliant circuits that are accepted, and by the false-reject rate, the fraction of compliant
+circuits that are rejected.
+
+\subsubsection{Functional against percentage severity}
+The same classifier, with classes weighted inversely to their frequency, is trained once on the
+functional label and once on the percentage label. Both are scored against compliance, which is
+what matters to the user.
+
+\subsubsection{Location}
+On the non-compliant cases, five classifiers ($k$-nearest neighbors, random forest, support
+vector machine, gradient boosting and a multilayer perceptron) are trained to name the a priori
+ambiguity group and, separately, the component. A one-dimensional convolutional network on the
+\num{1000} samples of the pulse response is included for comparison.
+
+\subsubsection{Origin}
+A three-class problem is defined by what has to be done: \emph{none} (a healthy circuit, or a
+deviation that leaves it compliant), \emph{circuit} (out of specification) and \emph{electrode}
+(an electrode detached or degraded). An open protection resistor in series with a lead is
+electrically the same as a detached electrode and calls for the same action, so it belongs to the
+electrode class.
+
+The models are those of scikit-learn~\cite{pedregosa2011} with small hyperparameter grids; the
+purpose is to establish what the measurements allow, not to optimize a model.
+
+\subsection{Evaluation Protocol}
+
+\subsubsection{Terminology}
+In the vocabulary of metrology~\cite{vim,gum}, the eleven specifications are the measurands, and
+the self-test estimates them indirectly, or estimates directly whether they are within their
+limits. The pass/fail decision is therefore a conformity assessment in the sense of JCGM~106
+\cite{jcgm106}. The escape rate is the probability that a non-conforming circuit is accepted,
+and the false-reject rate the probability that a conforming one is rejected; they correspond to
+the consumer's and the producer's risk, conditioned on the true state of the circuit and
+evaluated over the simulated population, whose proportion of non-conforming cases is set by the
+fault model and is not that of instruments in service. The escape target acts as a guard band on
+the acceptance limit. The quality of the indirect estimate of each specification is reported as
+the root-mean-square error of its prediction relative to the limit. Accuracy, balanced accuracy,
+recall and F1 are used only as figures of merit of classifiers and are not statements about
+measurement accuracy.
+
+\subsubsection{Splits and intervals}
+Every experiment is repeated on three random splits into training, validation and test parts of
+52.5, 17.5 and \SI{30}{\percent}, stratified so that every fault condition appears in the three
+parts. Hyperparameters, thresholds and guard bands are chosen on the validation part only.
+Results are means over the three repetitions; intervals are \SI{95}{\percent} confidence
+intervals of the mean (Student's $t$). Unless stated otherwise, results use all electrode types
+and the main feature set.
+
+Robustness is examined in four ways: holding all parametric faults of some magnitudes out of
+training; sweeping the converter noise from 0.1 to \SI{10}{\milli\volt} rms and its resolution
+from 8 to 16 bits, with models trained at the swept setting or at the default one; scoring the
+models on two additional datasets generated with other seeds, one with truncated Gaussian
+tolerances and one with \SI{2}{\percent} resistors and \SI{10}{\percent} capacitors; and raising
+the amplitude and duration of the common-mode tone. The smallest useful set of measurements is
+found by greedy forward selection over the self-test actions (one dc reading, one tone or the
+pulse), adding at each step the action that most improves the validation score.

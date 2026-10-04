@@ -1,0 +1,94 @@
+\section{Introduction}
+\IEEEPARstart{A}{n} electrocardiograph that has drifted out of specification still produces a
+trace. A gain error of ten percent, a low-frequency corner that has moved, or a degraded
+common-mode rejection do not stop the instrument; they change the amplitudes and the ST segment
+that a clinician or an interpretation algorithm will read. The performance that the instrument
+must keep is laid down in IEC~60601-2-25~\cite{iec60601225}, but conformance is verified with
+external test equipment, at type testing and at periodic maintenance. Between those moments the
+instrument has no way of knowing whether its analog front-end still complies, and the deviations
+that appear in use, through aging and environment, are precisely those that the user lacks the
+equipment to detect~\cite{chen2025}.
+
+What the instrument can do on its own is limited. Integrated front-ends detect a detached
+electrode and provide internal test signals to verify the signal chain at power-up; these signals
+are applied inside the device and, by the manufacturer's own account, are not intended for
+compliance testing~\cite{ads1298}. The calibration pulse lets an operator see a gross gain error.
+Neither covers the discrete
+network that surrounds the integrated amplifier (protection and bias resistors, the gain-setting
+resistor, the coupling and anti-aliasing filters, the driven-right-leg network, the reference
+divider), and neither says whether a deviation matters.
+
+Two research communities have worked on parts of this problem without meeting. The analog test
+community checks conformance to specifications, because no generally applicable fault model
+exists~\cite{cheng2010}. Since the late 1990s, alternate test has replaced direct specification
+measurements by cheap signatures from which pass or fail is inferred, with the explicit aim of
+reducing the probability of accepting a bad circuit or rejecting a good
+one~\cite{cheng2010,variyam1998spec,variyam1998synth,voorakaranam2007}. This work targets
+production test of integrated circuits. The fault-diagnosis community, in contrast, asks which
+component has failed and answers with machine-learning classifiers trained on simulated
+faults~\cite{dieste2021,dieste2024,dieste2025,yang2020,rajpal2026}. There, a fault is defined by
+how far a component deviates from its nominal value, typically by a fixed percentage, and the
+circuits are a small set of textbook filters. Whether the deviation takes the circuit out of
+specification is not part of the question.
+
+For a medical instrument both questions matter, and a third one appears. The instrument must know
+whether it is still fit for use, what has to be repaired if it is not, and whether the problem is
+in the circuit at all, because the skin-electrode interface is part of the signal path and varies
+by orders of magnitude between subjects and electrode types~\cite{joutsen2024}. A fault definition
+based on percentage deviation is of little use here: in the front-ends studied in this paper, more
+than \SI{93}{\percent} of the circuits with one component \SI{5}{\percent} off nominal, and more
+than half of those with one component \SI{50}{\percent} off, still meet every requirement of the
+standard.
+
+The choice of circuit is a further issue. Chen \emph{et al.}~\cite{chen2025} have shown that the
+component symmetries of the usual benchmark circuits make the responses to different faults
+indistinguishable and limit generalization, even when the faulty components are chosen by
+sensitivity analysis, and they redesign the training circuit to remove the symmetries. An
+instrument designer cannot do that: the circuit is given. What can be done is to find out in
+advance which components are indistinguishable and report the diagnosis at that level.
+
+This paper studies in-service self-test of a single-lead ECG front-end by simulation. The
+measurements are restricted to what the instrument can acquire with its own converter and
+internal test signals. Two circuits are considered: a realistic one, built around an integrated
+instrumentation amplifier with a discrete network (\cA), and a discrete three-op-amp amplifier
+that stands for the circuits of the diagnosis literature (\cB). The contributions are as follows.
+\begin{enumerate}
+\item A two-level self-test scheme that joins specification verification and fault location for a
+discrete front-end network. The first level predicts compliance with the requirements of
+IEC~60601-2-25 from the self-test measurements; the second locates the cause when the circuit
+does not comply. On \cA\ a classifier reaches \SI{0.9}{\percent} of escapes at \SI{7.8}{\percent}
+of false rejects, where a limit test on the same measurements gives \SI{22.5}{\percent} and
+\SI{20.0}{\percent}.
+\item A systematic simulation study, with manufacturing tolerances, of a biopotential front-end
+with a realistic architecture: about \num{130000} Monte Carlo cases over two circuits, with hard,
+parametric, capacitor-degradation, amplifier and electrode faults, each labeled with the value of
+eleven clinical specifications.
+\item The separation of electrode problems from circuit faults, using the electrode network of
+the standard for gel electrodes and parameters measured on dry
+electrodes~\cite{iec60601225,joutsen2024}. Non-compliant circuits are recognized in
+\SI{94}{\percent} of the cases and electrode problems in \SI{64}{\percent}; the limit is physical,
+since a degraded contact on one subject looks like a normal contact on another, and an open
+protection resistor is electrically identical to a detached electrode.
+\item A quantified comparison of functional and percentage severity. Training the same detector on
+``a component is out of tolerance'' instead of ``the circuit is out of specification'' raises
+false rejects from \SI{1.6}{\percent} to \SI{37}{\percent}.
+\item An open dataset and code for fault diagnosis of a biomedical front-end, with compliance
+labels and the continuous specification values.
+\end{enumerate}
+
+Two further results follow from the study. The groups of components that cannot be told apart can
+be obtained from the sensitivities of the nominal circuit, before any fault is simulated, and
+they explain why component-level diagnosis does not generalize to unseen fault magnitudes while
+group-level diagnosis does. And the realistic circuit behaves differently from the benchmark-like
+one: it has fewer faults that are both non-compliant and invisible, and it is located more
+accurately.
+
+The study is based on simulation only, for two reasons. Labeling a case requires the eleven
+tests of the standard on a test bench, and the campaign covers some 600 fault conditions with
+200 realizations each, most of them requiring a component to be altered; neither is feasible on
+hardware at that scale. And the questions asked here (which faults break compliance, which can
+be seen, which can be told apart) have to be answered before a bench experiment can be designed
+to test a meaningful subset. Validation on hardware is the next step and is outside this paper.
+Section~\ref{sec:related} reviews related work, Section~\ref{sec:methods} describes the circuits,
+the fault and measurement models and the evaluation protocol, Section~\ref{sec:results} gives the
+results, and Sections~\ref{sec:discussion} and~\ref{sec:conclusion} discuss them and conclude.

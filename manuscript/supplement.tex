@@ -1,0 +1,83 @@
+% Supplementary material: tables and figures that the main text summarizes.
+% Build: latexmk -pdf supplement.tex
+\documentclass[lettersize,journal]{IEEEtran}
+\usepackage{amsmath,amsfonts}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{textcomp}
+\usepackage{stfloats}
+\usepackage{graphicx}
+\usepackage{siunitx}
+\graphicspath{{figures/}}
+\sisetup{range-phrase={--}, range-units=single, per-mode=symbol}
+\newcommand{\cA}{Circuit~A}
+\newcommand{\cB}{Circuit~B}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\begin{document}
+
+\title{Supplementary Material\\ Specification-Aware Fault Diagnosis of ECG Analog Front-Ends:
+Bridging Alternate Test and Machine-Learning Diagnosis for In-Service Self-Test}
+\author{Telmo~Miguel-Medina}
+\maketitle
+
+This document gives the tables and figures behind the results that the main text reports in
+summary. Circuit~A is the front-end built around an integrated instrumentation amplifier and
+Circuit~B the discrete three-op-amp front-end. Every number comes from the open dataset and code
+of the article.
+
+\section{Circuits and Measurements}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{schematic_reference}
+\caption{\cB: discrete three-op-amp instrumentation amplifier on $\pm$\SI{5}{\volt} supplies, with
+the same filters, gain stage and driven-right-leg integrator as \cA.}
+\end{figure*}
+
+\input{tables/circuits}
+\input{tables/measurements}
+
+\section{Functional Against Percentage Severity}
+\input{tables/severity}
+
+\section{Location and Origin}
+\input{tables/location}
+\input{tables/origin}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{recall_by_component}
+\caption{Recall of each component by the best component-level model (random forest) on
+non-compliant cases. Hatched bars are members of the ambiguity groups predicted from the
+sensitivities of the nominal circuit; a bracket joins the members of each group.}
+\end{figure}
+
+\section{Robustness and Minimal Set of Measurements}
+\input{tables/robustness}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{operating_points_full}
+\caption{Operating points of the four decision methods with \SI{95}{\percent} confidence
+intervals over three repetitions, for all electrode types (filled markers) and without porous dry
+electrodes (open markers).}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{unseen_magnitudes_full}
+\caption{Location of the cause for parametric faults of magnitudes present in training or held
+out of it, scored on the non-compliant cases of those magnitudes.}
+\end{figure*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=\textwidth]{cost_performance_full}
+\caption{Score on the test part as self-test measurements are added one at a time by greedy
+selection, for the compliance decision and for component location. One line per repetition;
+dashed lines are the score with all the measurements.}
+\end{figure*}
+
+\end{document}

@@ -2,7 +2,7 @@ PY ?= .venv/bin/python
 DATA ?= data/v2
 CIRCUITS = integrated reference
 
-.PHONY: setup test lint smoke dataset report e1 testability models models-quick models-sensitivity shift-datasets robustness all-experiments
+.PHONY: setup test lint smoke dataset report e1 testability models models-quick models-sensitivity shift-datasets robustness all-experiments paper
 
 setup:
 	python3 -m venv .venv
@@ -85,3 +85,9 @@ robustness:
 
 # Every experiment of phases 5 to 7 on existing datasets (several hours)
 all-experiments: testability models models-sensitivity robustness
+
+# Figures of the manuscript from results/, then the PDF (needs a LaTeX installation)
+paper:
+	$(PY) scripts/draw_schematics.py
+	$(PY) scripts/paper_figures.py
+	cd manuscript && latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex supplement.tex

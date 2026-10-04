@@ -1,0 +1,28 @@
+\begin{table}[!t]
+\caption{Specifications Evaluated for Every Case (IEC~60601-2-25, Clause 201.12.4) and Values of
+the Nominal Circuits}
+\label{tab:specs}
+\centering
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Specification & Limit & \cA & \cB \\
+\midrule
+Gain error at \SI{10}{\hertz} & $\le$ \SI{5}{\percent} & 0 & 0 \\
+Response, \SIrange{0.67}{40}{\hertz}, deviation & $\le$ \SI{10}{\percent} & \SI{0.3}{\percent} & \SI{0.3}{\percent} \\
+Response, \SIrange{40}{150}{\hertz}, minimum & $\ge$ 0.70 & 0.83 & 0.83 \\
+Response, \SIrange{40}{500}{\hertz}, maximum & $\le$ 1.10 & 1.00 & 1.00 \\
+Baseline shift after impulse$^{\mathrm{a}}$ & $\le$ \SI{100}{\micro\volt} & \SI{75}{\micro\volt} & \SI{75}{\micro\volt} \\
+Baseline slope after impulse$^{\mathrm{a}}$ & $\le$ \SI{300}{\micro\volt\per\second} & \SI{18}{\micro\volt\per\second} & \SI{18}{\micro\volt\per\second} \\
+Common-mode rejection & $\ge$ \SI{89}{\decibel} & \SI{122}{\decibel} & \SI{111}{\decibel} \\
+Noise, peak to valley$^{\mathrm{b}}$ & $\le$ \SI{30}{\micro\volt} & \SI{5.4}{\micro\volt} & \SI{3.4}{\micro\volt} \\
+Loss with \SI{620}{\kilo\ohm} $\parallel$ \SI{4.7}{\nano\farad} & $\le$ \SI{20}{\percent} & \SI{3.0}{\percent} & \SI{3.0}{\percent} \\
+Gain change with $\pm$\SI{300}{\milli\volt} offset & $\le$ \SI{5}{\percent} & 0 & 0 \\
+Input range & $\ge$ \SI{5}{\milli\volt} & \SI{5.8}{\milli\volt} & \SI{6.0}{\milli\volt} \\
+\bottomrule
+\multicolumn{4}{@{}l}{\footnotesize $^{\mathrm{a}}$\SI{3}{\milli\volt}, \SI{100}{\milli\second}
+impulse; referred to the input.}\\
+\multicolumn{4}{@{}l}{\footnotesize $^{\mathrm{b}}$Referred to the input, \SIrange{0.05}{150}{\hertz};
+taken as 6.6 times the rms value.}
+\end{tabular}
+\end{table}

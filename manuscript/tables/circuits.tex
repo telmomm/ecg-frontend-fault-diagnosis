@@ -1,0 +1,19 @@
+\begin{table}[!t]
+\caption{The Two Circuits}
+\label{tab:circuits}
+\centering
+\begin{tabular}{@{}lcc@{}}
+\toprule
+ & \cA & \cB \\
+\midrule
+Instrumentation amplifier & INA333 & three op-amps \\
+Supply & \SI{3.3}{\volt} & $\pm$\SI{5}{\volt} \\
+Gain (first stage / total) & 4.03 / 278 & 10.36 / 414 \\
+Resistors / capacitors with faults & 16 / 8 & 20 / 6 \\
+Discrete op-amps & 5 & 6 \\
+Converter range & 0 to \SI{3.3}{\volt} & $\pm$\SI{2.5}{\volt} \\
+Fault conditions & 293 & 307 \\
+Simulated cases & \num{63600} & \num{66400} \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,26 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper has examined whether an ECG front-end can determine in service, with measurements it
+takes on itself, whether it still complies with IEC~60601-2-25, what has failed if it does not,
+and whether the cause is in the circuit or in the electrodes. On a realistic design built around
+an integrated instrumentation amplifier, a classifier on 26 self-test features reaches
+\SI{0.9}{\percent} of escapes at \SI{7.8}{\percent} of false rejects, far from what a limit test
+achieves, and three measurements taking three seconds come within one point of the balanced
+accuracy of the complete self-test of \SI{97}{\second}. Defining a
+fault by its effect on the specifications, as alternate test does, instead of by the deviation of
+a component, as machine-learning diagnosis usually does, reduces false rejects from
+\SI{37}{\percent} to about \SI{2}{\percent}. The cause is located with a macro F1 of 0.87 when
+the answer is an ambiguity group obtained from the sensitivities of the nominal circuit, and that
+answer, unlike the component, remains valid for fault magnitudes absent from training.
+Non-compliant circuits are separated from electrode problems reliably; degraded electrode
+contacts are not, because they fall within the variation between subjects.
+
+The same analysis on a discrete three-op-amp front-end gives a worse picture, with structural
+escapes and larger ambiguity groups, which shows that conclusions drawn on benchmark-like
+circuits do not carry over to the circuits used in instruments.
+
+The next step is validation on hardware: building the circuit, inducing a subset of the faults
+and scoring the models trained on simulation against measured data. Multiple faults, a
+per-patient reference for the electrode contact and the extension to other biopotential
+front-ends are left for future work.

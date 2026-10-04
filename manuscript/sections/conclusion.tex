@@ -1,0 +1,17 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+An ECG front-end built around an integrated instrumentation amplifier can decide in service, from
+26 features it measures on itself, whether it still complies with IEC~60601-2-25, with
+\SI{0.9}{\percent} of escapes at \SI{7.8}{\percent} of false rejects; three measurements taking
+three seconds come within one point of the balanced accuracy of the complete self-test. Defining
+a fault by its effect on the specifications, as alternate test does, instead of by the deviation
+of a component reduces false rejects from \SI{37}{\percent} to about \SI{2}{\percent}. The cause
+is located with a macro F1 of 0.87 when the answer is an ambiguity group obtained from the
+sensitivities of the nominal circuit, and that answer, unlike the component, remains valid for
+fault magnitudes absent from training. Non-compliant circuits are separated from electrode
+problems; degraded contacts are not, because they fall within the variation between subjects. A
+discrete three-op-amp front-end gives a worse picture, so conclusions drawn on benchmark-like
+circuits do not carry over to the circuits used in instruments. The next step is validation on
+hardware; multiple faults and a per-patient reference for the electrode contact are left for
+future work.

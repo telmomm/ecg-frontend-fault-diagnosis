@@ -93,4 +93,5 @@ jobs. Models, values and sources are documented in [circuit.md](circuit.md).
 
 ## Distribution
 
-To be completed at publication: version, DOI (Zenodo), licence and citation.
+Archived on Zenodo: <https://doi.org/10.5281/zenodo.23134950>. To be completed at publication:
+version, licence and citation.

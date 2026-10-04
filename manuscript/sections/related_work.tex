@@ -1,0 +1,55 @@
+\section{Related Work}
+\label{sec:related}
+
+\subsubsection*{Machine-learning diagnosis}
+Typical studies simulate hard or soft faults under component tolerances, extract features from
+node voltages or from the frequency or time response, and train a classifier. Dieste-Velasco has
+addressed hard faults in transistor amplifier stages with a neural network on a few accessible
+measurements, after grouping the faults that those measurements cannot tell
+apart~\cite{dieste2021}; hard faults with a fuzzy inference system~\cite{dieste2024}; and soft
+faults in a Sallen-Key band-pass filter with seven classifiers on six voltages, reaching a
+classification accuracy of \SI{97.9}{\percent} over fifteen classes~\cite{dieste2025}. Deep
+models on raw responses~\cite{yang2020} and explainable classifiers on frequency-response
+features~\cite{rajpal2026} are also used. Three aspects matter here. The Sallen-Key band-pass and
+the four-op-amp biquad high-pass filters recur as
+benchmarks~\cite{dieste2025,chen2025,zhang2026,srimani2022}, and their symmetries produce
+overlapping fault responses~\cite{chen2025}. Generalization across fault severities is an open
+problem: transferring from a \SI{50}{\percent} to a \SI{25}{\percent} deviation with diffusion
+augmentation and domain adaptation reaches \SI{71}{\percent} on thirteen classes, a figure its
+authors present as an upper bound~\cite{zhang2026}. And testability theory defines ambiguity
+groups as sets of components whose faults cannot be distinguished from the available
+measurements~\cite{starzyk2000}. In all this work a fault is a deviation of a component, usually
+25 or \SI{50}{\percent} against tolerances of 5 to \SI{10}{\percent}; whether the circuit still
+meets its requirements is not considered.
+
+\subsubsection*{Specification-based and alternate test}
+Alternate test predicts the specifications, or directly the pass/fail outcome, from signatures
+that are cheap to measure; the acceptance region in signature space comes from Monte Carlo
+simulation and statistical classification, or a regression from signatures to specifications is
+calibrated on measured devices~\cite{cheng2010,voorakaranam2007}. Variyam and Chatterjee
+formulated test generation as the reduction of the probability of misclassifying a bad circuit as
+good and vice versa~\cite{variyam1998spec,variyam1998synth}, and redundant specification tests
+can be removed by statistical learning~\cite{biswas2005}. Alternate test has also served
+diagnosis: signatures from built-in sensors are related by statistical learning to the source of
+a failure in integrated RF transceivers~\cite{cheng2010}. Our work follows that principle with a
+different object and setting: the components of a discrete network instead of the blocks of an
+integrated circuit, a self-test in service with the instrument's own converter instead of
+production test, the requirements of a clinical standard instead of data-sheet specifications,
+and a confounder, the electrode, with no counterpart in integrated-circuit test.
+
+\subsubsection*{Biomedical equipment and electrodes}
+Work on faults in ECG acquisition operates on the recorded signal and detects that the data are
+bad~\cite{agarwal2022,khezripour2026,adams2026}, not which part of the circuit has failed nor
+whether the instrument still complies. At circuit level we have found two precedents: faults of a
+simulated electroencephalograph circuit classified with wavelet features and a neural network,
+without a description of circuit or faults~\cite{gao2025}, and board-level diagnosis of a therapy
+device from port signals and symptoms~\cite{liu2021}. Neither considers tolerances,
+specifications or electrodes. The standard represents the skin-electrode impedance by
+\SI{51}{\kilo\ohm} in parallel with \SI{47}{\nano\farad}~\cite{iec60601225}, whereas dry
+electrodes range from about \SI{0.1}{\mega\ohm} to almost \SI{9}{\mega\ohm}, with differences of
+one to three orders of magnitude between subjects~\cite{joutsen2024}. Such an impedance forms a
+divider with the input network, so a healthy instrument on a high-impedance electrode can
+resemble a faulty one on a good electrode, and any imbalance converts common-mode interference
+into a differential signal that the driven-right-leg circuit reduces but does not
+cancel~\cite{winter1983}. To our knowledge no previous work separates electrode degradation from
+a fault of the circuit behind it.
