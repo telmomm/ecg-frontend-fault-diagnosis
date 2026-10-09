@@ -17,8 +17,8 @@ import pandas as pd
 from spicefault import Dataset, Experiment, FaultCampaign
 
 from . import __version__
-from .circuit import load_circuit, population
 from .faults import TAGS, fault_catalogue
+from .population import load_circuit, population
 from .selftest import pulse_waveform, service
 from .specs import bench, specifications, with_nominal_gain
 

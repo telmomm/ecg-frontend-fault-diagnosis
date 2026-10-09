@@ -37,8 +37,8 @@ from spicefault.reliability import (
 )
 
 from _common import SERIES, load_measured, parser, results_dir, save_json, set_style
-from ecgfd.circuit import front_end, load_circuit
 from ecgfd.features import feature_sets, pulse_measurements
+from ecgfd.population import front_end, load_circuit
 from ecgfd.selftest import service
 
 # sequential single-hue ramp for magnitudes

@@ -6,10 +6,10 @@ import argparse
 import os
 from collections import Counter
 
-from .circuit import CIRCUITS, load_circuit
 from .config import DEFAULT_CONFIG, load_config
 from .dataset import experiment, generate, relabel
 from .faults import fault_universe
+from .population import CIRCUITS, load_circuit
 from .specs import specifications, with_nominal_gain
 
 

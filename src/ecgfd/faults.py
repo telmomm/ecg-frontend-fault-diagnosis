@@ -23,7 +23,7 @@ from spicefault.faults import (
     short_rule,
 )
 
-from .circuit import ELECTRODES, front_end
+from .population import ELECTRODES, front_end
 
 TAGS = ("component", "origin")
 

@@ -17,9 +17,9 @@ import pandas as pd
 from spicefault import SimulationConfig, Simulator
 
 from _common import SERIES, parser, results_dir, save_json, set_style
-from ecgfd.circuit import load_circuit
 from ecgfd.config import load_config
 from ecgfd.dataset import experiment
+from ecgfd.population import load_circuit
 from ecgfd.selftest import AC_DIFF, OUT, pulse_waveform
 from ecgfd.signals import synthetic_ecg
 from ecgfd.specs import SPEC_NAMES, compliance, specifications, with_nominal_gain

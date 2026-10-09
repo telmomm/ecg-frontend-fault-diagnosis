@@ -20,8 +20,8 @@ import pandas as pd
 from spicefault import SimulationConfig, Simulator
 from spicefault.measurements import interp_response
 
-from ecgfd.circuit import load_circuit
 from ecgfd.config import REPO_ROOT, load_config
+from ecgfd.population import load_circuit
 
 VENDOR_LIB = REPO_ROOT / "models" / "INA333.LIB"
 OUT = ("v(out)",)

@@ -43,7 +43,7 @@ from spicefault import (
 )
 from spicefault.measurements import interp_response
 
-from .circuit import ELECTRODES
+from .population import ELECTRODES
 from .selftest import OUT, ac_sweep
 
 # specification -> (which bound is limited, key of the limit under `specs:` in the config)

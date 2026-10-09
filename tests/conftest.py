@@ -1,8 +1,8 @@
 import pytest
 from spicefault.simulation.ngspice import ngspice_path
 
-from ecgfd.circuit import CIRCUITS
 from ecgfd.config import DEFAULT_CONFIG, load_config
+from ecgfd.population import CIRCUITS
 
 
 @pytest.fixture(scope="session", params=CIRCUITS)

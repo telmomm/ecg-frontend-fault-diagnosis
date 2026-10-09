@@ -14,13 +14,13 @@ import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 
-from ecgfd.circuit import CIRCUITS  # noqa: E402
 from ecgfd.config import DEFAULT_CONFIG, REPO_ROOT  # noqa: E402
 from ecgfd.dataset import load_cases  # noqa: E402
 from ecgfd.evaluation import localisation_report  # noqa: E402
 from ecgfd.features import feature_sets  # noqa: E402
 from ecgfd.measurement import apply_measurement_model  # noqa: E402
 from ecgfd.models.classical import classifiers  # noqa: E402
+from ecgfd.population import CIRCUITS  # noqa: E402
 
 # Categorical colours, assigned in this fixed order
 SERIES = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100")

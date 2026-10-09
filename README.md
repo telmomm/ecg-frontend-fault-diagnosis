@@ -79,7 +79,7 @@ diagnosability.
 |---|---|
 | `circuits/` | Nominal netlist of each circuit, with the behavioural amplifier models |
 | `configs/` | Study configuration: tolerances, electrodes, specification limits, fault levels, measurements, dataset size |
-| `src/ecgfd/circuit.py` | Loading of the circuits and normal variation of healthy circuits and electrodes |
+| `src/ecgfd/population.py` | Loads the netlists of `circuits/`; normal variation of healthy circuits and electrodes |
 | `src/ecgfd/faults.py` | Fault catalogue, as rules over the components (`ecgfd faults --coverage`) |
 | `src/ecgfd/selftest.py` | Circuit in service: DC, AC, lead-off current and calibration-pulse measurements |
 | `src/ecgfd/specs.py` | Circuit on the IEC 60601-2-25 test bench: specifications and compliance labels |

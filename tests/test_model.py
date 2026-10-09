@@ -9,10 +9,10 @@ import pandas as pd
 import pytest
 from spicefault.experiments import sample_stream
 
-from ecgfd.circuit import ELECTRODES, front_end, load_circuit, population
 from ecgfd.config import REPO_ROOT, load_config
 from ecgfd.evaluation import centroid_separability, escape_rate, false_reject_rate
 from ecgfd.faults import fault_catalogue, fault_universe
+from ecgfd.population import ELECTRODES, front_end, load_circuit, population
 from ecgfd.specs import SPEC_NAMES, compliance, specifications
 
 

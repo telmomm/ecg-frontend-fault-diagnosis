@@ -25,10 +25,10 @@ import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 from _common import SERIES, load_measured, output_name, set_style
-from ecgfd.circuit import CIRCUITS
 from ecgfd.config import REPO_ROOT
 from ecgfd.evaluation import centroid_separability
 from ecgfd.features import feature_sets
+from ecgfd.population import CIRCUITS
 
 
 def comparison_figure(table: pd.DataFrame, path) -> None:

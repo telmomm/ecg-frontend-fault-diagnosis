@@ -1,16 +1,10 @@
-"""The circuits under study and the normal variation of their healthy population.
+"""The healthy population: normal variation of the circuits and of their electrodes.
 
-Two single-lead ECG front-ends (lead I = LA - RA) sharing the same signal chain
-(input network, instrumentation amplifier, driven right leg, 0.04 Hz high-pass,
-gain stage, Sallen-Key low-pass). Their nominal netlists are in `circuits/`:
-
-- `integrated` (main): INA333 instrumentation amplifier (behavioural model built
-  from its data sheet) surrounded by a discrete network, single 3.3 V supply with
-  a mid-supply reference;
-- `reference`: discrete three-op-amp instrumentation amplifier on +-5 V, comparable
-  with the benchmark circuits of the fault-diagnosis literature.
-
-See docs/circuit.md for the design rationale.
+The circuits themselves are the netlists in `circuits/` (`integrated.cir`, the main
+one, and `reference.cir`; see docs/circuit.md). This module loads them, says which of
+their components make the front-end, and defines how healthy units differ from the
+nominal netlist: component tolerances, amplifier offsets and gains, and the
+skin-electrode interfaces. The spreads are in the configuration.
 """
 
 from __future__ import annotations
