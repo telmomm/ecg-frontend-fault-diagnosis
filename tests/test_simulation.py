@@ -1,7 +1,6 @@
 """End-to-end tests against ngspice: nominal behaviour, specifications, faults, dataset."""
 
 import numpy as np
-import pandas as pd
 import pytest
 from spicefault import Dataset
 
@@ -9,7 +8,7 @@ from ecgfd.dataset import experiment, generate, load_cases, relabel
 from ecgfd.features import feature_sets
 from ecgfd.measurement import apply_measurement_model
 from ecgfd.selftest import pulse_waveform
-from ecgfd.specs import compliance
+from ecgfd.specs import specifications
 
 pytestmark = pytest.mark.ngspice
 
@@ -29,7 +28,8 @@ def nominal(study):
 
 
 def compliant(observed: dict, cfg: dict) -> bool:
-    return bool(compliance(pd.DataFrame([observed["bench"].measurements]), cfg)["compliant"][0])
+    specs = observed["bench"].measurements
+    return all(spec.met(specs[spec.name]) for spec in specifications(cfg))
 
 
 def test_nominal_circuit_meets_every_specification(nominal, cfg):

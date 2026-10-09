@@ -5,7 +5,6 @@ ambiguity and sensitivity analysis) is tested there.
 """
 
 import numpy as np
-import pandas as pd
 import pytest
 from spicefault.experiments import sample_stream
 
@@ -13,7 +12,7 @@ from ecgfd.config import REPO_ROOT, load_config
 from ecgfd.evaluation import centroid_separability, escape_rate, false_reject_rate
 from ecgfd.faults import fault_catalogue, fault_universe
 from ecgfd.population import ELECTRODES, front_end, load_circuit, population
-from ecgfd.specs import SPEC_NAMES, compliance, specifications
+from ecgfd.specs import SPEC_NAMES, specifications
 
 
 @pytest.fixture(scope="module")
@@ -117,15 +116,17 @@ def test_faults_are_injected_into_a_copy(circuit, cfg):
     assert circuit.to_netlist() == text
 
 
-def test_compliance_labels(cfg):
-    limits = {s.name: s.maximum if s.minimum is None else s.minimum for s in specifications(cfg)}
-    assert tuple(limits) == SPEC_NAMES
-    # a value exactly at its limit passes; one that could not be computed does not
-    bad = dict(limits, spec_resp_min_hf=limits["spec_resp_min_hf"] - 0.1, spec_noise_uvpp=np.nan)
-    labels = compliance(pd.DataFrame([limits, bad]), cfg)
-    assert labels["compliant"].tolist() == [True, False]
-    failed = labels.columns[~labels.iloc[1]].tolist()
-    assert failed == ["ok_spec_resp_min_hf", "ok_spec_noise_uvpp", "compliant"]
+def test_specifications_take_their_limits_from_the_configuration(cfg):
+    specs = specifications(cfg)
+    assert tuple(s.name for s in specs) == SPEC_NAMES
+    limits = {s.name: s.maximum if s.minimum is None else s.minimum for s in specs}
+    assert limits["spec_cmrr_db"] == cfg["specs"]["cmrr_min_db"]
+    # a value exactly at its limit passes; beyond it, or not computed, it does not
+    assert all(s.met(limits[s.name]) for s in specs)
+    by_name = {s.name: s for s in specs}
+    assert not by_name["spec_resp_min_hf"].met(limits["spec_resp_min_hf"] - 0.1)
+    assert not by_name["spec_noise_uvpp"].met(limits["spec_noise_uvpp"] + 0.1)
+    assert not by_name["spec_noise_uvpp"].met(np.nan)
 
 
 def test_decision_rates():

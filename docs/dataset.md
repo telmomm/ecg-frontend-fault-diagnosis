@@ -19,7 +19,7 @@ One folder per circuit (`integrated`, `reference`), each a `spicefault` dataset:
 | File | Content |
 |---|---|
 | `samples.parquet` | two rows per simulated case, one per operating condition |
-| `waveforms.npy` | float32 array `[rows, 1000]`, row-aligned with the table: in the `service` rows, the response to the 1 mV calibration pulse, 1 s at 1 kHz; the `bench` rows hold NaN |
+| `waveforms.npy` | float32 array `[cases, 1000]`: response to the 1 mV calibration pulse, 1 s at 1 kHz. Only the `service` rows store it (`waveform_conditions` in the manifest); `spicefault.Dataset.waveforms` reads it aligned with the table, with NaN in the `bench` rows |
 | `circuit.cir` | nominal netlist of the circuit |
 | `metadata.json` | definition of the campaign: seed, faults, variations, conditions, analyses, measurements |
 | `manifest.json` | fingerprints of the files, software versions, counts, the specification limits and the history of the labels; under `source`, the git commit of this repository, and under `user`, the study configuration |

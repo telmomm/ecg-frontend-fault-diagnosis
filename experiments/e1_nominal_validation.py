@@ -1,7 +1,7 @@
 """E1 - Validation of the nominal circuit and of its spread without faults.
 
 Checks every specification for the nominal circuit and for a Monte Carlo
-population of healthy circuits (yield), and draws the frequency response, the
+population of healthy circuits (yield with its interval), and draws the frequency response, the
 calibration-pulse response and a synthetic ECG through the chain.
 
     python experiments/e1_nominal_validation.py [--circuit reference] [--n-mc 200]
@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from spicefault import SimulationConfig, Simulator
+from spicefault.statistics import yield_report
 
 from _common import SERIES, parser, results_dir, save_json, set_style
 from ecgfd.config import load_config
@@ -22,11 +23,7 @@ from ecgfd.dataset import experiment
 from ecgfd.population import load_circuit
 from ecgfd.selftest import AC_DIFF, OUT, pulse_waveform
 from ecgfd.signals import synthetic_ecg
-from ecgfd.specs import SPEC_NAMES, compliance, specifications, with_nominal_gain
-
-
-def short(name: str) -> str:
-    return name.removeprefix("spec_")
+from ecgfd.specs import SPEC_NAMES, specifications, with_nominal_gain
 
 
 def ecg_response(circuit, t: np.ndarray, v: np.ndarray):
@@ -60,35 +57,30 @@ def main() -> None:
     samples = experiment(cfg, healthy_only=True, healthy_samples=args.n_mc).run(args.jobs).samples
     service, bench = samples[0::2], samples[1::2]  # two conditions per drawn circuit
     mc = pd.DataFrame([s.measurements for s in bench])[list(SPEC_NAMES)]
-    mc = pd.concat([mc, compliance(mc, cfg)], axis=1)
-    mc["electrode_type"] = [s.labels["electrode_type"] for s in bench]
+    simulated = np.array([a.result.ok and b.result.ok for a, b in zip(service, bench, strict=True)])
     mags = np.array([np.abs(s.result.plot(AC_DIFF)["v(out)"]) for s in service])
     pulses = np.array([waveform(s.result) for s in service])
-    mc.to_csv(out / "monte_carlo.csv", index=False)
-
-    limits = specifications(cfg)
-    summary = pd.DataFrame(
-        {
-            "limit": [f"max {s.maximum:g}" if s.minimum is None else f"min {s.minimum:g}"
-                      for s in limits],
-            "nominal": nominal[list(SPEC_NAMES)].iloc[0].to_numpy(),
-            "mc_min": mc[list(SPEC_NAMES)].min().to_numpy(),
-            "mc_median": mc[list(SPEC_NAMES)].median().to_numpy(),
-            "mc_max": mc[list(SPEC_NAMES)].max().to_numpy(),
-            "mc_pass_rate": mc[[s.column for s in limits]].mean().to_numpy(),
-        },
-        index=[short(name) for name in SPEC_NAMES],
+    mc.assign(electrode_type=[s.labels["electrode_type"] for s in bench]).to_csv(
+        out / "monte_carlo.csv", index=False
     )
+
+    # yield per specification and overall, with its interval and the margin to each limit
+    limits = specifications(cfg)
+    summary = yield_report(mc, limits, simulated)
+    summary.insert(0, "nominal", [*nominal[list(SPEC_NAMES)].iloc[0], np.nan])
     summary.to_csv(out / "summary.csv")
+    overall = summary.loc["all"]
     verdict = {
         "circuit": cfg["circuit"],
         "nominal_gain": cfg["specs"]["nominal_gain"],
-        "nominal_compliant": bool(compliance(nominal, cfg)["compliant"].iloc[0]),
+        "nominal_compliant": bool(yield_report(nominal, limits).loc["all", "passed"]),
         "n_mc": args.n_mc,
-        "mc_yield": float(mc["compliant"].mean()),
+        "mc_yield": float(overall["yield"]),
+        "mc_yield_interval": [float(overall["ci_low"]), float(overall["ci_high"])],
     }
     save_json(verdict, out / "verdict.json")
-    print(summary.to_string(float_format=lambda x: f"{x:.4g}"))
+    shown = ["nominal", "minimum", "mean", "maximum", "yield", "ci_low", "ci_high", "margin_sigma"]
+    print(summary[shown].to_string(float_format=lambda x: f"{x:.4g}"))
     print(verdict)
 
     # --- figures (in service: patient electrodes of both families) ---------------

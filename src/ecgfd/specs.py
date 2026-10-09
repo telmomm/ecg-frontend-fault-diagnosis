@@ -31,7 +31,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import numpy as np
-import pandas as pd
 from spicefault import (
     Circuit,
     Experiment,
@@ -246,13 +245,3 @@ def specifications(cfg: dict) -> list[Specification]:
         Specification(name, **{bound: float(cfg["specs"][key])})
         for name, (bound, key) in SPECS.items()
     ]
-
-
-def compliance(specs: pd.DataFrame, cfg: dict) -> pd.DataFrame:
-    """Which specifications each row of `spec_<name>` values meets (`ok_spec_<name>`), and
-    `compliant` if it meets all. A value that cannot be computed (NaN) is a violation.
-
-    For circuits simulated in memory; a dataset is labelled by `spicefault.Dataset.label`.
-    """
-    ok = pd.DataFrame({s.column: s.met(specs[s.name]) for s in specifications(cfg)})
-    return ok.assign(compliant=ok.all(axis=1))
