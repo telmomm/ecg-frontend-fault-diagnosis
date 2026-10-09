@@ -1,35 +1,24 @@
-"""Tests that do not need ngspice: config, sampling, faults, labels, measurement model, metrics."""
+"""Tests of the study definition that do not need ngspice.
+
+What `spicefault` provides (netlist editing, distributions, campaign, splits,
+ambiguity and sensitivity analysis) is tested there.
+"""
 
 import numpy as np
 import pandas as pd
 import pytest
+from spicefault.experiments import sample_stream
 
-from ecgfd.ambiguity import (
-    ambiguity_groups,
-    collinear_groups,
-    component_groups,
-    confusable_components,
-    envelope_detection,
-    fault_dictionary,
-    separability,
-)
-from ecgfd.ambiguity import (
-    testability_rank as visible_rank,  # alias: pytest would collect test*
-)
-from ecgfd.circuit import build_netlist, get_circuit, nominal_instance
+from ecgfd.circuit import ELECTRODES, front_end, load_circuit, population
 from ecgfd.config import REPO_ROOT, load_config
-from ecgfd.dataset import build_tasks, sample_rng
-from ecgfd.evaluation import (
-    centroid_separability,
-    escape_rate,
-    false_reject_rate,
-    magnitude_split,
-    replica_split,
-)
-from ecgfd.faults import HEALTHY, Fault, fault_catalogue
-from ecgfd.measurement import quantise
-from ecgfd.sampling import passive_tolerance, sample_instance
+from ecgfd.evaluation import centroid_separability, escape_rate, false_reject_rate
+from ecgfd.faults import fault_catalogue
 from ecgfd.specs import SPEC_NAMES, compliance, spec_limits
+
+
+@pytest.fixture(scope="module")
+def circuit(cfg):
+    return load_circuit(cfg)
 
 
 def test_config_selects_circuit_and_extends(cfg):
@@ -41,90 +30,94 @@ def test_config_selects_circuit_and_extends(cfg):
         load_config(circuit="no-such-circuit")
 
 
-def test_circuit_size_matches_study_scope(cfg):
-    circuit = get_circuit(cfg)
-    assert 15 <= len(circuit.passives) <= 30
-    assert len({p.name for p in circuit.passives}) == len(circuit.passives)
-    assert bool(circuit.inas) == (circuit.name == "integrated")
+def test_circuit_size_matches_study_scope(circuit):
+    passives, opamps, inas = front_end(circuit)
+    assert 15 <= len(passives) <= 30
+    assert 5 <= len(opamps) <= 6
+    assert bool(inas) == (circuit.name == "integrated")
+    # nothing in the netlist escapes the library, apart from the inside of the models
+    assert all("subcircuit element" in problem for problem in circuit.check())
 
 
-def test_sampling_is_reproducible_and_within_tolerance(cfg):
-    a = sample_instance(cfg, sample_rng(cfg, 3, 7))
-    b = sample_instance(cfg, sample_rng(cfg, 3, 7))
-    c = sample_instance(cfg, sample_rng(cfg, 3, 8))
+def test_population_is_reproducible_and_within_tolerance(circuit, cfg):
+    healthy = population(circuit, cfg)
+
+    def draw(*key):
+        return healthy.sample(sample_stream(cfg["seed"], *key), circuit.netlist())
+
+    a, b, c = draw(3, 7), draw(3, 7), draw(3, 8)
     assert a == b
-    assert a != c
-    for p in get_circuit(cfg).passives:
-        assert abs(a.passives[p.name] / p.value - 1.0) <= passive_tolerance(p.name, cfg)
+    assert a.values != c.values
+    nominal = circuit.parameters()
+    for name in front_end(circuit)[0]:
+        tolerance = cfg["tolerances"]["resistor" if name.startswith("R") else "capacitor"]
+        assert abs(a.values[name, "value"] / nominal[name, "value"] - 1.0) <= tolerance
 
 
-def test_truncnorm_respects_tolerance(cfg):
-    cfg = {**cfg, "tolerances": {**cfg["tolerances"], "distribution": "truncnorm"}}
-    inst = sample_instance(cfg, np.random.default_rng(0))
-    for p in get_circuit(cfg).passives:
-        assert abs(inst.passives[p.name] / p.value - 1.0) <= passive_tolerance(p.name, cfg)
-
-
-def test_electrodes_are_drawn_around_their_type(cfg):
+def test_electrodes_are_drawn_around_their_type(circuit, cfg):
     families, spread = cfg["electrodes"]["families"], cfg["electrodes"]["spread"]
+    healthy = population(circuit, cfg)
     seen = set()
     for seed in range(60):
-        inst = sample_instance(cfg, np.random.default_rng(seed))
-        seen.add(inst.electrode_kind)
-        medians = families[inst.electrode_type][inst.electrode_kind]
-        for electrode in inst.electrodes.values():
+        drawn = healthy.sample(np.random.default_rng(seed), circuit.netlist())
+        seen.add(drawn.labels["electrode_kind"])
+        medians = families[drawn.labels["electrode_type"]][drawn.labels["electrode_kind"]]
+        for name in ELECTRODES:
             for key, median in medians.items():
-                assert median / spread <= electrode[key] <= median * spread
+                value = drawn.values[f"{key.capitalize()}_{name}", "value"]
+                assert median / spread <= value <= median * spread
     assert seen == {kind for family in families.values() for kind in family}
 
 
-def test_catalogue_ids_are_unique(cfg):
-    faults = fault_catalogue(cfg)
-    assert len({f.id for f in faults}) == len(faults)
-    assert HEALTHY.id not in {f.id for f in faults}
-    assert {f.origin for f in faults} == {"circuit", "electrode"}
-    assert HEALTHY.origin == "none"
-    d = cfg["dataset"]
-    assert len(build_tasks(cfg)) == d["n_healthy"] + len(faults) * d["n_per_fault"]
+def test_catalogue_covers_circuit_and_electrodes(circuit, cfg):
+    faults = fault_catalogue(circuit, cfg)
+    ids = [fault.fault_id for fault in faults]
+    assert len(set(ids)) == len(ids) and "healthy" not in ids
+    assert {fault.tags["origin"] for fault in faults} == {"circuit", "electrode"}
+    passives, opamps, inas = front_end(circuit)
+    located = {fault.tags["component"] for fault in faults if fault.tags["origin"] == "circuit"}
+    assert located == {*passives, *(name[1:] for name in opamps + inas)}
 
 
-def test_fault_injection_leaves_original_untouched(cfg):
-    base = nominal_instance(cfg)
-    opened = Fault("open", "R7").apply(base, cfg)
-    assert base.series_r == {}
-    assert opened.series_r == {"R7": cfg["faults"]["r_open"]}
-    assert "Rser_R7" in build_netlist(opened, cfg, ["op"])
+def test_faults_are_injected_into_a_copy(circuit, cfg):
+    faults = {fault.fault_id: fault for fault in fault_catalogue(circuit, cfg)}
+    nominal = circuit.parameters()
+    text = circuit.to_netlist()
 
-    shifted = Fault("parametric", "C5", 0.2).apply(base, cfg)
-    assert np.isclose(shifted.passives["C5"], 1.2 * base.passives["C5"])
+    def injected(fault):
+        netlist = circuit.netlist()
+        fault.apply(netlist)
+        return netlist
 
-    degraded = Fault("cap_degradation", "C4", 0.5).apply(base, cfg)
-    assert np.isclose(degraded.passives["C4"], 0.5 * base.passives["C4"])
-    assert degraded.series_r["C4"] == 100.0
+    opened = injected(faults["R7:open"])
+    assert opened.value("Rser_R7") == cfg["faults"]["r_open"]
+    assert opened.nodes("R7")[1] == "R7_x"
+    shifted = injected(faults["C5:parametric:+0.2"])
+    assert np.isclose(shifted.value("C5"), 1.2 * nominal["C5", "value"])
+    degraded = injected(faults["C4:cap_degradation:+0.5"])
+    assert np.isclose(degraded.value("C4"), 0.5 * nominal["C4", "value"])
+    assert degraded.value("Rser_C4") == 100.0
 
-    both = Fault("electrode_high_z", "la+ra", 5.0).apply(base, cfg)
-    assert both.electrodes["la"]["rd"] == 5.0 * base.electrodes["la"]["rd"]
-    assert both.electrodes["rl"] == base.electrodes["rl"]
+    both = injected(
+        next(f for f in faults.values() if f.tags["component"] == "la+ra" and f.magnitude == 5)
+    )
+    for name in ("la", "ra"):
+        assert both.value(f"Rd_{name}") == 5.0 * nominal[f"Rd_{name}", "value"]
+        assert both.value(f"Cd_{name}") == nominal[f"Cd_{name}", "value"] / 5.0
+    assert both.value("Rd_rl") == nominal["Rd_rl", "value"]
+    assert circuit.to_netlist() == text
 
 
 def test_compliance_labels(cfg):
     limits = spec_limits(cfg)
     assert set(limits) == set(SPEC_NAMES)
     # a value exactly at its limit passes
-    at_limit = {name: limit for name, (_, limit) in limits.items()}
-    assert compliance(at_limit, cfg)["compliant"]
-
-    bad = dict(at_limit, resp_min_hf=limits["resp_min_hf"][1] - 0.1, noise_uvpp=float("nan"))
-    labels = compliance(bad, cfg)
-    assert not labels["compliant"]
-    assert labels["violated"] == "resp_min_hf,noise_uvpp"
-    assert labels["ok_gain_error"] and not labels["ok_resp_min_hf"]
-
-
-def test_quantise_clips_and_rounds():
-    adc = {"bits": 2, "vmin": -1.5, "vmax": 1.5}  # codes at -1.5, -0.5, 0.5, 1.5
-    v = quantise(np.array([-9.0, -0.4, 0.1, 9.0]), adc)
-    np.testing.assert_allclose(v, [-1.5, -0.5, 0.5, 1.5])
+    at_limit = {f"spec_{name}": limit for name, (_, limit) in limits.items()}
+    bad = dict(at_limit, spec_resp_min_hf=limits["resp_min_hf"][1] - 0.1, spec_noise_uvpp=np.nan)
+    labels = compliance(pd.DataFrame([at_limit, bad]), cfg)
+    assert labels["compliant"].tolist() == [True, False]
+    assert labels["violated"].tolist() == ["", "resp_min_hf,noise_uvpp"]
+    assert labels["ok_gain_error"].all() and not labels["ok_resp_min_hf"][1]
 
 
 def test_decision_rates():
@@ -141,77 +134,3 @@ def test_centroid_separability_grows_with_class_distance():
     near = noise + labels[:, None] * 0.5
     far = noise + labels[:, None] * 5.0
     assert centroid_separability(far, labels) > centroid_separability(near, labels)
-
-
-def _toy_labels() -> pd.DataFrame:
-    rows = [("healthy", "healthy", 0.0)] * 10
-    for level in (-0.2, -0.1, 0.1, 0.2):
-        rows += [(f"R1:parametric:{level:+g}", "parametric", level)] * 10
-    rows += [("R1:open", "open", 0.0)] * 10
-    return pd.DataFrame(rows, columns=["condition", "kind", "level"])
-
-
-def test_replica_split_is_a_partition_covering_every_condition():
-    df = _toy_labels()
-    train, test = replica_split(df, 0.3, seed=1)
-    assert sorted(np.concatenate([train, test])) == list(range(len(df)))
-    assert set(df.loc[test, "condition"]) == set(df["condition"])
-
-
-def test_magnitude_split_holds_out_whole_magnitudes():
-    df = _toy_labels()
-    train, test = magnitude_split(df, test_levels=[-0.2, 0.2], seed=1)
-    parametric = df[df["kind"] == "parametric"]
-    assert set(parametric.level[parametric.index.isin(train)]) == {-0.1, 0.1}
-    assert set(parametric.level[parametric.index.isin(test)]) == {-0.2, 0.2}
-    assert "R1:open" in set(df.loc[train, "condition"]) & set(df.loc[test, "condition"])
-
-
-def test_ambiguity_groups_merge_close_conditions():
-    names = ["healthy", "a", "b", "c"]
-    d = pd.DataFrame(
-        [[0, 1, 9, 9], [1, 0, 9, 9], [9, 9, 0, 9], [9, 9, 9, 0]], index=names, columns=names
-    )
-    assert ambiguity_groups(d, threshold=3.0) == [["healthy", "a"], ["b"], ["c"]]
-
-
-def test_confusable_components_are_not_transitive():
-    # A1 ~ B1 and B2 ~ C1, but A and C share nothing
-    names = ["A1", "B1", "B2", "C1"]
-    d = pd.DataFrame(9.0, index=names, columns=names)
-    for a, b in (("A1", "B1"), ("B2", "C1")):
-        d.loc[a, b] = d.loc[b, a] = 1.0
-    component_of = {"A1": "A", "B1": "B", "B2": "B", "C1": "C"}
-    assert confusable_components(d, component_of) == {"A": ["B"], "B": ["A", "C"], "C": ["B"]}
-    assert component_groups(d, component_of) == [["A", "B", "C"]]
-
-
-def test_small_deviation_testability():
-    # z per 1 %: A and B move the same feature in proportion, C another, D almost nothing
-    z = pd.DataFrame(
-        {"A": [1.0, 0.0], "B": [-2.0, 0.0], "C": [0.0, 0.5], "D": [0.01, 0.0]}, index=["f1", "f2"]
-    )
-    groups, insensitive = collinear_groups(z, deviation_pct=10.0, threshold=3.0)
-    assert insensitive == ["D"]
-    assert sorted(map(sorted, groups)) == [["A", "B"], ["C"]]
-    # two independent directions, both visible for a 10 % deviation
-    assert visible_rank(z, deviation_pct=10.0, threshold=3.0) == 2
-    assert visible_rank(z, deviation_pct=1.0, threshold=3.0) == 0
-
-
-def test_robust_dictionary_sees_a_saturating_fault():
-    """A few huge values must not hide that most cases of a fault moved far away."""
-    rng = np.random.default_rng(0)
-    healthy = 275 + rng.normal(0, 4, 500)
-    fault = np.r_[rng.normal(0.03, 0.02, 190), np.full(10, 1650.0)]  # mostly near zero
-    df = pd.DataFrame(
-        {
-            "condition": ["healthy"] * 500 + ["F"] * 200,
-            "kind": ["healthy"] * 500 + ["short"] * 200,
-            "g": np.r_[healthy, fault],
-        }
-    )
-    centre, spread = fault_dictionary(df, ["g"])
-    assert separability(centre, spread).loc["healthy", "F"] > 30
-    detected, false_alarm = envelope_detection(df, ["g"], coverage=0.99)
-    assert detected["F"] == 1.0 and false_alarm <= 0.02

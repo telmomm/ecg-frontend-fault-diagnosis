@@ -16,15 +16,14 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import spicefault.measurements
 
 from .features import add_derived, pulse_features
 
 
 def quantise(v: np.ndarray, adc: dict) -> np.ndarray:
     """Clip to the ADC range and round to the nearest code, returning volts."""
-    vmin, vmax = float(adc["vmin"]), float(adc["vmax"])
-    lsb = (vmax - vmin) / (2 ** int(adc["bits"]) - 1)
-    return vmin + np.round((np.clip(v, vmin, vmax) - vmin) / lsb) * lsb
+    return spicefault.measurements.quantise(v, adc["vmin"], adc["vmax"], adc["bits"])
 
 
 def apply_measurement_model(

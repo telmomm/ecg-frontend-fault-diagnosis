@@ -7,5 +7,7 @@ make smoke      # data/smoke/integrated and data/smoke/reference, quick check
 make dataset    # data/v1/integrated and data/v1/reference, full study
 ```
 
-Each folder holds `samples.parquet`, `waveforms.npy` and `manifest.json`
-(see `src/ecgfd/dataset.py`). Load it with `ecgfd.dataset.load_dataset`.
+Each folder is a `spicefault` dataset (`samples.parquet`, `waveforms.npy`,
+`circuit.cir`, `metadata.json`, `manifest.json`; see `docs/dataset.md`). Load it with
+`ecgfd.dataset.load_cases`, or with `spicefault.Dataset` to verify it and trace or
+reproduce a sample.

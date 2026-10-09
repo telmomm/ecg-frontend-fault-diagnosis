@@ -25,11 +25,10 @@ import pandas as pd
 from matplotlib.ticker import PercentFormatter
 
 from _common import SERIES, load_measured, output_name, set_style
+from ecgfd.circuit import CIRCUITS
 from ecgfd.config import REPO_ROOT
 from ecgfd.evaluation import centroid_separability
 from ecgfd.features import feature_sets
-
-CIRCUITS = ("integrated", "reference")
 
 
 def comparison_figure(table: pd.DataFrame, path) -> None:
@@ -92,7 +91,7 @@ def main() -> None:
 
         measured, _, cfg = load_measured(f"{args.data_dir}/{circuit}", args.electrode_kinds)
         nc = measured[~measured["compliant"].astype(bool)]
-        labels = nc["target"].to_numpy()
+        labels = nc["component"].to_numpy()
         for set_name, features in feature_sets(cfg).items():
             s = summary.loc[set_name]
             rows.append(

@@ -1,7 +1,7 @@
 """Draw the schematics of both circuits into docs/figures/.
 
-Component names and values are read from `ecgfd.circuit`, so the labels follow the
-simulated netlist; the placement of the symbols is fixed here. Check a drawing
+Component names and values are read from the netlists in `circuits/`, so the labels
+follow the simulated circuit; the placement of the symbols is fixed here. Check a drawing
 against `ecgfd --circuit <name> netlist` after changing a topology.
 
     pip install schemdraw
@@ -15,32 +15,32 @@ import matplotlib
 matplotlib.use("Agg")
 import schemdraw  # noqa: E402
 import schemdraw.elements as elm  # noqa: E402
+from spicefault import Circuit, Component  # noqa: E402
 
-from ecgfd.circuit import INTEGRATED, REFERENCE, Circuit  # noqa: E402
 from ecgfd.config import REPO_ROOT  # noqa: E402
 
 OUT_DIR = REPO_ROOT / "docs" / "figures"
 RAIL = {"integrated": 1.75, "reference": 3.5}  # half distance between the input rails
 
 
-def _value(p) -> str:
-    unit = "Ω" if p.kind == "R" else "F"
+def _value(p: Component) -> str:
+    unit, value = "Ω" if p.kind == "R" else "F", p.parameters["value"]
     for scale, prefix in ((1e6, "M"), (1e3, "k"), (1, ""), (1e-3, "m"), (1e-6, "µ"), (1e-9, "n")):
-        if p.value >= scale:
-            return f"{p.value / scale:g} {prefix}{unit}"
-    return f"{p.value / 1e-12:g} p{unit}"
+        if value >= scale:
+            return f"{value / scale:g} {prefix}{unit}"
+    return f"{value / 1e-12:g} p{unit}"
 
 
 class Sheet:
     """Small drawing vocabulary on top of schemdraw, with absolute coordinates."""
 
-    def __init__(self, circuit: Circuit):
-        self.c = circuit
+    def __init__(self, name: str):
+        self.c = Circuit.from_netlist(REPO_ROOT / "circuits" / f"{name}.cir")
         self.d = schemdraw.Drawing(show=False)
         self.d.config(fontsize=11, bgcolor="white")
 
     def part(self, name: str, a, b, loc: str = "top"):
-        p = self.c.passive(name)
+        p = self.c.component(name)
         element = elm.Resistor() if p.kind == "R" else elm.Capacitor()
         self.d += element.endpoints(a, b).label(f"{name}\n{_value(p)}", loc=loc)
 
@@ -57,7 +57,7 @@ class Sheet:
 
     def ref(self, p):
         """Signal reference: ground, or the mid-supply net of the single-supply circuit."""
-        if self.c.ref == "0":
+        if self.c.name == "reference":  # split supply: the signal reference is ground
             self.d += elm.Ground().right().at(p)
         else:
             self.tag(p, "vref", "bottom")
@@ -109,7 +109,7 @@ def input_network(s: Sheet, n: dict[str, str], x_end: float):
     for x in (6, 8.5):
         s.dot((x, y)), s.dot((x, -y)), s.dot((x, 0))
     s.wire((6, 0), (6.6, 0))
-    s.ref((6.6, 0)) if s.c.ref == "0" else s.tag((6.6, 0), "vref")
+    s.ref((6.6, 0)) if s.c.name == "reference" else s.tag((6.6, 0), "vref")
     s.wire((8.5, 0), (9.1, 0))
     s.d += elm.Ground().right().at((9.1, 0))
 
@@ -205,7 +205,7 @@ def electrode_inset(s: Sheet, origin):
 
 
 def draw_integrated() -> Sheet:
-    s = Sheet(INTEGRATED)
+    s = Sheet("integrated")
     y = RAIL["integrated"]
     s.text((0, y + 5.2), "integrated: integrated INA + discrete network, single 3.3 V supply", 14)
     names = {"rp_la": "R1", "rp_ra": "R2", "rb_la": "R3", "rb_ra": "R4",
@@ -270,7 +270,7 @@ def draw_integrated() -> Sheet:
 
 
 def draw_reference() -> Sheet:
-    s = Sheet(REFERENCE)
+    s = Sheet("reference")
     y = RAIL["reference"]
     s.text((0, y + 2.6), "reference: discrete three-op-amp INA, ±5 V supplies", 14)
     names = {"rp_la": "R1", "rp_ra": "R2", "rb_la": "R3", "rb_ra": "R4", "c_la": "C1", "c_ra": "C2"}

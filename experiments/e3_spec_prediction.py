@@ -14,9 +14,11 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+from spicefault.dataset import split_by_replica
+from spicefault.reliability import bootstrap_interval
 
 from _common import load_measured, parser, results_dir
-from ecgfd.evaluation import bootstrap_ci, decision_report, escape_rate, replica_split
+from ecgfd.evaluation import decision_report, escape_rate
 from ecgfd.features import feature_sets
 from ecgfd.specs import spec_limits
 
@@ -38,7 +40,7 @@ def main() -> None:
     measured, _, cfg = load_measured(args.data, args.electrode_kinds)
     out = results_dir("e3", cfg["circuit"], args)
     seed = int(cfg["seed"])
-    train, test = replica_split(measured, test_fraction=0.3, seed=seed)
+    train, test = split_by_replica(measured, test_fraction=0.3, seed=seed)
     limits = spec_limits(cfg)
     is_bad = ~measured["compliant"].to_numpy(dtype=bool)
 
@@ -59,7 +61,13 @@ def main() -> None:
         for method, prediction in methods.items():
             row = {"feature_set": set_name, "method": method}
             row.update(decision_report(is_bad[test], prediction))
-            lo, hi = bootstrap_ci(escape_rate, is_bad[test], prediction, seed=seed)
+            truth, n = is_bad[test], len(test)
+
+            def resampled(rng, truth=truth, prediction=prediction, n=n) -> float:
+                rows = rng.integers(0, n, n)
+                return escape_rate(truth[rows], prediction[rows])
+
+            lo, hi = bootstrap_interval(resampled, seed=seed)
             row.update({"escape_ci_low": lo, "escape_ci_high": hi})
             decisions.append(row)
 

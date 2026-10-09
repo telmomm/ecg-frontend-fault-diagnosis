@@ -11,9 +11,9 @@ from __future__ import annotations
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import confusion_matrix
+from spicefault.dataset import split_by_replica
 
 from _common import compare_classifiers, load_measured, parser, results_dir
-from ecgfd.evaluation import replica_split
 from ecgfd.features import ALL, feature_sets
 
 CLASSES = ["none", "circuit", "electrode"]
@@ -25,8 +25,8 @@ def main() -> None:
     out = results_dir("e6", cfg["circuit"], args)
     seed = int(cfg["seed"])
 
-    y = measured["origin"].map(CLASSES.index).to_numpy()
-    train, test = replica_split(measured, test_fraction=0.3, seed=seed)
+    y = measured["origin"].replace("", "none").map(CLASSES.index).to_numpy()  # healthy: no tag
+    train, test = split_by_replica(measured, test_fraction=0.3, seed=seed)
     results = compare_classifiers(measured, y, train, test, cfg, args.models)
     results.to_csv(out / "baseline.csv", index=False)
 

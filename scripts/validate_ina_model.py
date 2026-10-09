@@ -17,19 +17,29 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from spicefault import SimulationConfig, Simulator
+from spicefault.measurements import interp_response
 
-from ecgfd.circuit import INTEGRATED, SUBCIRCUITS
+from ecgfd.circuit import load_circuit
 from ecgfd.config import REPO_ROOT, load_config
-from ecgfd.simulate import interp_response
-from ecgfd.spice import RAW_NAME, run_deck
 
 VENDOR_LIB = REPO_ROOT / "models" / "INA333.LIB"
+OUT = ("v(out)",)
+ANALYSES = (
+    ("op", OUT),
+    "alter @vd[acmag]=1",
+    ("ac dec 50 1 1e6", OUT),
+    "alter @vd[acmag]=0",
+    "alter @vcm[acmag]=1",
+    ("ac lin 1 50 50", OUT),
+    "alter vd dc=1",  # overdrive: output against the upper rail, then the lower one
+    ("op", OUT),
+    "alter vd dc=-1",
+    ("op", OUT),
+)
 
 
-def bench(model_lines: list[str], instance: str, cfg: dict) -> str:
-    rg = INTEGRATED.passive("R5").value
-    vcc = cfg["supply"]["vcc"]
-    write = f"write {RAW_NAME} v(out)"
+def bench(model_lines: list[str], instance: str, rg: float, vcc: float) -> str:
     return "\n".join(
         [
             "* INA bench",
@@ -44,33 +54,17 @@ def bench(model_lines: list[str], instance: str, cfg: dict) -> str:
             f"R6 mid rgn {rg}",
             instance,
             "Rload out ref 100k",
-            ".control",
-            "set noaskquit",
-            "set appendwrite",
-            "op",
-            write,
-            "alter @vd[acmag]=1",
-            "ac dec 50 1 1e6",
-            write,
-            "alter @vd[acmag]=0",
-            "alter @vcm[acmag]=1",
-            "ac lin 1 50 50",
-            write,
-            "alter vd dc=1",  # overdrive: output against the upper rail, then the lower one
-            "op",
-            write,
-            "alter vd dc=-1",
-            "op",
-            write,
-            ".endc",
             ".end",
             "",
         ]
     )
 
 
-def characterise(deck: str, vcc: float, spiceinit: str | None) -> dict[str, float]:
-    op, ac, cm, high, low = run_deck(deck, spiceinit=spiceinit)
+def characterise(netlist: str, vcc: float, spiceinit: str | None) -> dict[str, float]:
+    result = Simulator().run(netlist, SimulationConfig(analyses=ANALYSES, spiceinit=spiceinit))
+    if not result.ok:
+        raise RuntimeError(f"{result.status.value}: {result.message}")
+    op, ac, cm, high, low = result.plots
     freq, h = ac["frequency"].real, ac["v(out)"]
     gain = abs(interp_response(freq, h, 10.0))
     return {
@@ -84,20 +78,19 @@ def characterise(deck: str, vcc: float, spiceinit: str | None) -> dict[str, floa
 
 
 def main() -> None:
-    cfg = load_config(circuit="integrated")
-    ina = cfg["ina"]
-    vcc = cfg["supply"]["vcc"]
+    circuit = load_circuit(load_config(circuit="integrated"))
+    text = circuit.to_netlist()
+    models = text[text.index(".subckt") : text.rindex(".ends ina") + len(".ends ina")]
+    ina = circuit.component("XU1").parameters
+    parameters = " ".join(f"{name}={value}" for name, value in ina.items())
+    vcc, rg = circuit.component("Vcc").parameters["dc"], circuit.component("R5").parameters["value"]
     behavioural = bench(
-        [SUBCIRCUITS],
-        f"XU1 inp inn rgp rgn ref out vcc vee ina rfb={ina['rfb']} rdiff={ina['rdiff']} "
-        f"cmrr={10 ** (ina['cmrr_db'] / 20)} aol={ina['aol']} gbw={ina['gbw']} "
-        f"rout={ina['rout']} en={ina['en']} hr={ina['headroom']}",
-        cfg,
+        [models], f"XU1 inp inn rgp rgn ref out vcc vee ina {parameters}", rg, vcc
     )
     rows = {"behavioural": characterise(behavioural, vcc, None)}
     if VENDOR_LIB.exists():
         vendor = bench(
-            [f'.include "{VENDOR_LIB}"'], "XU1 inp inn vcc vee out ref rgp rgn INA333", cfg
+            [f'.include "{VENDOR_LIB}"'], "XU1 inp inn vcc vee out ref rgp rgn INA333", rg, vcc
         )
         # the TI library is written in the PSpice dialect
         rows["ti_macromodel"] = characterise(vendor, vcc, "set ngbehavior=psa")

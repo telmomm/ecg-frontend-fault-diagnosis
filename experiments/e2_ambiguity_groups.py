@@ -23,24 +23,57 @@ import numpy as np
 import pandas as pd
 from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.ticker import PercentFormatter
-
-from _common import SERIES, load_measured, parser, results_dir, save_json, set_style
-from ecgfd.ambiguity import (
+from spicefault import Circuit
+from spicefault.reliability import (
+    LimitTest,
     ambiguity_groups,
     collinear_groups,
     component_groups,
     confusable_components,
-    envelope_detection,
-    fault_dictionary,
+    local_sensitivity,
     normalised_sensitivity,
-    sensitivity_matrix,
-    separability,
+    pairwise_shift,
     testability_rank,
 )
-from ecgfd.features import feature_sets
+
+from _common import SERIES, load_measured, parser, results_dir, save_json, set_style
+from ecgfd.circuit import front_end, load_circuit
+from ecgfd.features import feature_sets, pulse_measurements
+from ecgfd.selftest import service
 
 # sequential single-hue ramp for magnitudes
 BLUES = LinearSegmentedColormap.from_list("blues", ["#f0efec", "#9ec5f4", "#2a78d6", "#0d366b"])
+
+
+def sensitivity_matrix(cfg: dict) -> pd.DataFrame:
+    """Change of every noise-free feature for a +1 % change of each passive, in service."""
+    circuit, in_service = load_circuit(cfg), service(cfg)
+    netlist = circuit.netlist()
+    in_service.apply(netlist)
+    return local_sensitivity(
+        Circuit(str(netlist), circuit.name),
+        [*in_service.measurements, *pulse_measurements(cfg)],
+        in_service.config,
+        [(name, "value") for name in front_end(circuit)[0]],
+    )
+
+
+def dictionary(df: pd.DataFrame, features: list[str]) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Robust centre and spread of every feature per fault: median and IQR / 1.349.
+
+    The spread equals the standard deviation for a normal cloud and is not inflated
+    by the few extreme values of a saturating fault.
+    """
+    grouped = df.groupby("fault_id", sort=False)[features]
+    return grouped.median(), (grouped.quantile(0.75) - grouped.quantile(0.25)) / 1.349
+
+
+def limit_test(df: pd.DataFrame, features: list[str], alpha: float = 0.01):
+    """Limit test on the healthy envelope: (fraction of each fault flagged, false alarms)."""
+    healthy = df.loc[df["fault_id"] == "healthy", features].to_numpy()
+    flagged = LimitTest(alpha).fit(healthy).flag(df[features].to_numpy())
+    rate = pd.Series(flagged).groupby(df["fault_id"].to_numpy()).mean()
+    return rate.drop("healthy"), float(rate["healthy"])
 
 
 def sensitivity_figure(z: pd.DataFrame, path, circuit: str) -> None:
@@ -87,7 +120,7 @@ def main() -> None:
     out = results_dir("e2", circuit, args)
     set_style()
     sets = feature_sets(cfg)
-    healthy_spread = measured.loc[measured["kind"] == "healthy"].std(numeric_only=True)
+    healthy_spread = measured.loc[measured["fault_id"] == "healthy"].std(numeric_only=True)
     # floor the spread at 10 % of the healthy one, so saturated features stay comparable
     floor = 0.1 * healthy_spread
 
@@ -99,27 +132,27 @@ def main() -> None:
     sensitivity_figure(z, out / "sensitivity.png", circuit)
 
     # 2 and 3. simulated faults ---------------------------------------------------------
-    non_compliant_share = 1.0 - measured.groupby("condition")["compliant"].mean()
+    non_compliant_share = 1.0 - measured.groupby("fault_id")["compliant"].mean()
     nc = measured[~measured["compliant"]]
-    counts = nc["condition"].value_counts()
-    nc = nc[nc["condition"].isin(counts[counts >= args.min_cases].index)]
-    component_of = dict(zip(nc["condition"], nc["target"], strict=False))
+    counts = nc["fault_id"].value_counts()
+    nc = nc[nc["fault_id"].isin(counts[counts >= args.min_cases].index)]
+    component_of = dict(zip(nc["fault_id"], nc["component"], strict=False))
 
     rows, groups_out = [], {}
     for name, features in sets.items():
         rows_z = z.loc[z.index.intersection(features)]
         collinear, insensitive = collinear_groups(rows_z, threshold=args.threshold)
 
-        mean, std = fault_dictionary(measured, features)
-        d = separability(mean, std, floor)
+        mean, std = dictionary(measured, features)
+        d = pairwise_shift(mean, std, floor)
         undetectable = sorted(d.index[d.loc["healthy"] < args.threshold].drop("healthy"))
         escapes = [c for c in undetectable if non_compliant_share[c] >= 0.5]
-        detected, false_alarm = envelope_detection(measured, features)
+        detected, false_alarm = limit_test(measured, features)
         missed = detected.index[detected < 0.5]
         missed_escapes = [c for c in missed if non_compliant_share[c] >= 0.5]
 
-        mean_nc, std_nc = fault_dictionary(nc, features)
-        d_nc = separability(mean_nc, std_nc, floor)
+        mean_nc, std_nc = dictionary(nc, features)
+        d_nc = pairwise_shift(mean_nc, std_nc, floor)
         partners = confusable_components(d_nc, component_of, args.threshold)
         components = component_groups(d_nc, component_of, args.threshold)
 

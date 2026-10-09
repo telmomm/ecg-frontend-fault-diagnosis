@@ -14,9 +14,10 @@ from pathlib import Path
 
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
+from spicefault.dataset import split_by_replica
 
 from _common import compare_classifiers, load_measured, parser, results_dir, save_json
-from ecgfd.evaluation import localisation_report, replica_split
+from ecgfd.evaluation import localisation_report
 
 
 def main() -> None:
@@ -29,8 +30,8 @@ def main() -> None:
 
     keep = ~measured["compliant"].to_numpy(dtype=bool)
     measured, wav = measured[keep].reset_index(drop=True), wav[keep]
-    y = LabelEncoder().fit_transform(measured["target"])
-    train, test = replica_split(measured, test_fraction=0.3, seed=seed)
+    y = LabelEncoder().fit_transform(measured["component"])
+    train, test = split_by_replica(measured, test_fraction=0.3, seed=seed)
     print(f"{len(measured)} non-compliant cases, {y.max() + 1} components")
 
     results = compare_classifiers(measured, y, train, test, cfg, args.models)
@@ -39,7 +40,7 @@ def main() -> None:
         from ecgfd.models import cnn1d
 
         # the CNN needs its own validation split, carved out of the training rows
-        sub_train, sub_val = replica_split(measured.iloc[train], test_fraction=0.2, seed=seed + 1)
+        sub_train, sub_val = split_by_replica(measured.iloc[train], 0.2, seed=seed + 1)
         tr, va = train[sub_train], train[sub_val]
         model, _ = cnn1d.fit(wav[tr], y[tr], wav[va], y[va], int(y.max()) + 1, seed=seed)
         row = {"feature_set": "C3 waveform", "model": "cnn1d"}

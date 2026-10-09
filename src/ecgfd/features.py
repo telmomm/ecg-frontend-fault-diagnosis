@@ -8,6 +8,9 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from spicefault import Measurement
+
+from .selftest import pulse_waveform
 
 ALL = "C1+C2+C3+C4"
 
@@ -52,6 +55,21 @@ def pulse_features(waveforms: np.ndarray, cfg: dict) -> pd.DataFrame:
             "pulse_area": during.sum(axis=1) / fs,
         }
     )
+
+
+def pulse_measurements(cfg: dict) -> list[Measurement]:
+    """The pulse descriptors of a noise-free simulation, e.g. to compute sensitivities."""
+    t = pulse_waveform(cfg).times()
+
+    def descriptor(name: str):
+        def read(plot) -> float:
+            samples = np.interp(t, plot["time"].real, plot["v(out)"].real)
+            return pulse_features(samples[None, :], cfg)[name].iloc[0]
+
+        return read
+
+    names = [f"pulse_{k}" for k in PULSE_FEATURES]
+    return [Measurement.custom(name, descriptor(name), "tran") for name in names]
 
 
 def add_derived(df: pd.DataFrame, cfg: dict) -> pd.DataFrame:

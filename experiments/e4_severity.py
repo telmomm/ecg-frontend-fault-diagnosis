@@ -13,9 +13,10 @@ from __future__ import annotations
 
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
+from spicefault.dataset import split_by_replica
 
 from _common import load_measured, parser, results_dir
-from ecgfd.evaluation import decision_report, replica_split
+from ecgfd.evaluation import decision_report
 from ecgfd.features import ALL, feature_sets
 
 
@@ -27,7 +28,7 @@ def main() -> None:
 
     injected = measured[measured["origin"] == "circuit"]
     by_fault = (
-        injected.groupby(["kind", "level"])["compliant"]
+        injected.groupby(["fault_type", "fault_magnitude"], dropna=False)["compliant"]
         .agg(still_compliant="mean", n="size")
         .reset_index()
     )
@@ -39,7 +40,7 @@ def main() -> None:
         "functional": ~measured["compliant"].to_numpy(dtype=bool),
     }
     truth = labels["functional"]
-    train, test = replica_split(measured, test_fraction=0.3, seed=seed)
+    train, test = split_by_replica(measured, test_fraction=0.3, seed=seed)
     x = measured[feature_sets(cfg)[ALL]].to_numpy()
     rows = []
     for name, y in labels.items():

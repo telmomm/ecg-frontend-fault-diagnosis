@@ -1,31 +1,20 @@
-# Study configuration. Every number that defines the dataset lives here and is
-# copied into the dataset manifest, so a dataset can always be regenerated.
+# Study configuration. Together with the nominal netlist of the circuit
+# (circuits/<name>.cir) it defines a dataset, and both are kept with it, so a
+# dataset can always be regenerated.
 # The block of the selected circuit (`circuits.<name>`) is merged over the rest.
 
 seed: 20261002
 circuit: integrated            # integrated (main) | reference (discrete three-op-amp)
 
+# Normal variation of the amplifiers (healthy circuits), ADC and DC readings of each
+# circuit. The nominal values of the amplifiers are in the netlist.
 circuits:
   integrated:                  # single 3.3 V supply, INA333 + discrete network
-    supply: {vcc: 3.3, vee: 0.0}
     opamp:                     # discrete op-amps: precision rail-to-rail CMOS class (part not fixed)
-      aol: 1.0e+6
-      gbw: 1.0e+6
-      rout: 50.0
-      en: 30.0e-9              # white input voltage noise [V/sqrt(Hz)]
-      headroom: 0.05           # output saturates at rail -+ headroom [V]
-      vos_max: 0.5e-3          # Monte Carlo: offset drawn in +-vos_max [V]
-      aol_rel: 0.5             # Monte Carlo: aol drawn in nominal * (1 +- aol_rel)
-    ina:                       # behavioural model of the TI INA333 (data sheet SBOS445C)
-      rfb: 50.0e+3             # internal feedback resistors: G = 1 + 100 kOhm / Rg
-      rdiff: 150.0e+3          # internal difference-stage resistors
-      aol: 1.0e+6
-      gbw: 350.0e+3            # -3 dB bandwidth 35 kHz at G = 10
-      rout: 50.0
-      en: 35.0e-9              # per input amplifier: 50 nV/sqrt(Hz) referred to the input
-      headroom: 0.05           # output swing to within 50 mV of the rails
-      cmrr_db: 102.0           # at G = 4: between 90 dB (G = 1) and 110 dB (G = 10) typical
-      cmrr_db_tol: 10.0        # Monte Carlo: down to the interpolated minimum, 92 dB
+      vos_max: 0.5e-3          # offset drawn in +-vos_max [V]
+      aol_rel: 0.5             # aol drawn in nominal * (1 +- aol_rel)
+    ina:                       # TI INA333 (data sheet SBOS445C)
+      cmrr_db_tol: 10.0        # around 102 dB, down to the interpolated minimum, 92 dB
       vos_max: 44.0e-6         # +-25 uV +- 75 uV / G, referred to the input
       gain_error_max: 2.5e-3   # +-0.25 % maximum
     measurement:
@@ -35,13 +24,7 @@ circuits:
         ina_out: {scale: 1.0, extended: true}
         rld_out: {scale: 1.0, extended: true}
   reference:                   # +-5 V, discrete three-op-amp INA (version 1 circuit)
-    supply: {vcc: 5.0, vee: -5.0}
     opamp:                     # TL07x-like figures
-      aol: 2.0e+5
-      gbw: 3.0e+6
-      rout: 50.0
-      en: 18.0e-9
-      headroom: 1.5
       vos_max: 3.0e-3
       aol_rel: 0.5
     measurement:
@@ -63,8 +46,7 @@ tolerances:
 # the three electrodes), then each parameter of each electrode log-uniformly within
 # median / spread .. median * spread. docs/circuit.md gives the sources.
 electrodes:
-  nominal: {ehc: 0.222, rs: 1.0e+3, rd: 51.0e+3, cd: 47.0e-9}
-  ehc_abs: 5.0e-3              # half-cell potential spread, +- [V] (assumed)
+  ehc_abs: 5.0e-3              # half-cell potential spread around the netlist value, +- [V] (assumed)
   spread: 2.0                  # assumed: the sources give medians, not distributions
   mix: {gel: 0.5, dry: 0.5}    # probability of each family per simulated case
   families:
@@ -77,14 +59,6 @@ electrodes:
       stainless_steel: {rs: 102.0, rd: 0.122e+6, cd: 60.5e-9}
       silver: {rs: 167.0, rd: 0.593e+6, cd: 59.3e-9}
       platinum: {rs: 48.0, rd: 0.418e+6, cd: 5440.0e-9}
-
-# Patient/mains coupling in service (Winter & Webster model). Mains is off during self-test.
-environment:
-  c_mains_body: 2.0e-12
-  c_body_earth: 200.0e-12
-  c_iso: 200.0e-12
-  r_iso: 1.0e+9
-  mains_freq: 50.0
 
 # --- Clinical specifications (functional severity) -----------------------------
 # Limits and test set-up of IEC 60601-2-25:2011 (EN 60601-2-25:2015), clause 201.12.4;

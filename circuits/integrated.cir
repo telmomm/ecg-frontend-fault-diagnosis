@@ -1,0 +1,118 @@
+* ECG front-end, integrated circuit: INA333 and discrete network, single 3.3 V supply
+* Nominal circuit of the study (docs/circuit.md). Every stimulus is off; the operating
+* conditions of ecgfd (service, bench) set them.
+
+* Single-pole behavioural op-amp: offset, white input noise, finite Aol and GBW, output
+* clamped `hr` volts from the rails (clamping the gain node avoids windup).
+.subckt opamp inp inn out vcc vee aol=2e5 gbw=3e6 vos=0 rout=50 en=18n hr=1.5
+Vos p1 inp dc {vos}
+Rn nz 0 {en*en/1.65763e-20}
+En p1 p2 nz 0 1
+Rin p2 inn 1e12
+Gm 0 n1 p2 inn 1m
+R1 n1 0 {aol*1k}
+C1 n1 0 {1m/(6.283185307*gbw)}
+Bcl n1 0 I = v(n1) > v(vcc)-{hr} ? v(n1)-v(vcc)+{hr} :
++ (v(n1) < v(vee)+{hr} ? v(n1)-v(vee)-{hr} : 0)
+Eo n2 0 n1 0 1
+Ro n2 out {rout}
+.ends opamp
+
+* Behavioural model of the TI INA333 (data sheet SBOS445C): three amplifiers with ideal
+* internal resistors, G = 1 + 2 rfb / Rg; offset and finite CMRR (either polarity) are an
+* error voltage in series with the + input.
+.subckt ina inp inn rgp rgn ref out vcc vee rfb=50k rdiff=150k vos=0 cmrr_db=100 cmrr_sign=1 gerr=0
++ aol=1e6 gbw=1e6 rout=50 en=30n hr=0.05
+Berr pe inp V = {vos} + (0.5*(v(inp)+v(inn)) - v(ref))/({cmrr_sign}*pow(10, {cmrr_db}/20))
+XA1 pe rgp o1 vcc vee opamp aol={aol} gbw={gbw} rout={rout} en={en} hr={hr}
+XA2 inn rgn o2 vcc vee opamp aol={aol} gbw={gbw} rout={rout} en={en} hr={hr}
+Rf1 o1 rgp {rfb*(1+gerr)}
+Rf2 o2 rgn {rfb*(1+gerr)}
+Rd1 o2 dn {rdiff}
+Rd2 dn out {rdiff}
+Rd3 o1 dp {rdiff}
+Rd4 dp ref {rdiff}
+XA3 dp dn out vcc vee opamp aol={aol} gbw={gbw} rout={rout} en={en} hr={hr}
+.ends ina
+
+* Supplies
+Vcc vcc 0 dc 3.3
+Vee vee 0 dc 0.0
+
+* Patient and mains coupling (Winter and Webster); node 0 is the isolated amplifier common
+Vmains mains earth dc 0 ac 0 sin(0 0.0 50.0)
+Cpow mains body 2e-12
+Cbody body earth 2e-10
+Ciso earth 0 2e-10
+Riso earth 0 1000000000.0
+* ECG source in the body, split in two halves (lead I = LA - RA)
+Vecgp body_la body dc 0 ac 0 pulse(0 0.0 0.1 0.0001 0.0001 0.2 1e3)
+Vecgn body body_ra dc 0 ac 0 pulse(0 0.0 0.1 0.0001 0.0001 0.2 1e3)
+
+* Skin-electrode interfaces: half-cell potential, Rs, Rd || Cd
+Vhc_la body_la la_a dc 0.222
+Rs_la la_a la_b 1000.0
+Rd_la la_b lead_la 51000.0
+Cd_la la_b lead_la 4.7e-08
+Vhc_ra body_ra ra_a dc 0.222
+Rs_ra ra_a ra_b 1000.0
+Rd_ra ra_b lead_ra 51000.0
+Cd_ra ra_b lead_ra 4.7e-08
+Vhc_rl body rl_a dc 0.222
+Rs_rl rl_a rl_b 1000.0
+Rd_rl rl_b lead_rl 51000.0
+Cd_rl rl_b lead_rl 4.7e-08
+
+* Internal test sources: calibration pulse, RLD reference, lead-off current
+Vcal cal_la lead_la dc 0 ac 0 pulse(0 0.0 0.1 0.0001 0.0001 0.2 1e3)
+Vcmt cmref vref dc 0 ac 0
+Ilo inn inp dc 0 ac 0
+
+* Input network
+R1 cal_la inp 10000.0
+R2 lead_ra inn 10000.0
+R3 inp vref 10000000.0
+R4 inn vref 10000000.0
+C1 inp 0 1e-10
+C2 inn 0 1e-10
+C3 inp inn 1e-09
+
+* Instrumentation amplifier
+R5 rgp mid 16500.0
+R6 mid rgn 16500.0
+
+* Driven right leg
+R7 cmbuf cm 10000.0
+R8 cm rld_out 10000000.0
+C4 cm rld_out 1e-08
+R9 rld_out lead_rl 100000.0
+
+* High-pass, 0.04 Hz
+C5 ina_out hp 1e-06
+R10 hp vref 3900000.0
+
+* Gain stage
+R11 gfb vref 1000.0
+R12 gout gfb 68000.0
+
+* Sallen-Key low-pass, 185 Hz
+R13 gout sk1 10000.0
+R14 sk1 sk2 10000.0
+C6 sk1 out 1.2e-07
+C7 sk2 0 6.2e-08
+
+* Mid-supply reference
+R15 vcc vdiv 100000.0
+R16 vdiv 0 100000.0
+C8 vdiv 0 1e-06
+
+* Amplifiers
+XU2 mid cmbuf cmbuf vcc vee opamp aol=1000000.0 gbw=1000000.0 vos=0.0 rout=50.0 en=3e-08 hr=0.05
+XU3 cmref cm rld_out vcc vee opamp aol=1000000.0 gbw=1000000.0 vos=0.0 rout=50.0 en=3e-08 hr=0.05
+XU4 hp gfb gout vcc vee opamp aol=1000000.0 gbw=1000000.0 vos=0.0 rout=50.0 en=3e-08 hr=0.05
+XU5 sk2 out out vcc vee opamp aol=1000000.0 gbw=1000000.0 vos=0.0 rout=50.0 en=3e-08 hr=0.05
+XU6 vdiv vref vref vcc vee opamp aol=1000000.0 gbw=1000000.0 vos=0.0 rout=50.0 en=3e-08 hr=0.05
+XU1 inp inn rgp rgn vref ina_out vcc vee ina rfb=50000.0 rdiff=150000.0 vos=0.0 cmrr_db=102.0 cmrr_sign=1.0 gerr=0.0
++ aol=1000000.0 gbw=350000.0 rout=50.0 en=3.5e-08 hr=0.05
+
+.end

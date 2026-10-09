@@ -16,7 +16,7 @@ import pandas as pd  # noqa: E402
 
 from ecgfd.circuit import CIRCUITS  # noqa: E402
 from ecgfd.config import DEFAULT_CONFIG, REPO_ROOT  # noqa: E402
-from ecgfd.dataset import load_dataset  # noqa: E402
+from ecgfd.dataset import load_cases  # noqa: E402
 from ecgfd.evaluation import localisation_report  # noqa: E402
 from ecgfd.features import feature_sets  # noqa: E402
 from ecgfd.measurement import apply_measurement_model  # noqa: E402
@@ -67,7 +67,7 @@ def parser(description: str, dataset: bool = False) -> argparse.ArgumentParser:
         p.add_argument("--tag", help="results folder suffix ('subset' if --electrode-kinds is set)")
     else:
         p.add_argument("--config", default=str(DEFAULT_CONFIG), help="YAML study configuration")
-        p.add_argument("--circuit", choices=sorted(CIRCUITS), help="override the config's circuit")
+        p.add_argument("--circuit", choices=CIRCUITS, help="override the config's circuit")
     p.add_argument("--jobs", type=int, default=os.cpu_count())
     return p
 
@@ -98,7 +98,7 @@ def load_measured(
     `electrode_kinds` keeps only the cases with those electrode types, e.g. to study
     the circuit without porous dry electrodes without simulating again.
     """
-    df, waveforms, cfg = load_dataset(path)
+    df, waveforms, cfg = load_cases(path)
     if electrode_kinds:
         unknown = set(electrode_kinds) - set(df["electrode_kind"])
         if unknown:

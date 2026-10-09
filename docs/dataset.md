@@ -14,39 +14,45 @@ electrode problems. It is entirely simulated; no patient data are involved.
 
 ## Composition
 
-One folder per circuit (`integrated`, `reference`), each with:
+One folder per circuit (`integrated`, `reference`), each a `spicefault` dataset:
 
 | File | Content |
 |---|---|
-| `samples.parquet` | one row per simulated case |
-| `waveforms.npy` | float32 array `[cases, 1000]`: response to the 1 mV calibration pulse, 1 s at 1 kHz, row-aligned with the table |
-| `manifest.json` | full configuration, ngspice and code versions, git commit, counts |
+| `samples.parquet` | two rows per simulated case, one per operating condition |
+| `waveforms.npy` | float32 array `[rows, 1000]`: transient at the output, 1 s at 1 kHz, row-aligned with the table. In the `service` rows it is the response to the 1 mV calibration pulse |
+| `circuit.cir` | nominal netlist of the circuit |
+| `metadata.json` | definition of the campaign: seed, faults, variations, conditions, analyses, measurements |
+| `manifest.json` | fingerprints of the files, software versions, counts, history of the labels and, under `user`, the study configuration and the git commit |
 | `report.md` | integrity checks and class balance of that release |
 
 Each case is one circuit realisation: a healthy circuit drawn within manufacturing
 tolerances, with at most one injected fault, connected to three electrodes drawn
 from a gel or dry family. With the default configuration there are 5,000 healthy
-cases and 200 cases for each fault condition (293 conditions for `integrated`, 307
-for `reference`).
+cases and 200 cases for each fault (293 faults for `integrated`, 307 for `reference`).
+
+A case is simulated under two operating conditions, and each gives a row: `service`
+(patient's electrodes, self-test measurements) and `bench` (IEC 60601-2-25 test
+networks, specifications). `ecgfd.dataset.load_cases` joins them into one row per
+case, with the pulse responses.
 
 ### Columns of `samples.parquet`
 
 | Columns | Meaning |
 |---|---|
-| `sample_id`, `condition_index`, `replica` | identifiers; the random stream of a case is derived from `(seed, condition_index, replica)` |
-| `sim_ok` | False if ngspice failed; the remaining columns are then empty |
-| `condition`, `kind`, `target`, `level` | what was injected: fault type, component or electrode, magnitude |
-| `is_faulty` | a fault was injected (percentage-severity view) |
-| `compliant`, `violated`, `ok_<spec>` | level 1: the circuit meets every specification; which ones fail |
-| `spec_<spec>` | continuous value of each specification (see docs/circuit.md) |
-| `target` | level 2: component to locate |
-| `origin` | level 3: `none`, `circuit` or `electrode` |
+| `sample_id`, `fault_index`, `replica`, `seed_key` | identifiers; the random stream of a case is derived from `(seed, fault_index, replica)` and is the same under both conditions |
+| `condition` | operating condition of the row: `service` or `bench` |
+| `status`, `message`, `sim_ok`, `elapsed_s` | outcome of the simulation; if it failed, the measurements are empty |
+| `fault_id`, `fault_type`, `fault_location`, `fault_magnitude`, `fault_severity` | what was injected (`healthy` if nothing): identifier, type, netlist elements, magnitude. The full record of each fault is in `metadata.json` |
+| `component` | level 2: component to locate (designator, or electrode) |
+| `origin` | level 3: `circuit` or `electrode`; empty for healthy cases |
+| `compliant`, `violated`, `ok_<spec>` | level 1: the circuit meets every specification; which ones fail (the same in both rows of a case) |
+| `spec_<spec>` | `bench` rows: continuous value of each specification (see docs/circuit.md) |
 | `electrode_type`, `electrode_kind` | electrode family and type of the case |
-| `p_<name>` | realised value of every component, op-amp, INA and electrode parameter |
-| `dc_<node>` | C1: DC voltage at the output and at the extended nodes [V] |
-| `acd_mag_<f>`, `acd_ph_<f>` | C2: differential gain [V/V] and phase [deg] through the calibration source |
-| `acc_mag_<f>` | C2: gain from the common-mode test source [V/V] |
-| `zlo_mag_<f>` | C4: output per unit of lead-off test current [V/A] |
+| `p_<element>_<parameter>` | value drawn for every component, amplifier and electrode parameter, before the fault |
+| `dc_<node>` | `service` rows, C1: DC voltage at the output and at the extended nodes [V] |
+| `acd_mag_<f>`, `acd_ph_<f>` | `service` rows, C2: differential gain [V/V] and phase [deg] through the calibration source |
+| `acc_mag_<f>` | `service` rows, C2: gain from the common-mode test source [V/V] |
+| `zlo_mag_<f>` | `service` rows, C4: output per unit of lead-off test current [V/A] |
 
 Features in the table and the waveforms are **noise-free**. Measurement noise, ADC
 quantisation and clipping are applied when loading for an experiment
@@ -55,17 +61,19 @@ quantisation and clipping are applied when loading for an experiment
 
 ## Generation process
 
-`ecgfd --circuit <name> generate --out <folder>`. For each case, one ngspice run
-takes the self-test measurements with the patient's electrodes, and a second run
-measures the specifications with the test networks of IEC 60601-2-25. Generation is
-deterministic for a given configuration and independent of the number of parallel
-jobs. Models, values and sources are documented in [circuit.md](circuit.md).
+`ecgfd --circuit <name> generate --out <folder>`, a `spicefault` fault campaign. For
+each case, one ngspice run takes the self-test measurements with the patient's
+electrodes, and a second run measures the specifications with the test networks of
+IEC 60601-2-25. Generation is deterministic for a given configuration and independent
+of the number of parallel jobs; `spicefault.Dataset(<folder>).reproduce(...)` simulates
+stored samples again and compares them. Models, values and sources are documented in
+[circuit.md](circuit.md).
 
 ## Labels
 
 - **Functional** labels come from simulated specification values compared with the
   limits in the configuration. Changing only limits does not require new simulations
-  (`ecgfd relabel`).
+  (`ecgfd relabel`); the manifest keeps the history of the labels.
 - Specifications are measured on a standard test network, so electrode faults leave
   the case compliant; they change the self-test features and are identified by `origin`.
 - Many injected faults leave the circuit compliant. This is intended: it is what
@@ -73,8 +81,8 @@ jobs. Models, values and sources are documented in [circuit.md](circuit.md).
 
 ## Recommended use
 
-- Split with `ecgfd.evaluation.replica_split` (every condition in train and test) or
-  `magnitude_split` (whole parametric magnitudes held out). Never split after applying
+- Split the cases with `spicefault.dataset.split_by_replica` (every fault in train and
+  test) or `split_by_magnitude` (whole magnitudes held out). Never split after applying
   noise with different seeds to the same case.
 - Classes are imbalanced by construction (few healthy and electrode cases against
   many circuit-fault cases). Report escape and false-reject rates, not only accuracy.

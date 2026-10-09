@@ -206,8 +206,8 @@ Antes del entrenamiento se añaden ruido y cuantificación de un ADC típico, co
 
 | Herramienta | Uso |
 |---|---|
-| ngspice + PySpice | Simulación y automatización |
-| schemdraw | Esquemas generados desde la tabla de componentes del código (`scripts/draw_schematics.py`) |
+| ngspice + spicefault | Simulación, inyección de fallos y campañas reproducibles |
+| schemdraw | Esquemas generados desde las netlists de `circuits/` (`scripts/draw_schematics.py`) |
 | NumPy, pandas | Procesado |
 | scikit-learn | Modelos clásicos, regresión, selección de características |
 | PyTorch | CNN 1D |
@@ -252,7 +252,7 @@ Marcar cada casilla al completarla. Cada fase tiene un entregable y un criterio 
 **Resultado:** ambos circuitos nominales y 500 circuitos sanos de Monte Carlo de cada uno cumplen las once especificaciones. El diseño, la procedencia de cada límite y lo que queda por contrastar están en `docs/circuit.md`.
 
 ### Fase 3 — Pipeline de simulación ✅
-- [x] Automatización de ngspice desde Python (lanzador propio en lugar de PySpice; la prueba de concepto con un filtro sencillo quedó cubierta por el circuito completo)
+- [x] Automatización de ngspice desde Python (con la librería `spicefault`, extraída de este repositorio, en lugar de PySpice; la prueba de concepto con un filtro sencillo quedó cubierta por el circuito completo)
 - [x] Generación paramétrica de netlists con inyección de fallos
 - [x] Monte Carlo de tolerancias
 - [x] Cálculo automático de especificaciones de cada caso

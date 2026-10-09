@@ -1,11 +1,11 @@
 import pytest
+from spicefault.simulation.ngspice import ngspice_path
 
 from ecgfd.circuit import CIRCUITS
 from ecgfd.config import DEFAULT_CONFIG, load_config
-from ecgfd.spice import ngspice_path
 
 
-@pytest.fixture(scope="session", params=sorted(CIRCUITS))
+@pytest.fixture(scope="session", params=CIRCUITS)
 def cfg(request) -> dict:
     """The default configuration, once per circuit."""
     return load_config(DEFAULT_CONFIG, request.param)

@@ -1,7 +1,8 @@
 # ecg-frontend-fault-diagnosis
 
 Specification-aware fault diagnosis of ECG analog front-ends, based on simulation:
-ngspice Monte Carlo with fault injection, and machine-learning models that use only
+Monte Carlo with fault injection in ngspice, run through
+[spicefault](https://pypi.org/project/spicefault/), and machine-learning models that use only
 measurements the instrument could take on itself to answer three questions in
 service. Does the front-end still meet its specifications? If not, which component
 is the cause? Is the problem in the circuit or in the electrodes?
@@ -16,7 +17,7 @@ is the cause? Is the problem in the circuit or in the electrodes?
 | Phase of the plan | State |
 |---|---|
 | 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Limits checked against the text of the standard; the open design decision on porous dry electrodes is in docs/pendientes.md |
-| 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests |
+| 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests. Since October 2026 it runs on `spicefault` 0.2, the library extracted from it |
 | 4. Dataset | Closed: `data/v1` generated (63,600 + 66,400 cases, no failed simulation), checked with `make report`, datasheet in docs/dataset.md |
 | 5. Testability (E2, E9) | Closed: run on `data/v1` (`make testability`); results summarised in the plan |
 | 6. Models (E3–E6) | Untuned baselines that run end to end |
@@ -29,7 +30,7 @@ Requires Python ≥ 3.10 and [ngspice](https://ngspice.sourceforge.io/) on the `
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"        # add ",dl" for the PyTorch CNN
+pip install -e ".[dev]"        # installs spicefault; add ",dl" for the PyTorch CNN
 pytest                         # about 5 s; ngspice tests are skipped if it is missing
 ```
 
@@ -41,7 +42,7 @@ work on the second one. Their schematics are in [docs/figures/](docs/figures/).
 
 ```bash
 ecgfd nominal                  # self-test features and specifications of the nominal circuit
-ecgfd netlist                  # print the ngspice deck
+ecgfd netlist                  # print the nominal netlist (circuits/<name>.cir)
 ecgfd faults                   # size of the fault catalogue
 
 # Smoke datasets: about 1,200 simulations and 2.5 minutes each
@@ -69,53 +70,56 @@ python experiments/e6_origin.py           --data data/v1/integrated   # circuit 
 Experiments write to `results/<experiment>/<circuit>/`. The scripts that read a
 dataset accept `--electrode-kinds` to keep only some electrode types (results then go
 to `<circuit>-<tag>`), e.g. to study the circuits without porous dry electrodes. Results on the smoke datasets
-only show that the code runs: with four samples per condition they say nothing about
+only show that the code runs: with four samples per fault they say nothing about
 diagnosability.
 
 ## Layout
 
 | Path | Content |
 |---|---|
-| `configs/` | Study configuration: circuits, tolerances, electrodes, specification limits, fault levels, measurements, dataset size |
-| `src/ecgfd/circuit.py` | Topology of both circuits, nominal values, netlist generation |
-| `src/ecgfd/spice.py` | ngspice batch runner and raw-file reader |
-| `src/ecgfd/sampling.py` | Monte Carlo sampling of healthy circuits and electrodes |
-| `src/ecgfd/faults.py` | Fault catalogue and injection |
-| `src/ecgfd/simulate.py` | Self-test measurements: DC, AC, lead-off current, calibration pulse |
-| `src/ecgfd/specs.py` | Specifications of each case and compliance labels |
+| `circuits/` | Nominal netlist of each circuit, with the behavioural amplifier models |
+| `configs/` | Study configuration: tolerances, electrodes, specification limits, fault levels, measurements, dataset size |
+| `src/ecgfd/circuit.py` | Loading of the circuits and normal variation of healthy circuits and electrodes |
+| `src/ecgfd/faults.py` | Fault catalogue |
+| `src/ecgfd/selftest.py` | Circuit in service: DC, AC, lead-off current and calibration-pulse measurements |
+| `src/ecgfd/specs.py` | Circuit on the IEC 60601-2-25 test bench: specifications and compliance labels |
+| `src/ecgfd/dataset.py` | The study as one experiment; dataset generation, labelling and loading |
 | `src/ecgfd/measurement.py` | ADC noise, quantisation and clipping |
 | `src/ecgfd/features.py` | Feature sets C1–C4 |
-| `src/ecgfd/dataset.py` | Parallel dataset generation and loading |
-| `src/ecgfd/ambiguity.py` | Sensitivities, fault dictionary, ambiguity groups |
-| `src/ecgfd/evaluation.py` | Escape and false-reject rates, class separability, leakage-free splits |
+| `src/ecgfd/evaluation.py` | Escape and false-reject rates, class separability |
 | `src/ecgfd/models/` | Reference classifiers and the 1D CNN |
 | `experiments/` | One script per experiment of the plan |
-| `scripts/dataset_report.py` | Integrity checks and class balance of a generated dataset |
+| `scripts/dataset_report.py` | Integrity checks, reproduction of a few samples and class balance of a dataset |
 | `scripts/draw_schematics.py` | Draws both schematics into `docs/figures/` |
 | `scripts/validate_ina_model.py` | Compares the behavioural INA with the TI INA333 macromodel (fetched by `scripts/fetch_vendor_models.py`) |
 | `tests/` | Unit and end-to-end tests, run on both circuits |
 
 ## How a dataset is built
 
-1. Each simulation gets its own random stream from `(seed, condition, replica)`, so the
+The simulation side is [spicefault](https://pypi.org/project/spicefault/): netlist
+editing, fault injection, Monte Carlo, the ngspice runs, the campaign to disk and its
+record. This repository defines what is specific to the study and hands it over as one
+`spicefault` experiment (`ecgfd.dataset.experiment`).
+
+1. Each case gets its own random stream from `(seed, fault index, replica)`, so the
    result does not depend on the number of parallel jobs.
 2. A healthy circuit and its electrodes (gel or dry) are drawn, then one fault is injected.
-3. A first ngspice run takes the self-test measurements in service, with the
-   patient's electrodes: operating point, three frequency responses and the response
-   to the 1 mV calibration pulse.
-4. A second run measures the specifications with the IEC 60601-2-25 test networks. Comparing
-   them with the limits gives the functional label; the injected fault gives the
-   localisation and origin labels.
-5. The noise-free results go to `samples.parquet` and `waveforms.npy`;
-   `manifest.json` keeps the configuration and the software versions.
+3. The case is simulated under two operating conditions. In `service`, with the
+   patient's electrodes, it takes the self-test measurements: operating point, three
+   frequency responses and the response to the 1 mV calibration pulse.
+4. On the `bench`, with the IEC 60601-2-25 test networks, the specifications are
+   measured. Comparing them with the limits gives the functional label; the injected
+   fault gives the localisation and origin labels.
+5. The noise-free results go to `samples.parquet` (two rows per case, one per
+   condition) and `waveforms.npy`. `metadata.json` and `circuit.cir` define the
+   campaign, and `manifest.json` keeps the fingerprints of the files, the software
+   versions and the study configuration. `ecgfd.dataset.load_cases` returns one row
+   per case.
 6. Measurement noise and ADC quantisation are applied when the features are loaded for
    an experiment, so they are study parameters.
 
-## Design choice: no PySpice
-
-The plan suggests PySpice. The repository drives ngspice directly instead (netlist
-text in, binary raw file out, about 100 lines in `spice.py`): fault injection needs
-free editing of the netlist, and it avoids a dependency that lags behind ngspice releases.
+Any sample can be traced and simulated again from the dataset folder
+(`spicefault.Dataset.provenance`, `.reproduce`); `make report` does it for a few.
 
 ## Licence
 

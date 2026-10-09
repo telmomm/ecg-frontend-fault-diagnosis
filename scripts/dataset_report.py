@@ -1,9 +1,9 @@
 """Check a generated dataset and report its class balance (phase 4 of the plan).
 
-Verifies the integrity of one dataset folder (expected number of rows per condition,
-failed simulations, missing values, waveform alignment) and writes `report.md`
-inside it with the balance of the three labelling levels. Exits with status 1 if
-an integrity check fails.
+Verifies one dataset folder (files against their fingerprints, expected number of
+cases per fault, failed simulations, missing values, and a few samples simulated
+again and compared with what is stored) and writes `report.md` inside it with the
+balance of the three labelling levels. Exits with status 1 if a check fails.
 
     python scripts/dataset_report.py --data data/v1/integrated
 """
@@ -16,51 +16,63 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from spicefault import Dataset
 
-from ecgfd.dataset import build_tasks, load_dataset
+from ecgfd.dataset import experiment, load_cases
 from ecgfd.features import feature_sets
 from ecgfd.specs import SPEC_NAMES
 
 MAX_FAILED_FRACTION = 0.01
-
+N_REPRODUCED = 6
+# spicefault 0.2.0 reports the measurements a row does not take (those of the other
+# operating condition) as missing; the gaps are checked here per condition instead
+NOT_A_PROBLEM = "a successful sample has a measurement that is not finite"
 
 Check = tuple[str, bool, str]  # (name, passed, detail)
 
 
-def integrity_checks(df: pd.DataFrame, waveforms: np.ndarray, cfg: dict) -> list[Check]:
+def integrity_checks(path: str, cases: pd.DataFrame, waveforms: np.ndarray, cfg: dict):
     """(check, passed, detail) for everything that must hold before using the dataset."""
-    tasks = build_tasks(cfg)
-    expected = pd.Series([fault.id for _, fault, _ in tasks]).value_counts()
-    counts = df["condition"].value_counts()
-    ok = df["sim_ok"].to_numpy(dtype=bool)
-    n_points = round(cfg["measurement"]["pulse"]["duration"] * cfg["measurement"]["pulse"]["fs"])
-    raw_features = [c for c in df.columns if c.startswith(("dc_", "acd_", "acc_", "zlo_"))]
+    data, study = Dataset(path), experiment(cfg)
+    problems = [p for p in data.verify() if p != NOT_A_PROBLEM]
+    per_fault = cases["fault_id"].value_counts()
+    size = cfg["dataset"]
+    expected = pd.Series(int(size["n_per_fault"]), index=[f.fault_id for f in study.faults])
+    expected = pd.concat([pd.Series({"healthy": int(size["n_healthy"])}), expected])
+    ok = cases["sim_ok"].to_numpy(dtype=bool)
+    raw_features = [c for c in cases.columns if c.startswith(("dc_", "acd_", "acc_", "zlo_"))]
     spec_columns = [f"spec_{name}" for name in SPEC_NAMES]
-    missing_features = int(df.loc[ok, raw_features].isna().any(axis=1).sum())
-    missing_specs = int(df.loc[ok, spec_columns].isna().any(axis=1).sum())
+    missing_features = int(cases.loc[ok, raw_features].isna().any(axis=1).sum())
+    missing_specs = int(cases.loc[ok, spec_columns].isna().any(axis=1).sum())
     failed = int((~ok).sum())
+    again = data.reproduce(n=N_REPRODUCED, experiment=study)
+    same = again[["definition", "parameters", "status"]].all(axis=None)
     return [
-        ("rows", len(df) == len(tasks), f"{len(df)} of {len(tasks)} expected"),
+        ("files and table", not problems, "; ".join(problems) or "match the manifest"),
         (
-            "rows per condition",
-            counts.reindex(expected.index).eq(expected).all(),
-            f"{len(counts)} conditions, {int(counts.min())}-{int(counts.max())} rows each",
+            "cases per fault",
+            per_fault.sort_index().equals(expected.sort_index()),
+            f"{len(per_fault)} conditions, {per_fault.min()}-{per_fault.max()} cases each",
         ),
-        ("unique sample ids", df["sample_id"].is_unique, ""),
         (
             "failed simulations",
-            failed <= MAX_FAILED_FRACTION * len(df),
-            f"{failed} ({failed / len(df):.2%}); limit {MAX_FAILED_FRACTION:.0%}",
+            failed <= MAX_FAILED_FRACTION * len(cases),
+            f"{failed} ({failed / len(cases):.2%}); limit {MAX_FAILED_FRACTION:.0%}",
         ),
-        ("waveform shape", waveforms.shape == (len(df), n_points), str(waveforms.shape)),
         (
             "finite waveforms",
             bool(np.isfinite(waveforms[ok]).all()),
-            "all simulated rows have a pulse response",
+            "all simulated cases have a pulse response",
         ),
-        ("features present", missing_features == 0, f"{missing_features} simulated rows with gaps"),
+        ("features present", missing_features == 0, f"{missing_features} cases with gaps"),
         # a dead circuit can leave a specification undefined; it is counted as a violation
-        ("specifications present", True, f"{missing_specs} simulated rows with undefined values"),
+        ("specifications present", True, f"{missing_specs} cases with undefined values"),
+        (
+            "reproduction",
+            bool(same),
+            f"{len(again)} samples simulated again; largest relative difference "
+            f"{again['max_rel_diff'].max():.1e}",
+        ),
     ]
 
 
@@ -82,7 +94,7 @@ def build_report(df: pd.DataFrame, cfg: dict, checks: list[Check]) -> str:
     lines = [
         f"# Dataset report: `{cfg['circuit']}`",
         "",
-        f"{len(df)} simulations, {df['condition'].nunique()} conditions, "
+        f"{len(df)} cases, {df['fault_id'].nunique()} conditions, "
         f"nominal gain {gain:.1f}, seed {cfg['seed']}.",
         "",
         "## Integrity",
@@ -97,15 +109,15 @@ def build_report(df: pd.DataFrame, cfg: dict, checks: list[Check]) -> str:
         "## Level 1: functional (compliant with the specifications)",
         "",
         f"Compliant: {ok['compliant'].mean():.1%} of all cases, "
-        f"{ok.loc[ok['kind'] == 'healthy', 'compliant'].mean():.1%} of the healthy ones.",
+        f"{ok.loc[ok['fault_id'] == 'healthy', 'compliant'].mean():.1%} of the healthy ones.",
         "",
-        table(ok.groupby("kind")["compliant"].agg(cases="size", compliant="mean")),
+        table(ok.groupby("fault_type")["compliant"].agg(cases="size", compliant="mean")),
         "",
         "Parametric faults by magnitude:",
         "",
         table(
-            ok[ok["kind"] == "parametric"]
-            .groupby("level")["compliant"]
+            ok[ok["fault_type"] == "parametric"]
+            .groupby("fault_magnitude")["compliant"]
             .agg(cases="size", compliant="mean")
         ),
         "",
@@ -126,7 +138,7 @@ def build_report(df: pd.DataFrame, cfg: dict, checks: list[Check]) -> str:
         "",
         table(
             ok[~ok["compliant"]]
-            .groupby("target")
+            .groupby("component")
             .size()
             .describe()[["count", "min", "50%", "max"]]
             .rename({"count": "components", "50%": "median"})
@@ -137,7 +149,7 @@ def build_report(df: pd.DataFrame, cfg: dict, checks: list[Check]) -> str:
         "## Level 3: origin",
         "",
         table(
-            pd.crosstab(ok["origin"], ok["compliant"]).rename(
+            pd.crosstab(ok["origin"].replace("", "none"), ok["compliant"]).rename(
                 columns={True: "compliant cases", False: "non-compliant cases"}
             ),
         ),
@@ -147,7 +159,7 @@ def build_report(df: pd.DataFrame, cfg: dict, checks: list[Check]) -> str:
         "Healthy cases: gain measured in service at 10 Hz over the nominal gain.",
         "",
         table(
-            (ok.loc[ok["kind"] == "healthy"].assign(ratio=lambda d: d["acd_mag_10"] / gain))
+            (ok.loc[ok["fault_id"] == "healthy"].assign(ratio=lambda d: d["acd_mag_10"] / gain))
             .groupby("electrode_kind")["ratio"]
             .agg(cases="size", min="min", median="median", max="max")
         ),
@@ -169,8 +181,8 @@ def main() -> None:
     parser.add_argument("--data", required=True, help="dataset folder (one circuit)")
     args = parser.parse_args()
 
-    df, waveforms, cfg = load_dataset(args.data, drop_failed=False)
-    checks = integrity_checks(df, waveforms, cfg)
+    df, waveforms, cfg = load_cases(args.data, drop_failed=False)
+    checks = integrity_checks(args.data, df, waveforms, cfg)
     report = build_report(df, cfg, checks)
     out = Path(args.data) / "report.md"
     out.write_text(report)

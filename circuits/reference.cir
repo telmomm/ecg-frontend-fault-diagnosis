@@ -1,0 +1,100 @@
+* ECG front-end, reference circuit: discrete three-op-amp amplifier, +-5 V supply
+* Nominal circuit of the study (docs/circuit.md). Every stimulus is off; the operating
+* conditions of ecgfd (service, bench) set them.
+
+* Single-pole behavioural op-amp: offset, white input noise, finite Aol and GBW, output
+* clamped `hr` volts from the rails (clamping the gain node avoids windup).
+.subckt opamp inp inn out vcc vee aol=2e5 gbw=3e6 vos=0 rout=50 en=18n hr=1.5
+Vos p1 inp dc {vos}
+Rn nz 0 {en*en/1.65763e-20}
+En p1 p2 nz 0 1
+Rin p2 inn 1e12
+Gm 0 n1 p2 inn 1m
+R1 n1 0 {aol*1k}
+C1 n1 0 {1m/(6.283185307*gbw)}
+Bcl n1 0 I = v(n1) > v(vcc)-{hr} ? v(n1)-v(vcc)+{hr} :
++ (v(n1) < v(vee)+{hr} ? v(n1)-v(vee)-{hr} : 0)
+Eo n2 0 n1 0 1
+Ro n2 out {rout}
+.ends opamp
+
+* Supplies
+Vcc vcc 0 dc 5.0
+Vee vee 0 dc -5.0
+
+* Patient and mains coupling (Winter and Webster); node 0 is the isolated amplifier common
+Vmains mains earth dc 0 ac 0 sin(0 0.0 50.0)
+Cpow mains body 2e-12
+Cbody body earth 2e-10
+Ciso earth 0 2e-10
+Riso earth 0 1000000000.0
+* ECG source in the body, split in two halves (lead I = LA - RA)
+Vecgp body_la body dc 0 ac 0 pulse(0 0.0 0.1 0.0001 0.0001 0.2 1e3)
+Vecgn body body_ra dc 0 ac 0 pulse(0 0.0 0.1 0.0001 0.0001 0.2 1e3)
+
+* Skin-electrode interfaces: half-cell potential, Rs, Rd || Cd
+Vhc_la body_la la_a dc 0.222
+Rs_la la_a la_b 1000.0
+Rd_la la_b lead_la 51000.0
+Cd_la la_b lead_la 4.7e-08
+Vhc_ra body_ra ra_a dc 0.222
+Rs_ra ra_a ra_b 1000.0
+Rd_ra ra_b lead_ra 51000.0
+Cd_ra ra_b lead_ra 4.7e-08
+Vhc_rl body rl_a dc 0.222
+Rs_rl rl_a rl_b 1000.0
+Rd_rl rl_b lead_rl 51000.0
+Cd_rl rl_b lead_rl 4.7e-08
+
+* Internal test sources: calibration pulse, RLD reference, lead-off current
+Vcal cal_la lead_la dc 0 ac 0 pulse(0 0.0 0.1 0.0001 0.0001 0.2 1e3)
+Vcmt cmref 0 dc 0 ac 0
+Ilo inn inp dc 0 ac 0
+
+* Input network
+R1 cal_la inp 10000.0
+R2 lead_ra inn 10000.0
+R3 inp 0 10000000.0
+R4 inn 0 10000000.0
+C1 inp 0 1e-09
+C2 inn 0 1e-09
+
+* Instrumentation amplifier
+R5 o1 fb1 22000.0
+R6 o2 fb2 22000.0
+R7 fb1 fb2 4700.0
+R8 o2 dn 10000.0
+R9 dn ina_out 10000.0
+R10 o1 dp 10000.0
+R11 dp 0 10000.0
+
+* Driven right leg
+R12 o1 cm 22000.0
+R13 o2 cm 22000.0
+R14 cm rld_out 10000000.0
+C3 cm rld_out 1e-08
+R15 rld_out lead_rl 100000.0
+
+* High-pass, 0.04 Hz
+C4 ina_out hp 1e-06
+R16 hp 0 3900000.0
+
+* Gain stage
+R17 gfb 0 1000.0
+R18 gout gfb 39000.0
+
+* Sallen-Key low-pass, 185 Hz
+R19 gout sk1 10000.0
+R20 sk1 sk2 10000.0
+C5 sk1 out 1.2e-07
+C6 sk2 0 6.2e-08
+
+* Amplifiers
+XU1 inp fb1 o1 vcc vee opamp aol=200000.0 gbw=3000000.0 vos=0.0 rout=50.0 en=1.8e-08 hr=1.5
+XU2 inn fb2 o2 vcc vee opamp aol=200000.0 gbw=3000000.0 vos=0.0 rout=50.0 en=1.8e-08 hr=1.5
+XU3 dp dn ina_out vcc vee opamp aol=200000.0 gbw=3000000.0 vos=0.0 rout=50.0 en=1.8e-08 hr=1.5
+XU4 cmref cm rld_out vcc vee opamp aol=200000.0 gbw=3000000.0 vos=0.0 rout=50.0 en=1.8e-08 hr=1.5
+XU5 hp gfb gout vcc vee opamp aol=200000.0 gbw=3000000.0 vos=0.0 rout=50.0 en=1.8e-08 hr=1.5
+XU6 sk2 out out vcc vee opamp aol=200000.0 gbw=3000000.0 vos=0.0 rout=50.0 en=1.8e-08 hr=1.5
+
+.end
