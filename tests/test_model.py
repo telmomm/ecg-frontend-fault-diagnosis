@@ -12,8 +12,8 @@ from spicefault.experiments import sample_stream
 from ecgfd.circuit import ELECTRODES, front_end, load_circuit, population
 from ecgfd.config import REPO_ROOT, load_config
 from ecgfd.evaluation import centroid_separability, escape_rate, false_reject_rate
-from ecgfd.faults import fault_catalogue
-from ecgfd.specs import SPEC_NAMES, compliance, spec_limits
+from ecgfd.faults import fault_catalogue, fault_universe
+from ecgfd.specs import SPEC_NAMES, compliance, specifications
 
 
 @pytest.fixture(scope="module")
@@ -77,6 +77,15 @@ def test_catalogue_covers_circuit_and_electrodes(circuit, cfg):
     passives, opamps, inas = front_end(circuit)
     located = {fault.tags["component"] for fault in faults if fault.tags["origin"] == "circuit"}
     assert located == {*passives, *(name[1:] for name in opamps + inas)}
+    # every fault but the balanced electrode pair comes from a rule of the universe
+    universe = fault_universe(circuit, cfg)
+    assert universe.coverage() == 1.0
+    assert len(faults) == len(universe) + len(cfg["faults"]["electrode"]["high_z_factor"])
+    assert universe.coverage_matrix().loc["R1", ["open", "short", "parametric"]].tolist() == [
+        1,
+        1,
+        len(cfg["faults"]["parametric"]),
+    ]
 
 
 def test_faults_are_injected_into_a_copy(circuit, cfg):
@@ -109,15 +118,14 @@ def test_faults_are_injected_into_a_copy(circuit, cfg):
 
 
 def test_compliance_labels(cfg):
-    limits = spec_limits(cfg)
-    assert set(limits) == set(SPEC_NAMES)
-    # a value exactly at its limit passes
-    at_limit = {f"spec_{name}": limit for name, (_, limit) in limits.items()}
-    bad = dict(at_limit, spec_resp_min_hf=limits["resp_min_hf"][1] - 0.1, spec_noise_uvpp=np.nan)
-    labels = compliance(pd.DataFrame([at_limit, bad]), cfg)
+    limits = {s.name: s.maximum if s.minimum is None else s.minimum for s in specifications(cfg)}
+    assert tuple(limits) == SPEC_NAMES
+    # a value exactly at its limit passes; one that could not be computed does not
+    bad = dict(limits, spec_resp_min_hf=limits["spec_resp_min_hf"] - 0.1, spec_noise_uvpp=np.nan)
+    labels = compliance(pd.DataFrame([limits, bad]), cfg)
     assert labels["compliant"].tolist() == [True, False]
-    assert labels["violated"].tolist() == ["", "resp_min_hf,noise_uvpp"]
-    assert labels["ok_gain_error"].all() and not labels["ok_resp_min_hf"][1]
+    failed = labels.columns[~labels.iloc[1]].tolist()
+    assert failed == ["ok_spec_resp_min_hf", "ok_spec_noise_uvpp", "compliant"]
 
 
 def test_decision_rates():

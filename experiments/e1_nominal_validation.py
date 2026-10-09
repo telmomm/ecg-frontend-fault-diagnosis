@@ -19,16 +19,14 @@ from spicefault import SimulationConfig, Simulator
 from _common import SERIES, parser, results_dir, save_json, set_style
 from ecgfd.circuit import load_circuit
 from ecgfd.config import load_config
-from ecgfd.dataset import experiment, observe
+from ecgfd.dataset import experiment
 from ecgfd.selftest import AC_DIFF, OUT, pulse_waveform
 from ecgfd.signals import synthetic_ecg
-from ecgfd.specs import SPEC_NAMES, compliance, spec_limits, with_nominal_gain
+from ecgfd.specs import SPEC_NAMES, compliance, specifications, with_nominal_gain
 
 
-def specs_table(samples: list[dict]) -> pd.DataFrame:
-    """Specification values (columns named as the specifications) and their labels."""
-    specs = pd.DataFrame(samples)[[f"spec_{name}" for name in SPEC_NAMES]]
-    return specs.rename(columns=lambda c: c.removeprefix("spec_")), specs
+def short(name: str) -> str:
+    return name.removeprefix("spec_")
 
 
 def ecg_response(circuit, t: np.ndarray, v: np.ndarray):
@@ -53,39 +51,39 @@ def main() -> None:
     waveform = pulse_waveform(cfg)
 
     # --- nominal circuit --------------------------------------------------------
-    observed = observe(cfg)
-    in_service = observed["service"]["result"]
+    observed = experiment(cfg, healthy_only=True).nominal()
+    in_service = observed["service"].result
     freq, h_diff = in_service.plot(AC_DIFF)["frequency"].real, in_service.plot(AC_DIFF)["v(out)"]
-    nominal, nominal_specs = specs_table([observed["bench"]])
-    nominal = nominal.iloc[0]
+    nominal = pd.DataFrame([observed["bench"].measurements])
 
     # --- Monte Carlo, healthy ---------------------------------------------------
     samples = experiment(cfg, healthy_only=True, healthy_samples=args.n_mc).run(args.jobs).samples
     service, bench = samples[0::2], samples[1::2]  # two conditions per drawn circuit
-    mc, mc_specs = specs_table([s.measurements for s in bench])
-    mc = pd.concat([mc, compliance(mc_specs, cfg)], axis=1)
+    mc = pd.DataFrame([s.measurements for s in bench])[list(SPEC_NAMES)]
+    mc = pd.concat([mc, compliance(mc, cfg)], axis=1)
     mc["electrode_type"] = [s.labels["electrode_type"] for s in bench]
     mags = np.array([np.abs(s.result.plot(AC_DIFF)["v(out)"]) for s in service])
     pulses = np.array([waveform(s.result) for s in service])
     mc.to_csv(out / "monte_carlo.csv", index=False)
 
-    limits = spec_limits(cfg)
-    names = list(limits)
+    limits = specifications(cfg)
     summary = pd.DataFrame(
         {
-            "limit": {name: f"{sense} {limit:g}" for name, (sense, limit) in limits.items()},
-            "nominal": nominal,
-            "mc_min": mc[names].min(),
-            "mc_median": mc[names].median(),
-            "mc_max": mc[names].max(),
-            "mc_pass_rate": mc[[f"ok_{name}" for name in names]].mean().set_axis(names),
-        }
+            "limit": [f"max {s.maximum:g}" if s.minimum is None else f"min {s.minimum:g}"
+                      for s in limits],
+            "nominal": nominal[list(SPEC_NAMES)].iloc[0].to_numpy(),
+            "mc_min": mc[list(SPEC_NAMES)].min().to_numpy(),
+            "mc_median": mc[list(SPEC_NAMES)].median().to_numpy(),
+            "mc_max": mc[list(SPEC_NAMES)].max().to_numpy(),
+            "mc_pass_rate": mc[[s.column for s in limits]].mean().to_numpy(),
+        },
+        index=[short(name) for name in SPEC_NAMES],
     )
     summary.to_csv(out / "summary.csv")
     verdict = {
         "circuit": cfg["circuit"],
         "nominal_gain": cfg["specs"]["nominal_gain"],
-        "nominal_compliant": bool(compliance(nominal_specs, cfg)["compliant"].iloc[0]),
+        "nominal_compliant": bool(compliance(nominal, cfg)["compliant"].iloc[0]),
         "n_mc": args.n_mc,
         "mc_yield": float(mc["compliant"].mean()),
     }

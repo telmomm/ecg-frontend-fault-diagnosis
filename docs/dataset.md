@@ -19,10 +19,10 @@ One folder per circuit (`integrated`, `reference`), each a `spicefault` dataset:
 | File | Content |
 |---|---|
 | `samples.parquet` | two rows per simulated case, one per operating condition |
-| `waveforms.npy` | float32 array `[rows, 1000]`: transient at the output, 1 s at 1 kHz, row-aligned with the table. In the `service` rows it is the response to the 1 mV calibration pulse |
+| `waveforms.npy` | float32 array `[rows, 1000]`, row-aligned with the table: in the `service` rows, the response to the 1 mV calibration pulse, 1 s at 1 kHz; the `bench` rows hold NaN |
 | `circuit.cir` | nominal netlist of the circuit |
 | `metadata.json` | definition of the campaign: seed, faults, variations, conditions, analyses, measurements |
-| `manifest.json` | fingerprints of the files, software versions, counts, history of the labels and, under `user`, the study configuration and the git commit |
+| `manifest.json` | fingerprints of the files, software versions, counts, the specification limits and the history of the labels; under `source`, the git commit of this repository, and under `user`, the study configuration |
 | `report.md` | integrity checks and class balance of that release |
 
 Each case is one circuit realisation: a healthy circuit drawn within manufacturing
@@ -32,8 +32,8 @@ cases and 200 cases for each fault (293 faults for `integrated`, 307 for `refere
 
 A case is simulated under two operating conditions, and each gives a row: `service`
 (patient's electrodes, self-test measurements) and `bench` (IEC 60601-2-25 test
-networks, specifications). `ecgfd.dataset.load_cases` joins them into one row per
-case, with the pulse responses.
+networks, specifications). `ecgfd.dataset.load_cases` (`spicefault.Dataset.cases`)
+returns one row per case, with the pulse responses.
 
 ### Columns of `samples.parquet`
 
@@ -45,7 +45,7 @@ case, with the pulse responses.
 | `fault_id`, `fault_type`, `fault_location`, `fault_magnitude`, `fault_severity` | what was injected (`healthy` if nothing): identifier, type, netlist elements, magnitude. The full record of each fault is in `metadata.json` |
 | `component` | level 2: component to locate (designator, or electrode) |
 | `origin` | level 3: `circuit` or `electrode`; empty for healthy cases |
-| `compliant`, `violated`, `ok_<spec>` | level 1: the circuit meets every specification; which ones fail (the same in both rows of a case) |
+| `compliant`, `violated`, `ok_spec_<spec>` | level 1: the circuit meets every specification; which ones fail (the same in both rows of a case). Written by `spicefault.Dataset.label` from the limits kept in the manifest |
 | `spec_<spec>` | `bench` rows: continuous value of each specification (see docs/circuit.md) |
 | `electrode_type`, `electrode_kind` | electrode family and type of the case |
 | `p_<element>_<parameter>` | value drawn for every component, amplifier and electrode parameter, before the fault |

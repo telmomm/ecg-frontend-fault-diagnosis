@@ -26,6 +26,7 @@ from spicefault.variation import (
     Draw,
     JointVariation,
     ToleranceVariation,
+    instance_tolerances,
     log_uniform_factor,
     tolerances,
 )
@@ -48,8 +49,7 @@ def front_end(circuit: Circuit) -> tuple[list[str], list[str], list[str]]:
     """
     components = circuit.components()
     passives = [c.name for c in components if re.fullmatch(r"[RC]\d+", c.name)]
-    inas = [c.name for c in components if c.kind == "X" and "rfb" in c.parameters]
-    opamps = [c.name for c in components if c.kind == "X" and c.name not in inas]
+    opamps, inas = ([c.name for c in components if c.model == model] for model in ("opamp", "ina"))
     return passives, opamps, inas
 
 
@@ -87,15 +87,13 @@ def population(circuit: Circuit, cfg: dict) -> VariationSet:
     """Healthy circuits and electrodes. The draw order is fixed, so a seed defines a circuit."""
     tol = cfg["tolerances"]
     dist = tol["distribution"]
-    passives, opamps, inas = front_end(circuit)
+    passives, _, inas = front_end(circuit)
     by_kind = {"R": float(tol["resistor"]), "C": float(tol["capacitor"])}
-    variations = list(tolerances(circuit, by_kind, dist, tol.get("overrides"), passives))
-    for name in opamps:
-        o = cfg["opamp"]
-        variations += [
-            ToleranceVariation(name, float(o["vos_max"]), dist, "vos", relative=False),
-            ToleranceVariation(name, float(o["aol_rel"]), dist, "aol"),
-        ]
+    opamp = {"vos": (cfg["opamp"]["vos_max"], "absolute"), "aol": cfg["opamp"]["aol_rel"]}
+    variations = [
+        *tolerances(circuit, by_kind, dist, tol.get("overrides"), passives),
+        *instance_tolerances(circuit, "opamp", opamp, dist),
+    ]
     for name in inas:
         a = cfg["ina"]
         variations += [

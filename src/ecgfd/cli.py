@@ -6,12 +6,11 @@ import argparse
 import os
 from collections import Counter
 
-import pandas as pd
-
 from .circuit import CIRCUITS, load_circuit
 from .config import DEFAULT_CONFIG, load_config
-from .dataset import experiment, generate, label, observe
-from .specs import compliance, spec_limits, with_nominal_gain
+from .dataset import experiment, generate, relabel
+from .faults import fault_universe
+from .specs import specifications, with_nominal_gain
 
 
 def _cmd_netlist(cfg: dict, args: argparse.Namespace) -> None:
@@ -20,17 +19,16 @@ def _cmd_netlist(cfg: dict, args: argparse.Namespace) -> None:
 
 def _cmd_nominal(cfg: dict, args: argparse.Namespace) -> None:
     cfg = with_nominal_gain(load_circuit(cfg), cfg)
-    nominal = observe(cfg)
+    nominal = experiment(cfg, healthy_only=True).nominal()
     print("self-test features (noise-free)")
-    for name, value in nominal["service"].items():
-        if name != "result":
-            print(f"  {name:18s} {value: .6g}")
-    specs = nominal["bench"]
-    labels = compliance(pd.DataFrame([specs]), cfg).iloc[0]
+    for name, value in nominal["service"].measurements.items():
+        print(f"  {name:18s} {value: .6g}")
+    specs = nominal["bench"].measurements
     print(f"specifications (nominal gain {cfg['specs']['nominal_gain']:.4g})")
-    for name, (sense, limit) in spec_limits(cfg).items():
-        verdict = "ok" if labels[f"ok_{name}"] else "FAIL"
-        print(f"  {name:18s} {specs[f'spec_{name}']: .6g}  ({sense} {limit:g})  {verdict}")
+    for spec in specifications(cfg):
+        limit = f"max {spec.maximum:g}" if spec.minimum is None else f"min {spec.minimum:g}"
+        name, value = spec.name.removeprefix("spec_"), specs[spec.name]
+        print(f"  {name:18s} {value: .6g}  ({limit})  {'ok' if spec.met(value) else 'FAIL'}")
 
 
 def _cmd_faults(cfg: dict, args: argparse.Namespace) -> None:
@@ -38,6 +36,9 @@ def _cmd_faults(cfg: dict, args: argparse.Namespace) -> None:
     if args.list:
         for fault in study.faults:
             print(fault.fault_id)
+    if args.coverage:  # faults per component and type; the balanced electrode pair is apart
+        matrix = fault_universe(study.circuit, cfg).coverage_matrix()
+        print(matrix.fillna(0).astype(int).to_string())
     for kind, n in Counter(fault.fault_type for fault in study.faults).items():
         print(f"{kind:18s} {n}")
     print(f"{'faults':18s} {len(study.faults)} (+ healthy)")
@@ -50,7 +51,7 @@ def _cmd_generate(cfg: dict, args: argparse.Namespace) -> None:
 
 
 def _cmd_relabel(cfg: dict, args: argparse.Namespace) -> None:
-    cases = label(args.data, cfg["specs"])
+    cases = relabel(args.data, cfg["specs"])
     print(f"{int(cases['compliant'].sum())} of {len(cases)} cases compliant with the new limits")
 
 
@@ -65,6 +66,7 @@ def main(argv: list[str] | None = None) -> None:
 
     p = sub.add_parser("faults", help="summarise the fault catalogue")
     p.add_argument("--list", action="store_true", help="print every fault id")
+    p.add_argument("--coverage", action="store_true", help="print components x fault types")
     p.set_defaults(func=_cmd_faults)
 
     p = sub.add_parser("generate", help="simulate the dataset of one circuit")

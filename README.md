@@ -17,7 +17,7 @@ is the cause? Is the problem in the circuit or in the electrodes?
 | Phase of the plan | State |
 |---|---|
 | 2. Circuits and specifications | Closed: INA333-based main circuit and discrete reference circuit, specifications from IEC 60601-2-25, both pass E1. Limits checked against the text of the standard; the open design decision on porous dry electrodes is in docs/pendientes.md |
-| 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests. Since October 2026 it runs on `spicefault` 0.2, the library extracted from it |
+| 3. Simulation pipeline | Closed: netlists, fault injection, Monte Carlo, specifications, features C1–C4, parallel and resumable generation, relabelling, tests. Since October 2026 it runs on `spicefault` 0.3, the library extracted from it |
 | 4. Dataset | Closed: `data/v1` generated (63,600 + 66,400 cases, no failed simulation), checked with `make report`, datasheet in docs/dataset.md |
 | 5. Testability (E2, E9) | Closed: run on `data/v1` (`make testability`); results summarised in the plan |
 | 6. Models (E3–E6) | Untuned baselines that run end to end |
@@ -80,7 +80,7 @@ diagnosability.
 | `circuits/` | Nominal netlist of each circuit, with the behavioural amplifier models |
 | `configs/` | Study configuration: tolerances, electrodes, specification limits, fault levels, measurements, dataset size |
 | `src/ecgfd/circuit.py` | Loading of the circuits and normal variation of healthy circuits and electrodes |
-| `src/ecgfd/faults.py` | Fault catalogue |
+| `src/ecgfd/faults.py` | Fault catalogue, as rules over the components (`ecgfd faults --coverage`) |
 | `src/ecgfd/selftest.py` | Circuit in service: DC, AC, lead-off current and calibration-pulse measurements |
 | `src/ecgfd/specs.py` | Circuit on the IEC 60601-2-25 test bench: specifications and compliance labels |
 | `src/ecgfd/dataset.py` | The study as one experiment; dataset generation, labelling and loading |
@@ -113,7 +113,7 @@ record. This repository defines what is specific to the study and hands it over 
 5. The noise-free results go to `samples.parquet` (two rows per case, one per
    condition) and `waveforms.npy`. `metadata.json` and `circuit.cir` define the
    campaign, and `manifest.json` keeps the fingerprints of the files, the software
-   versions and the study configuration. `ecgfd.dataset.load_cases` returns one row
+   versions, the git commit, the specification limits and the study configuration. `ecgfd.dataset.load_cases` returns one row
    per case.
 6. Measurement noise and ADC quantisation are applied when the features are loaded for
    an experiment, so they are study parameters.

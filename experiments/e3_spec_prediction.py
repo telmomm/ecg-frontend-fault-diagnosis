@@ -20,17 +20,18 @@ from spicefault.reliability import bootstrap_interval
 from _common import load_measured, parser, results_dir
 from ecgfd.evaluation import decision_report, escape_rate
 from ecgfd.features import feature_sets
-from ecgfd.specs import spec_limits
+from ecgfd.specs import specifications
 
 CLIP = 3.0  # targets are clipped at CLIP x limit, and min specs also at limit / CLIP
 
 
-def clipped_target(values: pd.Series, sense: str, limit: float) -> np.ndarray:
+def clipped_target(values: pd.Series, upper: bool, limit: float) -> np.ndarray:
     """Bound the regression target: far beyond the limit, only "fails badly" matters.
 
-    Specifications that could not be computed (NaN, dead circuit) take the worst value.
+    `upper` says that the limit is a maximum. Specifications that could not be
+    computed (NaN, dead circuit) take the worst value.
     """
-    if sense == "max":
+    if upper:
         return values.fillna(np.inf).clip(upper=CLIP * limit).to_numpy()
     return values.fillna(-np.inf).clip(lower=limit / CLIP, upper=CLIP * limit).to_numpy()
 
@@ -41,19 +42,22 @@ def main() -> None:
     out = results_dir("e3", cfg["circuit"], args)
     seed = int(cfg["seed"])
     train, test = split_by_replica(measured, test_fraction=0.3, seed=seed)
-    limits = spec_limits(cfg)
+    limits = specifications(cfg)
     is_bad = ~measured["compliant"].to_numpy(dtype=bool)
 
     errors, decisions = [], []
     for set_name, features in feature_sets(cfg).items():
         x = measured[features].to_numpy()
         pred_bad = np.zeros(len(test), dtype=bool)
-        for name, (sense, limit) in limits.items():
-            y = clipped_target(measured[f"spec_{name}"], sense, limit)
+        for spec in limits:
+            upper = spec.minimum is None
+            limit = spec.maximum if upper else spec.minimum
+            y = clipped_target(measured[spec.name], upper, limit)
             model = HistGradientBoostingRegressor(random_state=seed).fit(x[train], y[train])
             pred = model.predict(x[test])
-            pred_bad |= pred > limit if sense == "max" else pred < limit
+            pred_bad |= pred > limit if upper else pred < limit
             rmse = float(np.sqrt(np.mean((pred - y[test]) ** 2)))
+            name = spec.name.removeprefix("spec_")
             errors.append({"feature_set": set_name, "spec": name, "rmse_over_limit": rmse / limit})
 
         direct = HistGradientBoostingClassifier(random_state=seed).fit(x[train], is_bad[train])

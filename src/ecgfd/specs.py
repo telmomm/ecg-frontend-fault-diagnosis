@@ -34,30 +34,31 @@ import numpy as np
 import pandas as pd
 from spicefault import (
     Circuit,
+    Experiment,
     Measurement,
     OperatingCondition,
     SimulationConfig,
     SimulationResult,
-    Simulator,
+    Specification,
 )
 from spicefault.measurements import interp_response
 
 from .circuit import ELECTRODES
 from .selftest import OUT, ac_sweep
 
-# specification -> (sense of the limit, key of the limit under `specs:` in the config)
+# specification -> (which bound is limited, key of the limit under `specs:` in the config)
 SPECS: dict[str, tuple[str, str]] = {
-    "gain_error": ("max", "gain_error_max"),
-    "resp_dev_lf": ("max", "resp_dev_lf_max"),
-    "resp_min_hf": ("min", "resp_min_hf_min"),
-    "resp_max_hf": ("max", "resp_max_hf_max"),
-    "impulse_offset_uv": ("max", "impulse_offset_max_uv"),
-    "impulse_slope_uvs": ("max", "impulse_slope_max_uvs"),
-    "cmrr_db": ("min", "cmrr_min_db"),
-    "noise_uvpp": ("max", "noise_max_uvpp"),
-    "zin_drop": ("max", "zin_drop_max"),
-    "offset_gain_error": ("max", "offset_gain_error_max"),
-    "input_range_mv": ("min", "input_range_min_mv"),
+    "spec_gain_error": ("maximum", "gain_error_max"),
+    "spec_resp_dev_lf": ("maximum", "resp_dev_lf_max"),
+    "spec_resp_min_hf": ("minimum", "resp_min_hf_min"),
+    "spec_resp_max_hf": ("maximum", "resp_max_hf_max"),
+    "spec_impulse_offset_uv": ("maximum", "impulse_offset_max_uv"),
+    "spec_impulse_slope_uvs": ("maximum", "impulse_slope_max_uvs"),
+    "spec_cmrr_db": ("minimum", "cmrr_min_db"),
+    "spec_noise_uvpp": ("maximum", "noise_max_uvpp"),
+    "spec_zin_drop": ("maximum", "zin_drop_max"),
+    "spec_offset_gain_error": ("maximum", "offset_gain_error_max"),
+    "spec_input_range_mv": ("minimum", "input_range_min_mv"),
 }
 SPEC_NAMES = tuple(SPECS)
 
@@ -147,7 +148,7 @@ def _output_half_range(circuit: Circuit, cfg: dict) -> tuple[float, float]:
 
 @dataclass(frozen=True)
 class BenchSpecs:
-    """Turns the plots of the bench simulation into the specification values."""
+    """Turns the plots of the bench simulation into the specification values and the gain."""
 
     f_mains: tuple[float, ...]
     f_zin: tuple[float, ...]
@@ -188,37 +189,20 @@ class BenchSpecs:
         out_offset = abs(float(op["v(out)"][0].real) - self.mid)
         return {
             "gain": float(gain),
-            "gain_error": abs(float(gain) / self.nominal_gain - 1.0),
-            "resp_dev_lf": float(np.max(np.abs(ratio[lf] - 1.0))),
-            "resp_min_hf": float(ratio[hf_min].min()),
-            "resp_max_hf": float(ratio[hf_max].max()),
-            "impulse_offset_uv": float(1e6 * abs(v1 - v0) / safe_gain),
-            "impulse_slope_uvs": float(1e6 * abs(v2 - v1) / (_T_END - t_read) / safe_gain),
-            "cmrr_db": float(20 * np.log10(self.cm_unloaded / max(cm_in, 1e-12))),
-            "noise_uvpp": 6.6e6 * noise_rms / safe_gain,
-            "zin_drop": zin_drop,
-            "offset_gain_error": float(
+            "spec_gain_error": abs(float(gain) / self.nominal_gain - 1.0),
+            "spec_resp_dev_lf": float(np.max(np.abs(ratio[lf] - 1.0))),
+            "spec_resp_min_hf": float(ratio[hf_min].min()),
+            "spec_resp_max_hf": float(ratio[hf_max].max()),
+            "spec_impulse_offset_uv": float(1e6 * abs(v1 - v0) / safe_gain),
+            "spec_impulse_slope_uvs": float(1e6 * abs(v2 - v1) / (_T_END - t_read) / safe_gain),
+            "spec_cmrr_db": float(20 * np.log10(self.cm_unloaded / max(cm_in, 1e-12))),
+            "spec_noise_uvpp": 6.6e6 * noise_rms / safe_gain,
+            "spec_zin_drop": zin_drop,
+            "spec_offset_gain_error": float(
                 max(abs(abs(p["v(out)"][0]) / safe_gain - 1.0) for p in (ac_pos, ac_neg))
             ),
-            "input_range_mv": float(1e3 * (self.half_range - out_offset) / safe_gain),
+            "spec_input_range_mv": float(1e3 * (self.half_range - out_offset) / safe_gain),
         }
-
-
-@dataclass(frozen=True)
-class Spec:
-    """One specification of the bench simulation, as a measurement function."""
-
-    name: str
-    specs: BenchSpecs
-
-    def __call__(self, result: SimulationResult) -> float:
-        global _LAST
-        if _LAST[0] is not result:  # the specifications share one evaluation per simulation
-            _LAST = (result, self.specs(result))
-        return _LAST[1][self.name]
-
-
-_LAST: tuple = (None, {})
 
 
 def bench(circuit: Circuit, cfg: dict) -> OperatingCondition:
@@ -239,9 +223,8 @@ def bench(circuit: Circuit, cfg: dict) -> OperatingCondition:
         "bench",
         settings=_settings(cfg),
         config=SimulationConfig(analyses=_analyses(cfg)),
-        measurements=tuple(
-            Measurement.custom_result(f"spec_{name}", Spec(name, specs)) for name in SPEC_NAMES
-        ),
+        measurements=(Measurement.group(SPEC_NAMES, specs, "specifications"),),
+        waveform=False,  # its transient is a step of the impulse test, not a response to keep
     )
 
 
@@ -250,34 +233,26 @@ def with_nominal_gain(circuit: Circuit, cfg: dict) -> dict:
     if "nominal_gain" in cfg["specs"]:
         return cfg
     condition = bench(circuit, {**cfg, "specs": {**cfg["specs"], "nominal_gain": 1.0}})
-    netlist = circuit.netlist()
-    condition.apply(netlist)
-    result = Simulator().run(netlist, condition.config)
-    if not result.ok:
-        raise RuntimeError(f"nominal circuit: {result.status.value}: {result.message}")
-    gain = condition.measurements[0].function.specs(result)["gain"]
+    nominal = Experiment(circuit, conditions=(condition,)).nominal()["bench"].result
+    if not nominal.ok:
+        raise RuntimeError(f"nominal circuit: {nominal.status.value}: {nominal.message}")
+    gain = condition.measurements[0].function(nominal)["gain"]
     return {**cfg, "specs": {**cfg["specs"], "nominal_gain": gain}}
 
 
-def spec_limits(cfg: dict) -> dict[str, tuple[str, float]]:
-    """Specification -> ("max" | "min", limit)."""
-    return {name: (sense, float(cfg["specs"][key])) for name, (sense, key) in SPECS.items()}
+def specifications(cfg: dict) -> list[Specification]:
+    """The limits of the configuration, as `spicefault` specifications."""
+    return [
+        Specification(name, **{bound: float(cfg["specs"][key])})
+        for name, (bound, key) in SPECS.items()
+    ]
 
 
 def compliance(specs: pd.DataFrame, cfg: dict) -> pd.DataFrame:
-    """Functional label of each row of `spec_<name>` values: `ok_<name>`, `compliant`
-    and the violated specifications, joined by commas.
+    """Which specifications each row of `spec_<name>` values meets (`ok_spec_<name>`), and
+    `compliant` if it meets all. A value that cannot be computed (NaN) is a violation.
 
-    A value that cannot be computed (NaN) counts as a violation.
+    For circuits simulated in memory; a dataset is labelled by `spicefault.Dataset.label`.
     """
-    ok = pd.DataFrame(
-        {
-            name: (value <= limit) if sense == "max" else (value >= limit)
-            for name, (sense, limit) in spec_limits(cfg).items()
-            for value in [specs[f"spec_{name}"]]
-        }
-    )
-    labels = ok.add_prefix("ok_")
-    labels["compliant"] = ok.all(axis=1)
-    labels["violated"] = [",".join(ok.columns[~row]) for row in ok.to_numpy()]
-    return labels
+    ok = pd.DataFrame({s.column: s.met(specs[s.name]) for s in specifications(cfg)})
+    return ok.assign(compliant=ok.all(axis=1))

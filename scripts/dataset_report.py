@@ -24,26 +24,21 @@ from ecgfd.specs import SPEC_NAMES
 
 MAX_FAILED_FRACTION = 0.01
 N_REPRODUCED = 6
-# spicefault 0.2.0 reports the measurements a row does not take (those of the other
-# operating condition) as missing; the gaps are checked here per condition instead
-NOT_A_PROBLEM = "a successful sample has a measurement that is not finite"
-
 Check = tuple[str, bool, str]  # (name, passed, detail)
 
 
 def integrity_checks(path: str, cases: pd.DataFrame, waveforms: np.ndarray, cfg: dict):
     """(check, passed, detail) for everything that must hold before using the dataset."""
     data, study = Dataset(path), experiment(cfg)
-    problems = [p for p in data.verify() if p != NOT_A_PROBLEM]
+    problems = data.verify()
     per_fault = cases["fault_id"].value_counts()
     size = cfg["dataset"]
     expected = pd.Series(int(size["n_per_fault"]), index=[f.fault_id for f in study.faults])
     expected = pd.concat([pd.Series({"healthy": int(size["n_healthy"])}), expected])
     ok = cases["sim_ok"].to_numpy(dtype=bool)
     raw_features = [c for c in cases.columns if c.startswith(("dc_", "acd_", "acc_", "zlo_"))]
-    spec_columns = [f"spec_{name}" for name in SPEC_NAMES]
     missing_features = int(cases.loc[ok, raw_features].isna().any(axis=1).sum())
-    missing_specs = int(cases.loc[ok, spec_columns].isna().any(axis=1).sum())
+    missing_specs = int(cases.loc[ok, list(SPEC_NAMES)].isna().any(axis=1).sum())
     failed = int((~ok).sum())
     again = data.reproduce(n=N_REPRODUCED, experiment=study)
     same = again[["definition", "parameters", "status"]].all(axis=None)
@@ -125,6 +120,7 @@ def build_report(df: pd.DataFrame, cfg: dict, checks: list[Check]) -> str:
         "",
         table(
             ok.loc[~ok["compliant"], "violated"]
+            .str.replace("spec_", "")
             .str.split(",")
             .explode()
             .value_counts()
