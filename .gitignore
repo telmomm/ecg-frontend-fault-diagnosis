@@ -15,6 +15,9 @@ data/*
 #!results/README.md
 #!results/openalex_results/
 
+# Where E5 was run (a local path), read by E9
+results/**/source.json
+
 # Vendor SPICE models (copyrighted; fetched by scripts/fetch_vendor_models.py)
 models/
 
